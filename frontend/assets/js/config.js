@@ -10,7 +10,7 @@ const FG_CONFIG = {
   })(),
 
   // Replace with your Google Maps API key (restrict it to your domain in Google Cloud Console)
-  GOOGLE_MAPS_API_KEY: 'YOUR_GOOGLE_MAPS_API_KEY',
+  GOOGLE_MAPS_API_KEY: 'AIzaSyA8DL6iCvkgVNCdKknc5G_qsQiAaiC6kwE',
 
   // Optional: client-side Firebase config (if you want the frontend to read Firestore directly)
   // Replace with your Firebase web SDK config object or leave `null` to rely on server-side Firebase Admin SDK.

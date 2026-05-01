@@ -3,26 +3,36 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FloodGuard — Rescue Dashboard</title>
+  <title>FloodGuard — Rescue Control</title>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <style>#map{height:80vh;border:1px solid #ccc}</style>
 </head>
 <body>
+  <div class="bg-animation">
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+
   <header class="site-header">
     <nav class="nav">
-      <a href="index.html">Home</a>
+      <a href="index.html">Dashboard</a>
       <a href="synopsis.html">Synopsis</a>
       <a href="diagrams.html">Diagrams</a>
       <a href="map.html">Safe Routes</a>
-      <a href="rescue.html">Rescue Dashboard</a>
+      <a href="rescue.html" class="active">Rescue</a>
     </nav>
   </header>
 
   <main class="container">
-    <h1>Rescue Dashboard</h1>
-    <p>Displays live shared locations from users (demo). Connects to the same WebSocket used by the app.</p>
-    <div id="map"></div>
+    <section class="hero">
+        <h1>Rescue Control Center</h1>
+        <p class="tagline">REAL-TIME MONITORING OF EMERGENCY SOS SIGNALS</p>
+    </section>
+
+    <div class="card">
+        <div id="map"></div>
+    </div>
   </main>
+
   <script src="assets/js/config.js"></script>
   <script src="assets/js/firebase.js"></script>
   <script>
@@ -40,19 +50,38 @@
 
     function init(){
       loadGoogleMaps(()=>{
-        const map = new google.maps.Map(document.getElementById('map'), { center: {lat:20.0, lng:78.0}, zoom:5 });
+        const map = new google.maps.Map(document.getElementById('map'), { 
+            center: {lat:20.0, lng:78.0}, 
+            zoom:5,
+            styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
+            ]
+        });
         const markers = {};
 
         const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.hostname + ':5000/ws';
         const ws = new WebSocket(WS_URL);
+        
         ws.addEventListener('message', ev=>{
           try{
             const data = JSON.parse(ev.data);
             if(data.type === 'location'){
               const id = data.id || data.clientId || 'unknown';
               const lat = data.lat, lng = data.lng;
+              const isSOS = data.isSOS || false;
+              
               if(markers[id]) markers[id].setPosition({lat,lng});
-              else markers[id] = new google.maps.Marker({position:{lat,lng}, map, title:'User '+id});
+              else {
+                  markers[id] = new google.maps.Marker({
+                      position:{lat,lng}, 
+                      map, 
+                      title: (data.name || 'User') + ' ' + id,
+                      animation: isSOS ? google.maps.Animation.BOUNCE : null
+                  });
+              }
             }
           }catch(e){ }
         });
@@ -60,48 +89,6 @@
     }
 
     window.addEventListener('DOMContentLoaded', init);
-  </script>
-
-  <script>
-    /* Simple rescuer auth UI (shown when not signed in) */
-    (function(){
-      document.addEventListener('fg:firebase-ready', ()=>{
-        if(!window.FG_AUTH){ return; }
-        const loginForm = document.createElement('div');
-        loginForm.id = 'rescuerAuth';
-        loginForm.innerHTML = `
-          <div class="auth-card">
-            <h3>Rescuer Sign In</h3>
-            <input id="rescuerEmail" placeholder="Email" />
-            <input id="rescuerPass" type="password" placeholder="Password" />
-            <div class="auth-actions">
-              <button id="rescuerLoginBtn">Sign In</button>
-              <button id="rescuerSignOutBtn" hidden>Sign Out</button>
-            </div>
-          </div>`;
-        document.body.insertBefore(loginForm, document.querySelector('.container'));
-
-        const emailEl = document.getElementById('rescuerEmail');
-        const passEl = document.getElementById('rescuerPass');
-        const loginBtn = document.getElementById('rescuerLoginBtn');
-        const signOutBtn = document.getElementById('rescuerSignOutBtn');
-
-        loginBtn.addEventListener('click', ()=>{
-          const email = emailEl.value.trim(); const pass = passEl.value;
-          if(!email || !pass) return alert('Enter email and password');
-          FG_AUTH.signInWithEmailAndPassword(email, pass).then(()=>{
-            alert('Signed in');
-          }).catch(e=>{ alert('Sign-in error: '+e.message); });
-        });
-
-        signOutBtn.addEventListener('click', ()=>{ FG_AUTH.signOut(); });
-
-        FG_AUTH.onAuthStateChanged(u=>{
-          if(u){ loginForm.style.display='none'; document.querySelector('.container').style.display='block'; }
-          else { loginForm.style.display='block'; document.querySelector('.container').style.display='none'; }
-        });
-      });
-    })();
   </script>
 </body>
 </html>

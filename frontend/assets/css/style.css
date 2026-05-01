@@ -1,49 +1,312 @@
-/* Basic styles for FloodGuard demo site */
-:root{--bg:#0f1720;--card:#0b1420;--accent:#1b6ca8;--muted:#9aa6b2;--danger:#ff6b6b}
-body{font-family:Inter,Arial,Helvetica,sans-serif;margin:0;color:#e6eef6;background:var(--bg)}
-.site-header{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-bottom:1px solid rgba(255,255,255,0.04)}
-.nav{display:flex;gap:12px;padding:12px 18px;align-items:center}
-.nav a{color:var(--accent);text-decoration:none;font-weight:600}
-.container{max-width:980px;margin:20px auto;padding:0 16px}
-.hero{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border:1px solid rgba(255,255,255,0.04);border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
-.hero h1{margin:0 0 6px}
-.tagline{color:var(--muted);margin-top:0}
-.actions{margin:12px 0;display:flex;gap:8px;flex-wrap:wrap}
-button{padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;background:var(--accent);color:#fff;transition:transform .12s ease, box-shadow .12s ease}
-button:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(27,108,168,0.18)}
-button[hidden]{display:none}
-.status{color:var(--muted);margin-top:8px}
-pre{background:#071017;color:#bfe0ff;padding:10px;border-radius:6px}
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap');
 
-.card{background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);margin-top:12px}
-.sensor-panel .sensor-row{padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.025)}
-.sensor-panel h3{margin-top:0}
-.help-form{display:flex;gap:8px;margin-top:12px}
-.help-form input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#dbeefe}
-.help-form button{flex:0 0 auto}
-
-.alert-box{margin-top:10px}
-.alert-item{background:linear-gradient(90deg, rgba(255,107,107,0.12), rgba(255,107,107,0.06));padding:8px;border-radius:8px;border:1px solid rgba(255,107,107,0.08);color:var(--danger);font-weight:700}
-.pulse{animation:pulse 1.8s ease}
-@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
-
-.auth-card{position:fixed;left:12px;top:12px;z-index:200;background:var(--card);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
-.auth-card input{display:block;margin:8px 0;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:#dbeefe}
-.auth-actions{display:flex;gap:8px}
-
-/* Responsive layout */
-@media (max-width: 800px){
-  .container{margin:12px auto;padding:0 12px}
-  .nav{padding:8px}
-  .nav a{font-size:14px}
-  .hero{padding:14px}
+:root {
+    --primary: #00d2ff;
+    --secondary: #3a7bd5;
+    --danger: #ff4b2b;
+    --warning: #fbc02d;
+    --bg-dark: #0f172a;
+    --glass: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
 }
 
-@media (max-width: 600px){
-  .nav{flex-wrap:wrap;gap:6px}
-  .actions{flex-direction:column}
-  button{width:100%}
-  .container{padding:8px}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-@media print{ .nav, .actions { display:none } }
+body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-main);
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* --- Animated Background --- */
+.bg-animation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%);
+}
+
+.wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    background: url('https://cdn.pixabay.com/photo/2017/02/07/16/47/wave-2046397_1280.png');
+    background-size: 1000px 100px;
+    opacity: 0.1;
+    animation: wave-move 10s linear infinite;
+}
+
+.wave:nth-child(2) {
+    bottom: 10px;
+    opacity: 0.05;
+    animation: wave-move 15s linear infinite reverse;
+}
+
+@keyframes wave-move {
+    0% { background-position-x: 0; }
+    100% { background-position-x: 1000px; }
+}
+
+/* --- Navigation --- */
+.site-header {
+    padding: 1.5rem 2rem;
+    background: var(--glass);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--glass-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.nav a {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.nav a:hover, .nav a.active {
+    color: var(--primary);
+    text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+}
+
+/* --- Dashboard Layout --- */
+.container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.card {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 2rem;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 210, 255, 0.3);
+}
+
+.card h2, .card h3 {
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(to right, #fff, var(--primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* --- Hero Section --- */
+.hero {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.tagline {
+    font-size: 1.2rem;
+    color: var(--text-dim);
+}
+
+/* --- Risk Meter --- */
+.risk-meter-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.risk-circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 10px solid #2d3748;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    transition: border-color 0.5s ease;
+}
+
+.risk-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+}
+
+.risk-label {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+}
+
+/* --- Sensor Data --- */
+.sensor-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.sensor-row:last-child {
+    border-bottom: none;
+}
+
+.sensor-label {
+    color: var(--text-dim);
+}
+
+.sensor-value {
+    font-weight: 600;
+    color: var(--primary);
+}
+
+/* --- Buttons --- */
+button {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 210, 255, 0.3);
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(0, 210, 255, 0.5);
+}
+
+button.secondary {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    box-shadow: none;
+}
+
+/* --- Status Badges --- */
+.status {
+    padding: 0.5rem 1rem;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.status.connected { color: #4ade80; background: rgba(74, 222, 128, 0.1); }
+.status.disconnected { color: #f87171; background: rgba(248, 113, 113, 0.1); }
+
+/* --- Alert Box --- */
+.alert-box {
+    margin-top: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.alert-item {
+    background: rgba(255, 75, 43, 0.1);
+    border-left: 4px solid var(--danger);
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+/* --- Forms --- */
+input {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 8px;
+    width: 100%;
+    margin-bottom: 1rem;
+    outline: none;
+}
+
+input:focus {
+    border-color: var(--primary);
+}
+
+/* --- Responsive --- */
+/* --- Map & Rescue Specifics --- */
+#map {
+    height: 70vh;
+    width: 100%;
+    border-radius: 24px;
+    border: 1px solid var(--glass-border);
+    margin-top: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+
+.map-controls {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    justify-content: center;
+}
+
+.sos-ping {
+    animation: ping 1.5s infinite;
+}
+
+@keyframes ping {
+    0% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0.7); }
+    70% { box-shadow: 0 0 0 20px rgba(255, 75, 43, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0); }
+}
+
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.5rem; }
+    .nav { gap: 1rem; }
+    .nav a { font-size: 0.7rem; }
+}

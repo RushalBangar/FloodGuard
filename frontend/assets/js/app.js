@@ -1,156 +1,195 @@
-// Shared client script: WebSocket connection, alert handling, geolocation sharing
 (function(){
   function ready(fn){ if(document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
 
   ready(()=>{
     const statusEl = document.getElementById('status');
-    const testBtn = document.getElementById('test-alert');
-    const startBtn = document.getElementById('start-sharing');
-    const stopBtn = document.getElementById('stop-sharing');
-
+    const riskValEl = document.getElementById('riskVal');
+    const riskCircle = document.getElementById('riskCircle');
+    const riskStatusEl = document.getElementById('riskStatus');
+    const riskRecEl = document.getElementById('riskRecommendation');
+    
+    const sensorChartCtx = document.getElementById('sensorChart').getContext('2d');
+    
     const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.host;
     let socket = null;
     let watchId = null;
+    
+    // Initialize Chart
+    const sensorChart = new Chart(sensorChartCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Water Level',
+                data: [],
+                borderColor: '#00d2ff',
+                backgroundColor: 'rgba(0, 210, 255, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    function updateRiskUI(riskData) {
+        riskValEl.textContent = `${riskData.risk_percentage}%`;
+        riskStatusEl.textContent = riskData.status;
+        riskRecEl.textContent = riskData.recommendation;
+        
+        let color = '#4ade80'; // Normal
+        if (riskData.status === 'Advisory') color = '#fbc02d';
+        if (riskData.status === 'Danger') color = '#ff4b2b';
+        
+        riskCircle.style.borderColor = color;
+        riskValEl.style.color = color;
+        riskStatusEl.style.color = color;
+        riskStatusEl.className = `status ${riskData.status.toLowerCase()}`;
+    }
+
+    async function fetchPrediction(waterLevel, rain, hum, temp) {
+        try {
+            const resp = await fetch('/api/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ water_level: waterLevel, rainfall: rain, humidity: hum, temperature: temp })
+            });
+            const data = await resp.json();
+            updateRiskUI(data);
+        } catch (e) { console.error('Prediction fetch failed', e); }
+    }
+
+    async function fetchWeather() {
+        try {
+            const resp = await fetch('/api/weather');
+            const data = await resp.json();
+            if (data.main) {
+                document.getElementById('weatherDesc').textContent = `Local: ${data.weather[0].description} | Wind: ${data.wind.speed} m/s`;
+                document.getElementById('rainVal').textContent = (data.rain ? data.rain['1h'] : 0) + ' mm/h';
+                return data;
+            }
+        } catch (e) { console.error('Weather fetch failed', e); }
+        return null;
+    }
 
     function connect(){
       try{ socket = new WebSocket(WS_URL); }catch(e){ console.warn('WebSocket error', e); setTimeout(connect,3000); return; }
 
-      socket.addEventListener('open', ()=>{ if(statusEl) statusEl.textContent = 'Status: Connected'; });
+      socket.addEventListener('open', ()=>{ 
+          if(statusEl) {
+              statusEl.textContent = 'Status: Connected';
+              statusEl.className = 'status connected';
+          }
+      });
 
       socket.addEventListener('message', ev=>{
         try{
           const data = JSON.parse(ev.data);
           if(data.type === 'alert'){
-            const msg = data.message || 'Flood warning';
-            if(confirm(msg + '\n\nOpen help (safe routes)?')){ window.location.href = 'map.html?alert=1'; }
-
-            if('Notification' in window && Notification.permission === 'granted'){
-              const n = new Notification('FloodGuard Alert', {body: msg});
-              n.onclick = ()=>{ window.focus(); window.location.href = 'map.html?alert=1'; };
-            } else if('Notification' in window && Notification.permission !== 'denied'){
-              Notification.requestPermission().then(p=>{ if(p==='granted') new Notification('FloodGuard Alert',{body: msg}); });
-            }
-
+            showAlertBox(data.message || 'Flood warning', true);
           } else if(data.type === 'location'){
             window.dispatchEvent(new CustomEvent('fg:location', {detail: data}));
-          } else if(data.type === 'welcome'){
-            console.info('FloodGuard socket id', data.id);
           }
-        }catch(e){ console.warn('Invalid WS message', e); }
+        }catch(e){ }
       });
 
-      socket.addEventListener('close', ()=>{ if(statusEl) statusEl.textContent = 'Status: Disconnected'; setTimeout(connect,3000); });
-      socket.addEventListener('error', ()=>{});
+      socket.addEventListener('close', ()=>{ 
+          if(statusEl) {
+              statusEl.textContent = 'Status: Disconnected';
+              statusEl.className = 'status disconnected';
+          }
+          setTimeout(connect,3000); 
+      });
     }
 
-    connect();
+    function showAlertBox(msg, isUrgent = false){
+      const box = document.getElementById('alertBox');
+      if(box){
+        const item = document.createElement('div');
+        item.className = 'alert-item' + (isUrgent ? ' urgent' : '');
+        item.textContent = msg;
+        box.prepend(item);
+        if (isUrgent) {
+            if(confirm(msg + '\n\nView Safe Routes?')){ window.location.href = 'map.html'; }
+        }
+      }
+    }
 
-    if(testBtn) testBtn.addEventListener('click', ()=>{
-      fetch('/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Test flood alert — follow safety instructions.'})});
+    // Initialize
+    connect();
+    fetchWeather();
+    setInterval(fetchWeather, 60000); // Update weather every minute
+
+    // Event listeners
+    document.getElementById('test-alert').addEventListener('click', ()=>{
+      fetch('/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'System Alert: Periodic flood risk assessment initiated.'})});
     });
 
-    if(startBtn) startBtn.addEventListener('click', ()=>{
+    document.getElementById('start-sharing').addEventListener('click', ()=>{
       if(!navigator.geolocation) return alert('Geolocation not supported');
       watchId = navigator.geolocation.watchPosition(pos=>{
         const lat = pos.coords.latitude, lng = pos.coords.longitude;
-        if(statusEl) statusEl.textContent = `Status: Sharing location ${lat.toFixed(5)}, ${lng.toFixed(5)}`;
         if(socket && socket.readyState === WebSocket.OPEN){ socket.send(JSON.stringify({type:'location', lat, lng})); }
-      }, err=>{ alert('Geolocation error: '+err.message); }, {enableHighAccuracy:true, maximumAge:5000});
-      if(startBtn) startBtn.hidden = true; if(stopBtn) stopBtn.hidden = false;
-    });
-
-    if(stopBtn) stopBtn.addEventListener('click', ()=>{
-      if(watchId !== null) navigator.geolocation.clearWatch(watchId);
-      watchId = null; if(startBtn) startBtn.hidden = false; if(stopBtn) stopBtn.hidden = true; if(statusEl) statusEl.textContent = 'Status: Connected';
-      if(socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({type:'stop_sharing'}));
-    });
-
-    // ---- Firebase-driven features (live data, help requests) ----
-    function showAlertBox(msg){
-      const box = document.getElementById('alertBox');
-      if(box){
-        box.innerHTML = '<div class="alert-item">'+msg+'</div>' + box.innerHTML;
-        box.classList.add('pulse');
-        setTimeout(()=> box.classList.remove('pulse'), 2000);
-      }
-      if('Notification' in window && Notification.permission === 'granted'){
-        new Notification('FloodGuard', {body: msg});
-      }
-    }
-
-    function sendHelpRequest(name, lat, lng){
-      if(window.FG_DB){
-        window.FG_DB.collection(FG_CONFIG.HELP_COLLECTION || 'helpRequests').add({name: name || 'Anonymous', lat, lng, ts: new Date(), status: 'open'})
-        .then(()=> showAlertBox('Help request sent — rescue teams alerted'))
-        .catch(e=> alert('Failed to send help request: '+e.message));
-      }else if(socket && socket.readyState === WebSocket.OPEN){
-        socket.send(JSON.stringify({type:'help_request', name: name || 'Anonymous', lat, lng}));
-        showAlertBox('Help request sent via socket');
-      }else{
-        alert('Unable to send help request (no network)');
-      }
-    }
-
-    // Attach help button
-    const helpBtn = document.getElementById('helpBtn');
-    if(helpBtn){
-      helpBtn.addEventListener('click', ()=>{
-        const name = (document.getElementById('helpName')||{}).value || 'Anonymous';
-        if(!navigator.geolocation) return alert('Geolocation not supported');
-        navigator.geolocation.getCurrentPosition(pos=>{
-          sendHelpRequest(name, pos.coords.latitude, pos.coords.longitude);
-        }, err=> alert('Location error: '+err.message));
       });
-    }
+      document.getElementById('start-sharing').hidden = true;
+      document.getElementById('stop-sharing').hidden = false;
+    });
 
-    // Live Firestore listeners (when firebase client ready)
+    document.getElementById('stop-sharing').addEventListener('click', ()=>{
+      if(watchId !== null) navigator.geolocation.clearWatch(watchId);
+      document.getElementById('start-sharing').hidden = false;
+      document.getElementById('stop-sharing').hidden = true;
+    });
+
+    document.getElementById('helpBtn').addEventListener('click', ()=>{
+        const name = document.getElementById('helpName').value || 'Anonymous';
+        navigator.geolocation.getCurrentPosition(pos=>{
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            if(socket && socket.readyState === WebSocket.OPEN){
+                socket.send(JSON.stringify({type:'location', lat, lng, isSOS: true, name: name}));
+                showAlertBox('SOS TRANSMITTED. Emergency services notified.', true);
+            }
+        });
+    });
+
+    // Firebase Listener
     window.addEventListener('fg:firebase-ready', (ev)=>{
-      const available = ev.detail && ev.detail.available;
-      if(!available || !window.FG_DB) return;
-
-      // Listen to latest sensor reading
-      try{
-        const col = FG_DB.collection(FG_CONFIG.SENSOR_COLLECTION || 'sensor_readings').orderBy('ts','desc').limit(1);
-        col.onSnapshot(snap=>{
+      if(!ev.detail || !ev.detail.available || !window.FG_DB) return;
+      
+      const col = FG_DB.collection(FG_CONFIG.SENSOR_COLLECTION || 'sensor_readings').orderBy('ts','desc').limit(1);
+      col.onSnapshot(async snap=>{
           if(snap.empty) return;
           const doc = snap.docs[0].data();
-          const t = doc.temperature || doc.temp || '—';
-          const h = doc.humidity || doc.hum || '—';
-          const w = doc.waterLevel || doc.water_level || doc.water || '—';
-          const tempEl = document.getElementById('tempVal'); if(tempEl) tempEl.textContent = t;
-          const humEl = document.getElementById('humVal'); if(humEl) humEl.textContent = h;
-          const waterEl = document.getElementById('waterVal'); if(waterEl) waterEl.textContent = w;
-
-          const threshold = FG_CONFIG.WATER_LEVEL_THRESHOLD;
-          if(threshold !== null && threshold !== undefined && parseFloat(w) >= parseFloat(threshold)){
-            showAlertBox('Flood predicted — water level above threshold');
+          const t = doc.temperature || doc.temp || 25;
+          const h = doc.humidity || doc.hum || 50;
+          const w = doc.waterLevel || doc.water_level || 0;
+          
+          document.getElementById('tempVal').textContent = t + ' °C';
+          document.getElementById('humVal').textContent = h + ' %';
+          document.getElementById('waterVal').textContent = (w * 100).toFixed(1) + ' %';
+          
+          // Update Chart
+          const now = new Date().toLocaleTimeString();
+          sensorChart.data.labels.push(now);
+          sensorChart.data.datasets[0].data.push(w * 100);
+          if (sensorChart.data.labels.length > 10) {
+              sensorChart.data.labels.shift();
+              sensorChart.data.datasets[0].data.shift();
           }
-        });
-      }catch(e){ console.warn('Sensor listener failed', e); }
-
-      // Listen to alerts collection
-      try{
-        FG_DB.collection(FG_CONFIG.ALERTS_COLLECTION || 'alerts').orderBy('ts','desc').limit(5).onSnapshot(snap=>{
-          snap.docChanges().forEach(ch=>{
-            if(ch.type === 'added') showAlertBox(ch.doc.data().message || 'Alert');
-          });
-        });
-      }catch(e){ }
-    });
-
-    // Rescue dashboard: listen to help requests and forward to in-page event for map
-    window.addEventListener('fg:firebase-ready', (ev)=>{
-      if(!ev.detail || !ev.detail.available) return;
-      try{
-        FG_DB.collection(FG_CONFIG.HELP_COLLECTION || 'helpRequests').where('status','==','open').onSnapshot(snap=>{
-          snap.docChanges().forEach(ch=>{
-            if(ch.type === 'added'){
-              const d = ch.doc.data();
-              window.dispatchEvent(new CustomEvent('fg:help-request', {detail: Object.assign({id: ch.doc.id}, d)}));
-            }
-          });
-        });
-      }catch(e){ }
+          sensorChart.update();
+          
+          // Get Prediction
+          const rainText = document.getElementById('rainVal').textContent;
+          const rain = parseFloat(rainText) || 0;
+          fetchPrediction(w, rain, h, t);
+      });
     });
   });
 })();

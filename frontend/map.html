@@ -5,25 +5,37 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FloodGuard — Safe Routes</title>
   <link rel="stylesheet" href="assets/css/style.css" />
-  <style>#map{height:80vh;border:1px solid #ccc}</style>
 </head>
 <body>
+  <div class="bg-animation">
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+
   <header class="site-header">
     <nav class="nav">
-      <a href="index.html">Home</a>
+      <a href="index.html">Dashboard</a>
       <a href="synopsis.html">Synopsis</a>
       <a href="diagrams.html">Diagrams</a>
-      <a href="map.html">Safe Routes</a>
-      <a href="rescue.html">Rescue Dashboard</a>
+      <a href="map.html" class="active">Safe Routes</a>
+      <a href="rescue.html">Rescue</a>
     </nav>
   </header>
 
   <main class="container">
-    <h1>Safe / Unaffected Roadways</h1>
-    <p>Click <strong>Find Safe Routes Near Me</strong> to center the map on your location and highlight example safe roads (demo).</p>
-    <button id="locate">Find Safe Routes Near Me</button>
-    <div id="map"></div>
+    <section class="hero">
+        <h1>Escape Navigation</h1>
+        <p class="tagline">OPTIMIZED EVACUATION PATHS BASED ON AI RISK LEVELS</p>
+    </section>
+
+    <div class="card">
+        <div class="map-controls">
+            <button id="locate">FIND SAFE ROUTES NEAR ME</button>
+        </div>
+        <div id="map"></div>
+    </div>
   </main>
+
   <script src="assets/js/config.js"></script>
   <script>
     function loadGoogleMaps(cb){
@@ -40,7 +52,21 @@
 
     function init(){
       loadGoogleMaps(()=>{
-        const map = new google.maps.Map(document.getElementById('map'), { center: {lat:20.0, lng:78.0}, zoom:5 });
+        const map = new google.maps.Map(document.getElementById('map'), { 
+            center: {lat:20.0, lng:78.0}, 
+            zoom:5,
+            styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
+                { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] },
+                { "elementType": "labels.text.stroke", "stylers": [{ "color": "#242f3e" }] },
+                { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
+                { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
+                { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] },
+                { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] },
+                { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
+            ]
+        });
         const routes = [];
         const markers = [];
 
@@ -51,12 +77,13 @@
           navigator.geolocation.getCurrentPosition(pos=>{
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
             clear();
-            markers.push(new google.maps.Marker({position:{lat,lng}, map, title:'You are here'}));
+            markers.push(new google.maps.Marker({position:{lat,lng}, map, title:'You are here', icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'}));
 
-            const dests = [{lat:lat+0.05, lng:lng+0.05}, {lat:lat-0.05, lng:lng-0.05}];
+            // Mock safe destinations from config
+            const dests = FG_CONFIG.SAFE_DESTINATIONS || [{lat:lat+0.02, lng:lng+0.02}, {lat:lat-0.02, lng:lng-0.02}];
             dests.forEach((d,i)=>{
-              markers.push(new google.maps.Marker({position:d, map, label: (i+1).toString(), title:'Safe point '+(i+1)}));
-              const line = new google.maps.Polyline({path:[{lat,lng}, d], strokeColor:'#0a0', strokeWeight:4, map});
+              markers.push(new google.maps.Marker({position:d, map, label: (i+1).toString(), title: d.name || 'Safe point '+(i+1)}));
+              const line = new google.maps.Polyline({path:[{lat,lng}, d], strokeColor:'#4ade80', strokeWeight:5, map, opacity: 0.8});
               routes.push(line);
             });
 
