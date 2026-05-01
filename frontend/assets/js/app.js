@@ -94,6 +94,14 @@
         riskValEl.style.color = color;
         riskStatusEl.style.color = color;
         riskStatusEl.className = `status ${riskData.status.toLowerCase()}`;
+
+        // Weather Background Control
+        const bg = document.getElementById('bgAnim');
+        if (bg) {
+            bg.classList.toggle('raining', riskData.risk_percentage > 40);
+            bg.classList.toggle('flood', riskData.risk_percentage > 70);
+            bg.classList.toggle('lightning', riskData.risk_percentage > 85);
+        }
     }
 
     async function fetchPrediction(waterLevel, rain, hum, temp) {
