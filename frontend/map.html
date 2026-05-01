@@ -7,34 +7,41 @@
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
-  <div class="bg-animation">
+  <div class="bg-animation" id="bgAnim">
+    <div class="rain" id="rain"></div>
     <div class="wave"></div>
     <div class="wave"></div>
   </div>
 
   <header class="site-header">
     <nav class="nav">
-      <a href="index.html">Dashboard</a>
-      <a href="map.html" class="active">Safe Routes</a>
-      <a href="rescue.html">Rescue</a>
+      <a href="/index.html" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="/map.html" class="active" data-i18n="nav_safe_routes">Safe Routes</a>
+      <a href="/rescue.html" data-i18n="nav_rescue">Rescue</a>
     </nav>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('hi')">HI</button>
+        <button class="lang-btn" onclick="setLang('mr')">MR</button>
+    </div>
   </header>
 
   <main class="container">
     <section class="hero">
-        <h1>Escape Navigation</h1>
-        <p class="tagline">OPTIMIZED EVACUATION PATHS BASED ON AI RISK LEVELS</p>
+        <h1 data-i18n="hero_map_title">Escape Navigation</h1>
+        <p class="tagline" data-i18n="hero_map_tagline">OPTIMIZED EVACUATION PATHS BASED ON AI RISK LEVELS</p>
     </section>
 
     <div class="card">
         <div class="map-controls">
-            <button id="locate">FIND SAFE ROUTES NEAR ME</button>
+            <button id="locate" data-i18n="btn_locate">FIND SAFE ROUTES NEAR ME</button>
         </div>
         <div id="map"></div>
     </div>
   </main>
 
   <script src="assets/js/config.js"></script>
+  <script src="assets/js/app.js"></script>
   <script>
     function loadGoogleMaps(cb){
       if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
@@ -77,7 +84,6 @@
             clear();
             markers.push(new google.maps.Marker({position:{lat,lng}, map, title:'You are here', icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'}));
 
-            // Mock safe destinations from config
             const dests = FG_CONFIG.SAFE_DESTINATIONS || [{lat:lat+0.02, lng:lng+0.02}, {lat:lat-0.02, lng:lng-0.02}];
             dests.forEach((d,i)=>{
               markers.push(new google.maps.Marker({position:d, map, label: (i+1).toString(), title: d.name || 'Safe point '+(i+1)}));
@@ -92,6 +98,17 @@
           }, err=>{ alert('Unable to get location: ' + err.message); });
         });
       });
+
+      // Generate rain drops
+      const rainContainer = document.getElementById('rain');
+      for (let i = 0; i < 50; i++) {
+          const drop = document.createElement('div');
+          drop.className = 'drop';
+          drop.style.left = Math.random() * 100 + 'vw';
+          drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+          drop.style.animationDelay = Math.random() * 2 + 's';
+          rainContainer.appendChild(drop);
+      }
     }
 
     window.addEventListener('DOMContentLoaded', init);

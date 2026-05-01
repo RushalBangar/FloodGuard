@@ -15,31 +15,38 @@
     .sos-card h4 { margin-bottom: 0.3rem; }
     .sos-card p { font-size: 0.8rem; color: var(--text-dim); }
     .status-pill { font-size: 0.6rem; padding: 0.2rem 0.5rem; border-radius: 100px; background: var(--danger); color: white; float: right; }
+    @media (max-width: 900px) { .rescue-layout { flex-direction: column; height: auto; } .rescue-sidebar { width: 100%; height: 400px; order: 2; } .rescue-main { height: 500px; order: 1; } }
   </style>
 </head>
 <body>
-  <div class="bg-animation">
+  <div class="bg-animation" id="bgAnim">
+    <div class="rain" id="rain"></div>
     <div class="wave"></div>
     <div class="wave"></div>
   </div>
 
   <header class="site-header">
     <nav class="nav">
-      <a href="index.html">Dashboard</a>
-      <a href="map.html">Safe Routes</a>
-      <a href="rescue.html" class="active">Rescue</a>
+      <a href="/index.html" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="/map.html" data-i18n="nav_safe_routes">Safe Routes</a>
+      <a href="/rescue.html" class="active" data-i18n="nav_rescue">Rescue</a>
     </nav>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('hi')">HI</button>
+        <button class="lang-btn" onclick="setLang('mr')">MR</button>
+    </div>
   </header>
 
   <main class="container">
     <section class="hero">
-        <h1>Rescue Operations Center</h1>
-        <p class="tagline">REAL-TIME SOS TRACKING & HEATMAP VISUALIZATION</p>
+        <h1 data-i18n="hero_rescue_title">Rescue Operations Center</h1>
+        <p class="tagline" data-i18n="hero_rescue_tagline">REAL-TIME SOS TRACKING & HEATMAP VISUALIZATION</p>
     </section>
 
     <div class="rescue-layout">
         <div class="rescue-sidebar">
-            <h3 style="margin-bottom:1.5rem;">Active SOS Signals</h3>
+            <h3 style="margin-bottom:1.5rem;" data-i18n="sidebar_sos_title">Active SOS Signals</h3>
             <div id="sosList">
                 <p style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>
             </div>
@@ -52,6 +59,7 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/firebase.js"></script>
+  <script src="assets/js/app.js"></script>
   <script>
     let map, heatmap;
     function loadGoogleMaps(cb){
@@ -100,6 +108,17 @@
           }catch(e){ }
         });
       });
+
+      // Generate rain drops
+      const rainContainer = document.getElementById('rain');
+      for (let i = 0; i < 50; i++) {
+          const drop = document.createElement('div');
+          drop.className = 'drop';
+          drop.style.left = Math.random() * 100 + 'vw';
+          drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+          drop.style.animationDelay = Math.random() * 2 + 's';
+          rainContainer.appendChild(drop);
+      }
     }
 
     function handleLocation(data, markers, heatPoints) {
@@ -123,8 +142,6 @@
             addSOSCard(data);
             heatPoints.push(new google.maps.LatLng(lat, lng));
             heatmap.setData(heatPoints);
-            
-            // Audio alert
             const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-emergency-alert-alarm-1007.mp3');
             audio.play().catch(e=>{});
         }
@@ -133,7 +150,6 @@
     function addSOSCard(data) {
         const list = document.getElementById('sosList');
         if(list.querySelector('p')) list.innerHTML = '';
-        
         const card = document.createElement('div');
         card.className = 'sos-card';
         card.innerHTML = `
