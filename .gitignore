@@ -1,7 +1,5 @@
 # Node
 node_modules/
-backend/server/node_modules/
-server/**/node_modules/
 npm-debug.log*
 yarn-error.log*
 
@@ -11,15 +9,14 @@ __pycache__/
 .Python
 .venv/
 venv/
-# Python venvs
-.venv/
-venv/
-backend/server/python/.venv/
+ENV/
+env/
 
-# Firebase service account
-backend/server/python/serviceAccountKey.json
-
-# Environment
+# Firebase & Secrets
+serviceAccountKey.json
+*.json
+!.github/*.json
+!vercel.json
 .env
 .env.*
 

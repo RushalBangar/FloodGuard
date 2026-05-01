@@ -1,0 +1,14 @@
+{
+  "name": "floodguard-frontend",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://your-backend-url.onrender.com/api/:path*"
+    },
+    {
+      "source": "/ws",
+      "destination": "https://your-backend-url.onrender.com/ws"
+    }
+  ]
+}

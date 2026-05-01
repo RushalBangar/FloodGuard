@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: floodguard-backend
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn main:app -b 0.0.0.0:$PORT --workers 4 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+      - key: SERVICE_ACCOUNT_JSON
+        sync: false # Set this in the Render dashboard manually
+      - key: PORT
+        value: 5000
+    autoDeploy: true
