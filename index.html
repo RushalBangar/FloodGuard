@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FloodGuard — AI-Driven Flood Prediction & Alert System</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <meta name="description" content="FloodGuard: AI-driven flood prediction, alerts, safe-route guidance and live location sharing for rescue teams." />
+  
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="synopsis.html">Synopsis</a>
+      <a href="diagrams.html">Diagrams</a>
+      <a href="map.html">Safe Routes</a>
+      <a href="rescue.html">Rescue Dashboard</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>FloodGuard</h1>
+      <p class="tagline">AI-Driven Flood Prediction &amp; Alert System</p>
+
+      <div class="actions">
+        <button id="test-alert">Trigger Test Alert</button>
+        <button id="start-sharing">Start Sharing Location</button>
+        <button id="stop-sharing" hidden>Stop Sharing</button>
+      </div>
+
+      <p id="status" class="status">Status: Disconnected</p>
+      <p class="note">Tip: run the local server (<code>server/</code>) to enable live alerts and location sharing.</p>
+    </section>
+
+    <section>
+      <h2>Overview</h2>
+      <p>FloodGuard predicts floods using sensor and weather data, issues timely alerts to users, shows safe or unaffected roadways on a map, and can share live locations with rescue teams.</p>
+      <ul>
+        <li>Mobile-friendly alerts (native notifications + in-page helpers)</li>
+        <li>Live location sharing to rescue dashboard</li>
+        <li>Printable block diagram and circuit diagram (in Diagrams)</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

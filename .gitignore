@@ -1,0 +1,36 @@
+# Node
+node_modules/
+server/node_modules/
+server/**/node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Python
+__pycache__/
+*.py[cod]
+.Python
+.venv/
+venv/
+server/python/.venv/
+
+# Firebase service account
+server/python/serviceAccountKey.json
+
+# Environment
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Build
+dist/
+build/

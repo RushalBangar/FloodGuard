@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700">
+  <style>.part{fill:#fff;stroke:#222;stroke-width:2}.label{font-family:Arial,Helvetica,sans-serif;font-size:14px}</style>
+  <rect x="60" y="80" width="180" height="120" class="part"/>
+  <text x="150" y="150" text-anchor="middle" class="label">Water Level Sensor</text>
+
+  <rect x="300" y="70" width="200" height="150" class="part"/>
+  <text x="400" y="150" text-anchor="middle" class="label">Microcontroller (e.g., Arduino)</text>
+
+  <rect x="570" y="70" width="200" height="150" class="part"/>
+  <text x="670" y="150" text-anchor="middle" class="label">GSM / LTE Module</text>
+
+  <rect x="300" y="260" width="200" height="120" class="part"/>
+  <text x="400" y="320" text-anchor="middle" class="label">Power Supply / Regulator</text>
+
+  <line x1="240" y1="140" x2="300" y2="140" stroke="#111" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="500" y1="140" x2="570" y2="140" stroke="#111" stroke-width="3" marker-end="url(#arr)"/>
+  <line x1="400" y1="190" x2="400" y2="260" stroke="#111" stroke-width="3" marker-end="url(#arr)"/>
+
+  <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#111"/></marker></defs>
+
+  <text x="150" y="220" class="label">(Circuit shows connection: sensor → MCU → GSM → Server)</text>
+</svg>

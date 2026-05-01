@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FloodGuard — Rescue Dashboard</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>#map{height:80vh;border:1px solid #ccc}</style>
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <a href="index.html">Home</a>
+      <a href="synopsis.html">Synopsis</a>
+      <a href="diagrams.html">Diagrams</a>
+      <a href="map.html">Safe Routes</a>
+      <a href="rescue.html">Rescue Dashboard</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>Rescue Dashboard</h1>
+    <p>Displays live shared locations from users (demo). Connects to the same WebSocket used by the app.</p>
+    <div id="map"></div>
+  </main>
+  <script src="assets/js/config.js"></script>
+  <script>
+    function loadGoogleMaps(cb){
+      if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
+        alert('Please set FG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
+        return;
+      }
+      const key = FG_CONFIG.GOOGLE_MAPS_API_KEY;
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key;
+      script.async = true; script.defer = true; script.onload = cb;
+      document.head.appendChild(script);
+    }
+
+    function init(){
+      loadGoogleMaps(()=>{
+        const map = new google.maps.Map(document.getElementById('map'), { center: {lat:20.0, lng:78.0}, zoom:5 });
+        const markers = {};
+
+        const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.hostname + ':5000/ws';
+        const ws = new WebSocket(WS_URL);
+        ws.addEventListener('message', ev=>{
+          try{
+            const data = JSON.parse(ev.data);
+            if(data.type === 'location'){
+              const id = data.id || data.clientId || 'unknown';
+              const lat = data.lat, lng = data.lng;
+              if(markers[id]) markers[id].setPosition({lat,lng});
+              else markers[id] = new google.maps.Marker({position:{lat,lng}, map, title:'User '+id});
+            }
+          }catch(e){ }
+        });
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
