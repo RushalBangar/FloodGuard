@@ -7,6 +7,12 @@
   <link rel="stylesheet" href="assets/css/style.css" />
   <meta name="description" content="FloodGuard: AI-driven flood prediction, alerts, and live rescue management." />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .sim-panel { display: none; position: fixed; bottom: 20px; right: 20px; width: 300px; z-index: 1000; }
+    .lang-toggle { position: absolute; top: 1.5rem; right: 2rem; display: flex; gap: 0.5rem; }
+    .lang-btn { background: var(--glass); border: 1px solid var(--glass-border); padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.7rem; cursor: pointer; }
+    .lang-btn.active { background: var(--primary); color: white; }
+  </style>
 </head>
 <body>
   <div class="bg-animation">
@@ -16,84 +22,102 @@
 
   <header class="site-header">
     <nav class="nav">
-      <a href="index.html" class="active">Dashboard</a>
-      <a href="synopsis.html">Synopsis</a>
-      <a href="diagrams.html">Diagrams</a>
-      <a href="map.html">Safe Routes</a>
-      <a href="rescue.html">Rescue</a>
+      <a href="index.html" class="active" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="synopsis.html" data-i18n="nav_synopsis">Synopsis</a>
+      <a href="diagrams.html" data-i18n="nav_diagrams">Diagrams</a>
+      <a href="map.html" data-i18n="nav_safe_routes">Safe Routes</a>
+      <a href="rescue.html" data-i18n="nav_rescue">Rescue</a>
     </nav>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('hi')">HI</button>
+        <button class="lang-btn" onclick="setLang('mr')">MR</button>
+    </div>
   </header>
 
   <main class="container">
     <section class="hero">
-      <h1>FloodGuard</h1>
-      <p class="tagline">AI-DRIVEN FLOOD PREDICTION & EMERGENCY RESPONSE</p>
+      <h1 data-i18n="hero_title">FloodGuard</h1>
+      <p class="tagline" data-i18n="hero_tagline">AI-DRIVEN FLOOD PREDICTION & EMERGENCY RESPONSE</p>
       <div id="status" class="status disconnected" style="display:inline-block; margin-top:1rem;">Status: Disconnected</div>
     </section>
 
     <div class="dashboard-grid">
       <!-- AI Risk Prediction Card -->
       <div class="card risk-card">
-        <h2>AI Risk Prediction</h2>
+        <h2 data-i18n="card_risk_title">AI Risk Prediction</h2>
         <div class="risk-meter-container">
           <div id="riskCircle" class="risk-circle">
             <span id="riskVal" class="risk-value">0%</span>
           </div>
-          <p id="riskStatus" class="status">System Standby</p>
+          <p id="riskStatus" class="status" data-i18n="status_standby">System Standby</p>
           <p id="riskRecommendation" style="margin-top:1.5rem; text-align:center; font-size:0.9rem; color:var(--text-dim);"></p>
         </div>
       </div>
 
       <!-- Live Sensor Data Card -->
       <div class="card sensor-card">
-        <h2>Live Sensor Matrix</h2>
+        <h2 data-i18n="card_sensor_title">Live Sensor Matrix</h2>
         <div class="sensor-row">
-          <span class="sensor-label">Water Level</span>
+          <span class="sensor-label" data-i18n="label_water_level">Water Level</span>
           <span id="waterVal" class="sensor-value">—</span>
         </div>
         <div class="sensor-row">
-          <span class="sensor-label">Temperature</span>
+          <span class="sensor-label" data-i18n="label_temp">Temperature</span>
           <span id="tempVal" class="sensor-value">—</span>
         </div>
         <div class="sensor-row">
-          <span class="sensor-label">Humidity</span>
+          <span class="sensor-label" data-i18n="label_humidity">Humidity</span>
           <span id="humVal" class="sensor-value">—</span>
         </div>
         <div class="sensor-row">
-          <span class="sensor-label">Rainfall Forecast</span>
+          <span class="sensor-label" data-i18n="label_rainfall">Rainfall Forecast</span>
           <span id="rainVal" class="sensor-value">—</span>
         </div>
         
         <div class="actions" style="margin-top:2rem; display:flex; gap:1rem;">
-          <button id="test-alert" style="flex:1;">Test Alert</button>
-          <button id="start-sharing" style="flex:1;">Share Location</button>
-          <button id="stop-sharing" style="flex:1;" hidden>Stop Sharing</button>
+          <button id="test-alert" style="flex:1;" data-i18n="btn_test_alert">Test Alert</button>
+          <button id="start-sharing" style="flex:1;" data-i18n="btn_share_location">Share Location</button>
+          <button id="stop-sharing" style="flex:1;" hidden data-i18n="btn_stop_sharing">Stop Sharing</button>
         </div>
       </div>
 
       <!-- Local Weather Card -->
       <div class="card weather-card">
-        <h2>Atmospheric Data</h2>
+        <h2 data-i18n="card_weather_title">Atmospheric Data</h2>
         <div style="height: 180px;">
           <canvas id="sensorChart"></canvas>
         </div>
-        <div id="weatherDesc" style="margin-top:1rem; text-align:center; font-style:italic; color:var(--text-dim);">
+        <div id="weatherDesc" style="margin-top:1rem; text-align:center; font-style:italic; color:var(--text-dim);" data-i18n="weather_loading">
           Loading weather data...
         </div>
       </div>
     </div>
 
+    <!-- Simulation Trigger Button -->
+    <button onclick="toggleSim()" style="position:fixed; bottom:20px; left:20px; border-radius:50%; width:50px; height:50px; padding:0; background:var(--glass);">🛠️</button>
+
+    <!-- Simulation Panel -->
+    <div id="simPanel" class="card sim-panel">
+        <h3 style="margin-bottom:1rem;">Sensor Simulator</h3>
+        <label style="font-size:0.7rem; color:var(--text-dim);">Water Level (0-1)</label>
+        <input type="range" id="simWater" min="0" max="1" step="0.1" value="0.2" oninput="runSim()">
+        <label style="font-size:0.7rem; color:var(--text-dim);">Rainfall (0-50 mm/h)</label>
+        <input type="range" id="simRain" min="0" max="50" step="1" value="5" oninput="runSim()">
+        <button onclick="toggleSim()" class="secondary" style="width:100%; margin-top:1rem;">Close</button>
+    </div>
+
     <div class="dashboard-grid" style="margin-top:1.5rem;">
       <!-- Alerts & Emergency Card -->
       <div class="card" style="grid-column: span 2;">
-        <h2>Emergency Broadcasts</h2>
+        <h2 data-i18n="card_alert_title">Emergency Broadcasts</h2>
         <div id="alertBox" class="alert-box" aria-live="polite"></div>
         
         <div class="help-form" style="margin-top:2rem; border-top: 1px solid var(--glass-border); padding-top:1.5rem;">
-          <h3>Request Emergency Assistance</h3>
+          <h3 data-i18n="form_sos_title">Request Emergency Assistance</h3>
           <div style="display:flex; gap:1rem; margin-top:1rem;">
-            <input id="helpName" placeholder="Rescuer ID or Your Name" />
-            <button id="helpBtn" style="min-width:150px; background:var(--danger);">SEND SOS</button>
+            <input id="helpName" placeholder="Rescuer ID or Your Name" data-i18n-placeholder="placeholder_name" />
+            <button id="helpBtn" style="min-width:150px; background:var(--danger);" data-i18n="btn_sos">SEND SOS</button>
           </div>
         </div>
       </div>
@@ -103,5 +127,20 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/firebase.js"></script>
   <script src="assets/js/app.js"></script>
+  <script>
+      function toggleSim() {
+          const p = document.getElementById('simPanel');
+          p.style.display = (p.style.display === 'block') ? 'none' : 'block';
+      }
+      function runSim() {
+          const w = document.getElementById('simWater').value;
+          const r = document.getElementById('simRain').value;
+          fetch('/api/simulate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ water_level: w, rainfall: r })
+          });
+      }
+  </script>
 </body>
 </html>

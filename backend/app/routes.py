@@ -2,6 +2,7 @@ import os
 from flask import current_app as app, send_from_directory, request, jsonify
 from .firebase_config import db, firebase_initialized
 from .predictor import calculate_flood_risk
+from .notifier import send_sms_alert
 import requests
 
 @app.route('/api/alert', methods=['POST'])
@@ -61,6 +62,31 @@ def api_weather():
         "weather": [{"main": "Clouds", "description": "scattered clouds"}],
         "wind": {"speed": 4.1}
     })
+
+@app.route('/api/simulate', methods=['POST'])
+def api_simulate():
+    data = request.get_json() or {}
+    # Broadcast simulation data to all connected clients via WebSockets
+    from .sockets import broadcast
+    broadcast({
+        "type": "simulation",
+        "water_level": data.get('water_level'),
+        "rainfall": data.get('rainfall'),
+        "humidity": data.get('humidity'),
+        "temperature": data.get('temperature')
+    })
+    return jsonify({"status": "Simulation broadcasted"})
+
+@app.route('/api/notify', methods=['POST'])
+def api_notify():
+    data = request.get_json() or {}
+    msg = data.get('message', 'Flood Alert')
+    phone = data.get('phone')
+    if not phone:
+        return jsonify({"error": "Phone number required"}), 400
+    
+    success = send_sms_alert(msg, phone)
+    return jsonify({"ok": success})
 
 # Catch-all route to serve static files from the frontend directory
 @app.route('/', defaults={'path': 'index.html'})

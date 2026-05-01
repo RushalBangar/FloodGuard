@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FloodGuard — Rescue Control</title>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .rescue-layout { display: flex; gap: 1.5rem; margin-top: 1.5rem; height: 80vh; }
+    .rescue-sidebar { width: 350px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.5rem; overflow-y: auto; }
+    .rescue-main { flex: 1; position: relative; }
+    #map { height: 100%; margin-top: 0; }
+    .sos-card { background: rgba(255, 75, 43, 0.1); border-left: 4px solid var(--danger); padding: 1rem; border-radius: 12px; margin-bottom: 1rem; cursor: pointer; transition: 0.3s; }
+    .sos-card:hover { background: rgba(255, 75, 43, 0.2); }
+    .sos-card h4 { margin-bottom: 0.3rem; }
+    .sos-card p { font-size: 0.8rem; color: var(--text-dim); }
+    .status-pill { font-size: 0.6rem; padding: 0.2rem 0.5rem; border-radius: 100px; background: var(--danger); color: white; float: right; }
+  </style>
 </head>
 <body>
   <div class="bg-animation">
@@ -24,18 +35,27 @@
 
   <main class="container">
     <section class="hero">
-        <h1>Rescue Control Center</h1>
-        <p class="tagline">REAL-TIME MONITORING OF EMERGENCY SOS SIGNALS</p>
+        <h1>Rescue Operations Center</h1>
+        <p class="tagline">REAL-TIME SOS TRACKING & HEATMAP VISUALIZATION</p>
     </section>
 
-    <div class="card">
-        <div id="map"></div>
+    <div class="rescue-layout">
+        <div class="rescue-sidebar">
+            <h3 style="margin-bottom:1.5rem;">Active SOS Signals</h3>
+            <div id="sosList">
+                <p style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>
+            </div>
+        </div>
+        <div class="rescue-main">
+            <div id="map"></div>
+        </div>
     </div>
   </main>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/firebase.js"></script>
   <script>
+    let map, heatmap;
     function loadGoogleMaps(cb){
       if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
         alert('Please set FG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
@@ -43,14 +63,14 @@
       }
       const key = FG_CONFIG.GOOGLE_MAPS_API_KEY;
       const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key;
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=visualization';
       script.async = true; script.defer = true; script.onload = cb;
       document.head.appendChild(script);
     }
 
     function init(){
       loadGoogleMaps(()=>{
-        const map = new google.maps.Map(document.getElementById('map'), { 
+        map = new google.maps.Map(document.getElementById('map'), { 
             center: {lat:20.0, lng:78.0}, 
             zoom:5,
             styles: [
@@ -60,7 +80,15 @@
                 { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
             ]
         });
+        
+        heatmap = new google.maps.visualization.HeatmapLayer({
+            data: [],
+            map: map,
+            radius: 30
+        });
+
         const markers = {};
+        const heatPoints = [];
 
         const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.hostname + ':5000/ws';
         const ws = new WebSocket(WS_URL);
@@ -69,23 +97,63 @@
           try{
             const data = JSON.parse(ev.data);
             if(data.type === 'location'){
-              const id = data.id || data.clientId || 'unknown';
-              const lat = data.lat, lng = data.lng;
-              const isSOS = data.isSOS || false;
-              
-              if(markers[id]) markers[id].setPosition({lat,lng});
-              else {
-                  markers[id] = new google.maps.Marker({
-                      position:{lat,lng}, 
-                      map, 
-                      title: (data.name || 'User') + ' ' + id,
-                      animation: isSOS ? google.maps.Animation.BOUNCE : null
-                  });
-              }
+              handleLocation(data, markers, heatPoints);
             }
           }catch(e){ }
         });
       });
+    }
+
+    function handleLocation(data, markers, heatPoints) {
+        const id = data.id || 'unknown';
+        const lat = data.lat, lng = data.lng;
+        const isSOS = data.isSOS || false;
+        const pos = {lat, lng};
+
+        if(markers[id]) markers[id].setPosition(pos);
+        else {
+            markers[id] = new google.maps.Marker({
+                position: pos, 
+                map, 
+                title: data.name || 'User',
+                animation: isSOS ? google.maps.Animation.BOUNCE : null,
+                icon: isSOS ? 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' : 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+            });
+        }
+
+        if(isSOS) {
+            addSOSCard(data);
+            heatPoints.push(new google.maps.LatLng(lat, lng));
+            heatmap.setData(heatPoints);
+            
+            // Audio alert
+            const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-emergency-alert-alarm-1007.mp3');
+            audio.play().catch(e=>{});
+        }
+    }
+
+    function addSOSCard(data) {
+        const list = document.getElementById('sosList');
+        if(list.querySelector('p')) list.innerHTML = '';
+        
+        const card = document.createElement('div');
+        card.className = 'sos-card';
+        card.innerHTML = `
+            <span class="status-pill">URGENT</span>
+            <h4>${data.name || 'Anonymous User'}</h4>
+            <p>ID: ${data.id || 'Unknown'}</p>
+            <p>Coord: ${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}</p>
+            <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
+                <button style="font-size:0.6rem; padding:0.3rem 0.5rem;" onclick="focusUser(${data.lat}, ${data.lng})">LOCATE</button>
+                <button class="secondary" style="font-size:0.6rem; padding:0.3rem 0.5rem;" onclick="this.parentElement.parentElement.remove()">CLEAR</button>
+            </div>
+        `;
+        list.prepend(card);
+    }
+
+    function focusUser(lat, lng) {
+        map.setCenter({lat, lng});
+        map.setZoom(15);
     }
 
     window.addEventListener('DOMContentLoaded', init);
