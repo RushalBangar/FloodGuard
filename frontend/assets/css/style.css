@@ -352,8 +352,26 @@ input:focus {
     100% { box-shadow: 0 0 0 0 rgba(255, 75, 43, 0); }
 }
 
-@media (max-width: 768px) {
-    .hero h1 { font-size: 2.5rem; }
-    .nav { gap: 1rem; }
-    .nav a { font-size: 0.7rem; }
+/* --- Mobile Responsiveness --- */
+@media (max-width: 900px) {
+    .hero h1 { font-size: 3rem; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .card { padding: 1.5rem; }
+    .nav { gap: 0.8rem; overflow-x: auto; justify-content: flex-start; padding-bottom: 0.5rem; }
+    .nav a { font-size: 0.8rem; white-space: nowrap; }
+    .rescue-layout { flex-direction: column; height: auto; }
+    .rescue-sidebar { width: 100%; height: 400px; order: 2; }
+    .rescue-main { height: 500px; order: 1; }
+    .lang-toggle { top: 1rem; right: 1rem; scale: 0.8; }
+}
+
+@media (max-width: 600px) {
+    .hero h1 { font-size: 2.2rem; }
+    .tagline { font-size: 0.9rem; }
+    .risk-circle { width: 150px; height: 150px; }
+    .risk-value { font-size: 2rem; }
+    .help-form { flex-direction: column; }
+    .help-form div { flex-direction: column; }
+    #helpBtn { width: 100%; }
+    .sim-panel { width: 90%; left: 5%; bottom: 80px; }
 }
