@@ -51,3 +51,59 @@ Next steps I can take for you:
 - Replace the demo safe-route logic with Google Directions API routing (requires Google Maps Directions API enabled).
 - Wire client-side Firebase access (if you prefer real-time Firestore listeners in the browser).
 
+Deploying frontend to Vercel and backend to Render
+-----------------------------------------------
+
+Quick summary:
+
+- Frontend (static) → Vercel (deploys from GitHub, set root to repo root).
+- Backend (Python Flask + WebSocket) → Render (Web Service from `server/python`).
+
+Helper script
+
+ - `scripts/gen-config.js` will generate `assets/js/config.js` from environment variables at build time. Use it in your Vercel Build Command to avoid committing API keys.
+
+Vercel (frontend) — recommended steps
+
+1. In Vercel, import this GitHub repo `RushalBangar/FloodGuard`.
+2. Set **Root Directory** to the repository root (the static `index.html` is at the repo root). For Framework Preset choose `Other`.
+3. Build & Output Settings:
+	- Build Command (optional): `node scripts/gen-config.js`
+	- Output Directory: `.`
+4. Add Environment Variables (Vercel Dashboard → Settings → Environment Variables):
+	- `GOOGLE_MAPS_API_KEY` — your Google Maps API key
+	- `FIREBASE_CONFIG` — JSON string of your Firebase web config (optional)
+	- `WATER_LEVEL_THRESHOLD`, `SENSOR_COLLECTION`, `HELP_COLLECTION` (optional)
+5. Deploy; Vercel will run the Build Command and publish the static site.
+
+Render (backend) — recommended steps
+
+1. On Render, create a new **Web Service** and connect your GitHub repo `RushalBangar/FloodGuard`.
+2. Set **Root Directory** to `server/python` and branch `main`.
+3. Build Command:
+
+```
+pip install -r requirements.txt
+```
+
+4. Start Command (use a Render environment variable named `SERVICE_ACCOUNT_JSON` containing the service account JSON):
+
+```
+bash -lc "echo \"$SERVICE_ACCOUNT_JSON\" > serviceAccountKey.json && gunicorn server:app -b 0.0.0.0:$PORT --workers 4 --timeout 120"
+```
+
+5. Environment variables to add in Render dashboard:
+	- `SERVICE_ACCOUNT_JSON` — the entire Firebase service account JSON (keep secret)
+	- `GOOGLE_MAPS_API_KEY` (if backend needs it)
+
+6. Deploy. Render will run the Build Command then run the Start Command which writes the service account file and starts Gunicorn.
+
+Security notes
+
+- Do not commit secrets (service account, API keys) to the repo; use Vercel/Render environment variables or secrets.
+- `server/python/serviceAccountKey.json` is in `.gitignore` to avoid accidental commits. If you have already committed secrets, rotate them immediately.
+
+Want me to wire this up?
+
+- I can add a `render.yaml` or Dockerfile for fully automated Render deployment, or set up Vercel build settings if you authorize the connections. Tell me which and I'll proceed.
+
