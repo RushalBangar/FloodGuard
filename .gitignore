@@ -1,6 +1,6 @@
 # Node
 node_modules/
-server/node_modules/
+backend/server/node_modules/
 server/**/node_modules/
 npm-debug.log*
 yarn-error.log*
@@ -11,10 +11,13 @@ __pycache__/
 .Python
 .venv/
 venv/
-server/python/.venv/
+# Python venvs
+.venv/
+venv/
+backend/server/python/.venv/
 
 # Firebase service account
-server/python/serviceAccountKey.json
+backend/server/python/serviceAccountKey.json
 
 # Environment
 .env

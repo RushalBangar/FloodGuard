@@ -4,7 +4,8 @@ import uuid
 from flask import Flask, send_from_directory, request, jsonify
 from flask_sock import Sock
 
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+# Serve frontend static files from the frontend folder at repo root
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', 'frontend'))
 app = Flask(__name__, static_folder=PROJECT_ROOT)
 sock = Sock(app)
 

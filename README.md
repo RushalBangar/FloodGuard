@@ -5,21 +5,21 @@ This folder contains a static website demo and both a Node.js demo server and a 
 
 Servers:
 
-- Node demo server (optional): [FloodGuard/server/server.js](server/server.js) — runs at port 3000 by default (already included earlier).
-- Python demo server (preferred for this workspace): [FloodGuard/server/python/server.py](server/python/server.py) — runs at port 5000 and supports WebSocket at `/ws`.
+- Node demo server (optional): [FloodGuard/backend/server/server.js](backend/server/server.js) — runs at port 3000 by default (already included earlier).
+- Python demo server (preferred for this workspace): [FloodGuard/backend/server/python/server.py](backend/server/python/server.py) — runs at port 5000 and supports WebSocket at `/ws`.
 
 Python server (recommended):
 
 1. Create and activate a virtual environment and install dependencies:
 
 ```powershell
-cd FloodGuard\server\python
+cd FloodGuard\backend\server\python
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-2. (Optional) To enable saving locations to Firebase Firestore, create a Firebase project and download a service account JSON file (from Firebase Console → Project Settings → Service Accounts). Save it as `FloodGuard/server/python/serviceAccountKey.json`.
+2. (Optional) To enable saving locations to Firebase Firestore, create a Firebase project and download a service account JSON file (from Firebase Console → Project Settings → Service Accounts). Save it as `FloodGuard/backend/server/python/serviceAccountKey.json`.
 
 3. Start the Python server:
 
@@ -31,8 +31,8 @@ python server.py
 
 Configuration:
 
-- Set your Google Maps API key in `[FloodGuard/assets/js/config.js](assets/js/config.js#L1)` by replacing `YOUR_GOOGLE_MAPS_API_KEY`.
-- If you want client-side Firebase reads, paste your Firebase web config into `FG_CONFIG.FIREBASE_CONFIG` in `assets/js/config.js`.
+- Set your Google Maps API key in `[FloodGuard/frontend/assets/js/config.js](frontend/assets/js/config.js#L1)` by replacing `YOUR_GOOGLE_MAPS_API_KEY`.
+- If you want client-side Firebase reads, paste your Firebase web config into `FG_CONFIG.FIREBASE_CONFIG` in `frontend/assets/js/config.js`.
 
 Notes & security:
 
@@ -56,17 +56,17 @@ Deploying frontend to Vercel and backend to Render
 
 Quick summary:
 
-- Frontend (static) → Vercel (deploys from GitHub, set root to repo root).
-- Backend (Python Flask + WebSocket) → Render (Web Service from `server/python`).
+- Frontend (static) → Vercel (deploys from GitHub, set root to `frontend`).
+- Backend (Python Flask + WebSocket) → Render (Web Service from `backend/server/python`).
 
 Helper script
 
- - `scripts/gen-config.js` will generate `assets/js/config.js` from environment variables at build time. Use it in your Vercel Build Command to avoid committing API keys.
+- `frontend/scripts/gen-config.js` will generate `frontend/assets/js/config.js` from environment variables at build time. Use it in your Vercel Build Command to avoid committing API keys.
 
 Vercel (frontend) — recommended steps
 
 1. In Vercel, import this GitHub repo `RushalBangar/FloodGuard`.
-2. Set **Root Directory** to the repository root (the static `index.html` is at the repo root). For Framework Preset choose `Other`.
+2. Set **Root Directory** to `frontend` (the static `index.html` is inside the `frontend` folder). For Framework Preset choose `Other`.
 3. Build & Output Settings:
 	- Build Command (optional): `node scripts/gen-config.js`
 	- Output Directory: `.`
@@ -79,7 +79,7 @@ Vercel (frontend) — recommended steps
 Render (backend) — recommended steps
 
 1. On Render, create a new **Web Service** and connect your GitHub repo `RushalBangar/FloodGuard`.
-2. Set **Root Directory** to `server/python` and branch `main`.
+2. Set **Root Directory** to `backend/server/python` and branch `main`.
 3. Build Command:
 
 ```
@@ -101,7 +101,7 @@ bash -lc "echo \"$SERVICE_ACCOUNT_JSON\" > serviceAccountKey.json && gunicorn se
 Security notes
 
 - Do not commit secrets (service account, API keys) to the repo; use Vercel/Render environment variables or secrets.
-- `server/python/serviceAccountKey.json` is in `.gitignore` to avoid accidental commits. If you have already committed secrets, rotate them immediately.
+- `backend/server/python/serviceAccountKey.json` is in `.gitignore` to avoid accidental commits. If you have already committed secrets, rotate them immediately.
 
 Want me to wire this up?
 

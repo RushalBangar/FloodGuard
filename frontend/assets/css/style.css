@@ -33,17 +33,17 @@ pre{background:#071017;color:#bfe0ff;padding:10px;border-radius:6px}
 
 /* Responsive layout */
 @media (max-width: 800px){
-	.container{margin:12px auto;padding:0 12px}
-	.nav{padding:8px}
-	.nav a{font-size:14px}
-	.hero{padding:14px}
+  .container{margin:12px auto;padding:0 12px}
+  .nav{padding:8px}
+  .nav a{font-size:14px}
+  .hero{padding:14px}
 }
 
 @media (max-width: 600px){
-	.nav{flex-wrap:wrap;gap:6px}
-	.actions{flex-direction:column}
-	button{width:100%}
-	.container{padding:8px}
+  .nav{flex-wrap:wrap;gap:6px}
+  .actions{flex-direction:column}
+  button{width:100%}
+  .container{padding:8px}
 }
 
 @media print{ .nav, .actions { display:none } }
