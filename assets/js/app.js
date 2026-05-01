@@ -64,5 +64,93 @@
       watchId = null; if(startBtn) startBtn.hidden = false; if(stopBtn) stopBtn.hidden = true; if(statusEl) statusEl.textContent = 'Status: Connected';
       if(socket && socket.readyState === WebSocket.OPEN) socket.send(JSON.stringify({type:'stop_sharing'}));
     });
+
+    // ---- Firebase-driven features (live data, help requests) ----
+    function showAlertBox(msg){
+      const box = document.getElementById('alertBox');
+      if(box){
+        box.innerHTML = '<div class="alert-item">'+msg+'</div>' + box.innerHTML;
+        box.classList.add('pulse');
+        setTimeout(()=> box.classList.remove('pulse'), 2000);
+      }
+      if('Notification' in window && Notification.permission === 'granted'){
+        new Notification('FloodGuard', {body: msg});
+      }
+    }
+
+    function sendHelpRequest(name, lat, lng){
+      if(window.FG_DB){
+        window.FG_DB.collection(FG_CONFIG.HELP_COLLECTION || 'helpRequests').add({name: name || 'Anonymous', lat, lng, ts: new Date(), status: 'open'})
+        .then(()=> showAlertBox('Help request sent — rescue teams alerted'))
+        .catch(e=> alert('Failed to send help request: '+e.message));
+      }else if(socket && socket.readyState === WebSocket.OPEN){
+        socket.send(JSON.stringify({type:'help_request', name: name || 'Anonymous', lat, lng}));
+        showAlertBox('Help request sent via socket');
+      }else{
+        alert('Unable to send help request (no network)');
+      }
+    }
+
+    // Attach help button
+    const helpBtn = document.getElementById('helpBtn');
+    if(helpBtn){
+      helpBtn.addEventListener('click', ()=>{
+        const name = (document.getElementById('helpName')||{}).value || 'Anonymous';
+        if(!navigator.geolocation) return alert('Geolocation not supported');
+        navigator.geolocation.getCurrentPosition(pos=>{
+          sendHelpRequest(name, pos.coords.latitude, pos.coords.longitude);
+        }, err=> alert('Location error: '+err.message));
+      });
+    }
+
+    // Live Firestore listeners (when firebase client ready)
+    window.addEventListener('fg:firebase-ready', (ev)=>{
+      const available = ev.detail && ev.detail.available;
+      if(!available || !window.FG_DB) return;
+
+      // Listen to latest sensor reading
+      try{
+        const col = FG_DB.collection(FG_CONFIG.SENSOR_COLLECTION || 'sensor_readings').orderBy('ts','desc').limit(1);
+        col.onSnapshot(snap=>{
+          if(snap.empty) return;
+          const doc = snap.docs[0].data();
+          const t = doc.temperature || doc.temp || '—';
+          const h = doc.humidity || doc.hum || '—';
+          const w = doc.waterLevel || doc.water_level || doc.water || '—';
+          const tempEl = document.getElementById('tempVal'); if(tempEl) tempEl.textContent = t;
+          const humEl = document.getElementById('humVal'); if(humEl) humEl.textContent = h;
+          const waterEl = document.getElementById('waterVal'); if(waterEl) waterEl.textContent = w;
+
+          const threshold = FG_CONFIG.WATER_LEVEL_THRESHOLD;
+          if(threshold !== null && threshold !== undefined && parseFloat(w) >= parseFloat(threshold)){
+            showAlertBox('Flood predicted — water level above threshold');
+          }
+        });
+      }catch(e){ console.warn('Sensor listener failed', e); }
+
+      // Listen to alerts collection
+      try{
+        FG_DB.collection(FG_CONFIG.ALERTS_COLLECTION || 'alerts').orderBy('ts','desc').limit(5).onSnapshot(snap=>{
+          snap.docChanges().forEach(ch=>{
+            if(ch.type === 'added') showAlertBox(ch.doc.data().message || 'Alert');
+          });
+        });
+      }catch(e){ }
+    });
+
+    // Rescue dashboard: listen to help requests and forward to in-page event for map
+    window.addEventListener('fg:firebase-ready', (ev)=>{
+      if(!ev.detail || !ev.detail.available) return;
+      try{
+        FG_DB.collection(FG_CONFIG.HELP_COLLECTION || 'helpRequests').where('status','==','open').onSnapshot(snap=>{
+          snap.docChanges().forEach(ch=>{
+            if(ch.type === 'added'){
+              const d = ch.doc.data();
+              window.dispatchEvent(new CustomEvent('fg:help-request', {detail: Object.assign({id: ch.doc.id}, d)}));
+            }
+          });
+        });
+      }catch(e){ }
+    });
   });
 })();

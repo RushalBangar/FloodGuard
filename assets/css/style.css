@@ -1,18 +1,35 @@
 /* Basic styles for FloodGuard demo site */
-:root{--accent:#1b6ca8;--muted:#666}
-body{font-family:Arial,Helvetica,sans-serif;margin:0;color:#222}
-.site-header{background:#f7f9fb;border-bottom:1px solid #e3e7ea}
+:root{--bg:#0f1720;--card:#0b1420;--accent:#1b6ca8;--muted:#9aa6b2;--danger:#ff6b6b}
+body{font-family:Inter,Arial,Helvetica,sans-serif;margin:0;color:#e6eef6;background:var(--bg)}
+.site-header{background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-bottom:1px solid rgba(255,255,255,0.04)}
 .nav{display:flex;gap:12px;padding:12px 18px;align-items:center}
 .nav a{color:var(--accent);text-decoration:none;font-weight:600}
 .container{max-width:980px;margin:20px auto;padding:0 16px}
-.hero{background:#fff;padding:18px;border:1px solid #e3e7ea;border-radius:6px}
+.hero{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:18px;border:1px solid rgba(255,255,255,0.04);border-radius:12px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
 .hero h1{margin:0 0 6px}
 .tagline{color:var(--muted);margin-top:0}
 .actions{margin:12px 0;display:flex;gap:8px;flex-wrap:wrap}
-button{padding:10px 14px;border-radius:6px;border:1px solid #bcd;cursor:pointer;background:var(--accent);color:#fff}
+button{padding:10px 14px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);cursor:pointer;background:var(--accent);color:#fff;transition:transform .12s ease, box-shadow .12s ease}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(27,108,168,0.18)}
 button[hidden]{display:none}
 .status{color:var(--muted);margin-top:8px}
-pre{background:#111;color:#fff;padding:10px;border-radius:6px}
+pre{background:#071017;color:#bfe0ff;padding:10px;border-radius:6px}
+
+.card{background:var(--card);padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.02);margin-top:12px}
+.sensor-panel .sensor-row{padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.025)}
+.sensor-panel h3{margin-top:0}
+.help-form{display:flex;gap:8px;margin-top:12px}
+.help-form input{flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#dbeefe}
+.help-form button{flex:0 0 auto}
+
+.alert-box{margin-top:10px}
+.alert-item{background:linear-gradient(90deg, rgba(255,107,107,0.12), rgba(255,107,107,0.06));padding:8px;border-radius:8px;border:1px solid rgba(255,107,107,0.08);color:var(--danger);font-weight:700}
+.pulse{animation:pulse 1.8s ease}
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.02)}100%{transform:scale(1)}}
+
+.auth-card{position:fixed;left:12px;top:12px;z-index:200;background:var(--card);padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+.auth-card input{display:block;margin:8px 0;padding:8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:#dbeefe}
+.auth-actions{display:flex;gap:8px}
 
 /* Responsive layout */
 @media (max-width: 800px){

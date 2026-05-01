@@ -24,6 +24,7 @@
     <div id="map"></div>
   </main>
   <script src="assets/js/config.js"></script>
+  <script src="assets/js/firebase.js"></script>
   <script>
     function loadGoogleMaps(cb){
       if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
@@ -59,6 +60,48 @@
     }
 
     window.addEventListener('DOMContentLoaded', init);
+  </script>
+
+  <script>
+    /* Simple rescuer auth UI (shown when not signed in) */
+    (function(){
+      document.addEventListener('fg:firebase-ready', ()=>{
+        if(!window.FG_AUTH){ return; }
+        const loginForm = document.createElement('div');
+        loginForm.id = 'rescuerAuth';
+        loginForm.innerHTML = `
+          <div class="auth-card">
+            <h3>Rescuer Sign In</h3>
+            <input id="rescuerEmail" placeholder="Email" />
+            <input id="rescuerPass" type="password" placeholder="Password" />
+            <div class="auth-actions">
+              <button id="rescuerLoginBtn">Sign In</button>
+              <button id="rescuerSignOutBtn" hidden>Sign Out</button>
+            </div>
+          </div>`;
+        document.body.insertBefore(loginForm, document.querySelector('.container'));
+
+        const emailEl = document.getElementById('rescuerEmail');
+        const passEl = document.getElementById('rescuerPass');
+        const loginBtn = document.getElementById('rescuerLoginBtn');
+        const signOutBtn = document.getElementById('rescuerSignOutBtn');
+
+        loginBtn.addEventListener('click', ()=>{
+          const email = emailEl.value.trim(); const pass = passEl.value;
+          if(!email || !pass) return alert('Enter email and password');
+          FG_AUTH.signInWithEmailAndPassword(email, pass).then(()=>{
+            alert('Signed in');
+          }).catch(e=>{ alert('Sign-in error: '+e.message); });
+        });
+
+        signOutBtn.addEventListener('click', ()=>{ FG_AUTH.signOut(); });
+
+        FG_AUTH.onAuthStateChanged(u=>{
+          if(u){ loginForm.style.display='none'; document.querySelector('.container').style.display='block'; }
+          else { loginForm.style.display='block'; document.querySelector('.container').style.display='none'; }
+        });
+      });
+    })();
   </script>
 </body>
 </html>

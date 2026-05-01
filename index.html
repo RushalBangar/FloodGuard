@@ -32,6 +32,18 @@
 
       <p id="status" class="status">Status: Disconnected</p>
       <p class="note">Tip: run the local server (<code>server/</code>) to enable live alerts and location sharing.</p>
+
+      <div id="sensorPanel" class="card sensor-panel">
+        <h3>Live Sensor Data</h3>
+        <div class="sensor-row"><strong>Temperature:</strong> <span id="tempVal">—</span> °C</div>
+        <div class="sensor-row"><strong>Humidity:</strong> <span id="humVal">—</span> %</div>
+        <div class="sensor-row"><strong>Water Level:</strong> <span id="waterVal">—</span></div>
+        <div id="alertBox" class="alert-box" aria-live="polite"></div>
+        <div class="help-form">
+          <input id="helpName" placeholder="Your name (optional)" />
+          <button id="helpBtn">I Need Help</button>
+        </div>
+      </div>
     </section>
 
     <section>
@@ -46,6 +58,7 @@
   </main>
 
   <script src="assets/js/config.js"></script>
+  <script src="assets/js/firebase.js"></script>
   <script src="assets/js/app.js"></script>
 </body>
 </html>

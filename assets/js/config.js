@@ -13,6 +13,20 @@ const FG_CONFIG = {
   GOOGLE_MAPS_API_KEY: 'YOUR_GOOGLE_MAPS_API_KEY',
 
   // Optional: client-side Firebase config (if you want the frontend to read Firestore directly)
-  // Leave `null` to rely on server-side Firebase Admin SDK instead.
-  FIREBASE_CONFIG: null
+  // Replace with your Firebase web SDK config object or leave `null` to rely on server-side Firebase Admin SDK.
+  FIREBASE_CONFIG: null,
+
+  // Thresholds (tweak to match your sensor units)
+  WATER_LEVEL_THRESHOLD: 0.7, // example: fraction or metres depending on your device
+  TEMPERATURE_THRESHOLD: null,
+
+  // Collections used in Firestore (can be left as defaults)
+  SENSOR_COLLECTION: 'sensor_readings',
+  HELP_COLLECTION: 'helpRequests',
+  ALERTS_COLLECTION: 'alerts',
+
+  // Optional safe destinations used by the map navigation (name, lat, lng)
+  SAFE_DESTINATIONS: [
+    {name: 'Municipal Safe Point', lat: 20.0, lng: 78.0}
+  ]
 };
