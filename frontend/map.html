@@ -104,13 +104,16 @@
       }
     }
 
+    let accuracyCircle = null;
+
     function startTracking() {
         if(!navigator.geolocation) return;
         
         // Continuously watch position
         watchId = navigator.geolocation.watchPosition(pos => {
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
-            updateUserPosition(lat, lng);
+            const accuracy = pos.coords.accuracy; // in metres
+            updateUserPosition(lat, lng, accuracy);
         }, err => {
             console.log('Location tracking error:', err.message);
         }, {
@@ -120,13 +123,12 @@
         });
     }
 
-    function updateUserPosition(lat, lng) {
+    function updateUserPosition(lat, lng, accuracy) {
         const pos = {lat, lng};
         
         if(userMarker) {
             userMarker.setPosition(pos);
         } else {
-            // Create user marker with pulsing blue dot
             userMarker = new google.maps.Marker({
                 position: pos,
                 map: map,
@@ -141,9 +143,27 @@
                 },
                 zIndex: 999
             });
-            // Center map on first location fix
             map.setCenter(pos);
             map.setZoom(14);
+        }
+
+        // Show accuracy radius
+        if(accuracy) {
+            if(accuracyCircle) {
+                accuracyCircle.setCenter(pos);
+                accuracyCircle.setRadius(accuracy);
+            } else {
+                accuracyCircle = new google.maps.Circle({
+                    map: map,
+                    center: pos,
+                    radius: accuracy,
+                    fillColor: '#00d2ff',
+                    fillOpacity: 0.1,
+                    strokeColor: '#00d2ff',
+                    strokeOpacity: 0.3,
+                    strokeWeight: 1
+                });
+            }
         }
     }
 
