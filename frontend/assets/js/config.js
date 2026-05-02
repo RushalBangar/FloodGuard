@@ -4,8 +4,12 @@ const FG_CONFIG = {
   WS_URL: (function(){
     try{
       const proto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-      const host = location.hostname || 'localhost';
-      return proto + host + ':5000/ws';
+      // If running on localhost/127.0.0.1, use port 5000 for backend
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        return proto + location.hostname + ':5000/ws';
+      }
+      // In production (Vercel), use the proxied /ws route on the same host
+      return proto + location.host + '/ws';
     }catch(e){ return 'ws://localhost:5000/ws'; }
   })(),
 

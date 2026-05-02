@@ -4,11 +4,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://your-backend-url.onrender.com/api/:path*"
+      "destination": "https://floodguard-backend.onrender.com/api/:path*"
     },
     {
       "source": "/ws",
-      "destination": "https://your-backend-url.onrender.com/ws"
+      "destination": "https://floodguard-backend.onrender.com/ws"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
     }
   ]
 }
