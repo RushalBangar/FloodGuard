@@ -115,7 +115,8 @@
 
     async function fetchPrediction(waterLevel, rain, hum, temp) {
         try {
-            const resp = await fetch('/api/predict', {
+            const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+            const resp = await fetch(backendUrl + '/api/predict', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ water_level: waterLevel, rainfall: rain, humidity: hum, temperature: temp })
@@ -127,7 +128,8 @@
 
     async function fetchWeather() {
         try {
-            const resp = await fetch('/api/weather');
+            const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+            const resp = await fetch(backendUrl + '/api/weather');
             const data = await resp.json();
             if (data.main) {
                 document.getElementById('weatherDesc').textContent = `Local: ${data.weather[0].description} | Wind: ${data.wind.speed} m/s`;
@@ -211,7 +213,8 @@
     setInterval(fetchWeather, 60000);
 
     document.getElementById('test-alert').addEventListener('click', ()=>{
-      fetch('/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'System Alert: Flood risk assessment in progress.'})});
+      const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+      fetch(backendUrl + '/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'System Alert: Flood risk assessment in progress.'})});
     });
 
     document.getElementById('start-sharing').addEventListener('click', ()=>{
