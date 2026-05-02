@@ -43,6 +43,12 @@
   <script src="assets/js/config.js"></script>
   <script src="assets/js/app.js"></script>
   <script>
+    let map;
+    let userMarker = null;
+    let watchId = null;
+    const routes = [];
+    const destMarkers = [];
+
     function loadGoogleMaps(cb){
       if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
         alert('Please set FG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
@@ -57,7 +63,7 @@
 
     function init(){
       loadGoogleMaps(()=>{
-        const map = new google.maps.Map(document.getElementById('map'), { 
+        map = new google.maps.Map(document.getElementById('map'), { 
             center: {lat:20.0, lng:78.0}, 
             zoom:5,
             styles: [
@@ -72,29 +78,16 @@
                 { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
             ]
         });
-        const routes = [];
-        const markers = [];
 
-        function clear(){ routes.forEach(r=> r.setMap(null)); routes.length=0; markers.forEach(m=> m.setMap(null)); markers.length=0; }
+        // Auto-start location tracking
+        startTracking();
 
+        // Button also triggers safe route calculation
         document.getElementById('locate').addEventListener('click', ()=>{
           if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
           navigator.geolocation.getCurrentPosition(pos=>{
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
-            clear();
-            markers.push(new google.maps.Marker({position:{lat,lng}, map, title:'You are here', icon: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'}));
-
-            const dests = FG_CONFIG.SAFE_DESTINATIONS || [{lat:lat+0.02, lng:lng+0.02}, {lat:lat-0.02, lng:lng-0.02}];
-            dests.forEach((d,i)=>{
-              markers.push(new google.maps.Marker({position:d, map, label: (i+1).toString(), title: d.name || 'Safe point '+(i+1)}));
-              const line = new google.maps.Polyline({path:[{lat,lng}, d], strokeColor:'#4ade80', strokeWeight:5, map, opacity: 0.8});
-              routes.push(line);
-            });
-
-            const bounds = new google.maps.LatLngBounds();
-            routes.forEach(r=> r.getPath().forEach(p=> bounds.extend(p)));
-            markers.forEach(m=> bounds.extend(m.getPosition()));
-            map.fitBounds(bounds);
+            showSafeRoutes(lat, lng);
           }, err=>{ alert('Unable to get location: ' + err.message); });
         });
       });
@@ -109,6 +102,72 @@
           drop.style.animationDelay = Math.random() * 2 + 's';
           rainContainer.appendChild(drop);
       }
+    }
+
+    function startTracking() {
+        if(!navigator.geolocation) return;
+        
+        // Continuously watch position
+        watchId = navigator.geolocation.watchPosition(pos => {
+            const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            updateUserPosition(lat, lng);
+        }, err => {
+            console.log('Location tracking error:', err.message);
+        }, {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 10000
+        });
+    }
+
+    function updateUserPosition(lat, lng) {
+        const pos = {lat, lng};
+        
+        if(userMarker) {
+            userMarker.setPosition(pos);
+        } else {
+            // Create user marker with pulsing blue dot
+            userMarker = new google.maps.Marker({
+                position: pos,
+                map: map,
+                title: 'You are here',
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    fillColor: '#00d2ff',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 3
+                },
+                zIndex: 999
+            });
+            // Center map on first location fix
+            map.setCenter(pos);
+            map.setZoom(14);
+        }
+    }
+
+    function showSafeRoutes(lat, lng) {
+        // Clear previous routes and destination markers
+        routes.forEach(r => r.setMap(null)); routes.length = 0;
+        destMarkers.forEach(m => m.setMap(null)); destMarkers.length = 0;
+        
+        // Update user position
+        updateUserPosition(lat, lng);
+
+        const dests = FG_CONFIG.SAFE_DESTINATIONS || [{name:'Safe Point A', lat:lat+0.02, lng:lng+0.02}, {name:'Safe Point B', lat:lat-0.02, lng:lng-0.02}];
+        dests.forEach((d,i)=>{
+          const marker = new google.maps.Marker({position:d, map, label: (i+1).toString(), title: d.name || 'Safe point '+(i+1)});
+          destMarkers.push(marker);
+          const line = new google.maps.Polyline({path:[{lat,lng}, d], strokeColor:'#4ade80', strokeWeight:5, map, opacity: 0.8});
+          routes.push(line);
+        });
+
+        const bounds = new google.maps.LatLngBounds();
+        bounds.extend({lat, lng});
+        routes.forEach(r=> r.getPath().forEach(p=> bounds.extend(p)));
+        destMarkers.forEach(m=> bounds.extend(m.getPosition()));
+        map.fitBounds(bounds);
     }
 
     window.addEventListener('DOMContentLoaded', init);

@@ -62,6 +62,13 @@
   <script src="assets/js/app.js"></script>
   <script>
     let map, heatmap;
+    const markers = {};
+    const heatPoints = [];
+    const knownSOS = new Set(); // Track already-displayed SOS IDs
+    let ws = null;
+    let wsRetryDelay = 3000;
+    const WS_MAX_RETRY = 30000;
+
     function loadGoogleMaps(cb){
       if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
         alert('Please set FG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
@@ -93,20 +100,12 @@
             radius: 30
         });
 
-        const markers = {};
-        const heatPoints = [];
-
-        const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.hostname + ':5000/ws';
-        const ws = new WebSocket(WS_URL);
+        // Connect WebSocket
+        connectWS();
         
-        ws.addEventListener('message', ev=>{
-          try{
-            const data = JSON.parse(ev.data);
-            if(data.type === 'location'){
-              handleLocation(data, markers, heatPoints);
-            }
-          }catch(e){ }
-        });
+        // Also poll REST API for SOS signals (fallback for when WS is down)
+        fetchSOSSignals();
+        setInterval(fetchSOSSignals, 10000);
       });
 
       // Generate rain drops
@@ -121,7 +120,48 @@
       }
     }
 
-    function handleLocation(data, markers, heatPoints) {
+    function connectWS() {
+        const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.hostname + ':5000/ws';
+        try { ws = new WebSocket(WS_URL); } catch(e) { wsRetryDelay = Math.min(wsRetryDelay * 2, WS_MAX_RETRY); setTimeout(connectWS, wsRetryDelay); return; }
+        
+        ws.addEventListener('open', () => {
+            wsRetryDelay = 3000;
+            console.log('Rescue WS connected');
+        });
+        
+        ws.addEventListener('message', ev => {
+            try {
+                const data = JSON.parse(ev.data);
+                if(data.type === 'location') {
+                    handleLocation(data);
+                }
+            } catch(e) {}
+        });
+        
+        ws.addEventListener('close', () => {
+            wsRetryDelay = Math.min(wsRetryDelay * 2, WS_MAX_RETRY);
+            setTimeout(connectWS, wsRetryDelay);
+        });
+    }
+
+    function fetchSOSSignals() {
+        const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+        fetch(backendUrl + '/api/sos')
+            .then(r => r.json())
+            .then(signals => {
+                if(Array.isArray(signals)) {
+                    signals.forEach(data => {
+                        if(!knownSOS.has(data.id)) {
+                            handleLocation(data);
+                        }
+                    });
+                }
+            })
+            .catch(() => {});
+    }
+
+    function handleLocation(data) {
+        if(!map) return;
         const id = data.id || 'unknown';
         const lat = data.lat, lng = data.lng;
         const isSOS = data.isSOS || false;
@@ -138,12 +178,17 @@
             });
         }
 
-        if(isSOS) {
+        if(isSOS && !knownSOS.has(id)) {
+            knownSOS.add(id);
             addSOSCard(data);
             heatPoints.push(new google.maps.LatLng(lat, lng));
             heatmap.setData(heatPoints);
+            // Play alert sound
             const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-emergency-alert-alarm-1007.mp3');
             audio.play().catch(e=>{});
+            // Pan map to SOS location
+            map.setCenter(pos);
+            map.setZoom(12);
         }
     }
 
@@ -152,10 +197,11 @@
         if(list.querySelector('p')) list.innerHTML = '';
         const card = document.createElement('div');
         card.className = 'sos-card';
+        const time = new Date().toLocaleTimeString();
         card.innerHTML = `
             <span class="status-pill">URGENT</span>
             <h4>${data.name || 'Anonymous User'}</h4>
-            <p>ID: ${data.id || 'Unknown'}</p>
+            <p>ID: ${data.id || 'Unknown'} · ${time}</p>
             <p>Coord: ${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}</p>
             <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
                 <button style="font-size:0.6rem; padding:0.3rem 0.5rem;" onclick="focusUser(${data.lat}, ${data.lng})">LOCATE</button>

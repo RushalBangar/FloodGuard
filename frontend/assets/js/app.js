@@ -234,10 +234,27 @@
         const name = document.getElementById('helpName').value || 'Anonymous';
         navigator.geolocation.getCurrentPosition(pos=>{
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            
+            // Try WebSocket first
             if(socket && socket.readyState === WebSocket.OPEN){
                 socket.send(JSON.stringify({type:'location', lat, lng, isSOS: true, name: name}));
                 showAlertBox('SOS TRANSMITTED. Rescue teams notified.', true);
+            } else {
+                // Fallback to REST API
+                const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+                fetch(backendUrl + '/api/sos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ lat, lng, name })
+                }).then(r => r.json()).then(data => {
+                    if(data.ok) showAlertBox('SOS TRANSMITTED via backup channel. Rescue teams notified.', true);
+                    else showAlertBox('SOS failed. Please try again.', true);
+                }).catch(() => {
+                    showAlertBox('SOS failed — no connection. Please call emergency services.', true);
+                });
             }
+        }, err => {
+            showAlertBox('Location access denied. Please enable GPS for SOS.', true);
         });
     });
 

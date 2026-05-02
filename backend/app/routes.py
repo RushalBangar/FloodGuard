@@ -91,6 +91,39 @@ def api_notify():
 def api_health():
     return jsonify({"status": "ok", "firebase": firebase_initialized})
 
+@api.route('/api/sos', methods=['POST'])
+def api_sos():
+    """REST API fallback for sending SOS when WebSocket is not connected"""
+    from .sockets import broadcast, active_sos
+    import time, uuid
+    data = request.get_json() or {}
+    lat = data.get('lat')
+    lng = data.get('lng')
+    name = data.get('name', 'Anonymous')
+    
+    if lat is None or lng is None:
+        return jsonify({"error": "lat and lng required"}), 400
+    
+    sos_id = uuid.uuid4().hex[:8]
+    msg = {
+        'type': 'location',
+        'id': sos_id,
+        'lat': float(lat),
+        'lng': float(lng),
+        'isSOS': True,
+        'name': name,
+        'timestamp': time.time()
+    }
+    active_sos[sos_id] = msg
+    broadcast(msg)
+    return jsonify({"ok": True, "id": sos_id})
+
+@api.route('/api/sos', methods=['GET'])
+def api_get_sos():
+    """Get all active SOS signals"""
+    from .sockets import active_sos
+    return jsonify(list(active_sos.values()))
+
 # Catch-all route to serve static files from the frontend directory (local dev only)
 @api.route('/', defaults={'path': 'index.html'})
 @api.route('/<path:path>')
