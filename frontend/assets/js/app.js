@@ -306,6 +306,22 @@
           document.getElementById('waterVal').textContent = (w * 100).toFixed(1) + ' %';
           updateChart(w);
       });
+
+      // Listen for persistent alerts in Firestore
+      const alertColName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.ALERTS_COLLECTION) ? FG_CONFIG.ALERTS_COLLECTION : 'alerts';
+      const shownAlerts = new Set();
+      FG_DB.collection(alertColName).orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
+          snap.docChanges().forEach(change => {
+              if (change.type === 'added') {
+                  const data = change.doc.data();
+                  const alertId = change.doc.id;
+                  if (!shownAlerts.has(alertId)) {
+                      shownAlerts.add(alertId);
+                      showAlertBox(data.message || 'Emergency Alert', data.type === 'alert');
+                  }
+              }
+          });
+      });
     });
   });
 })();

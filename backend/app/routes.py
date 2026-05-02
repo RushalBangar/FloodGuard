@@ -10,8 +10,21 @@ api = Blueprint('api', __name__)
 @api.route('/api/alert', methods=['POST'])
 def api_alert():
     from .sockets import broadcast
+    import time
     data = request.get_json() or {}
     msg = data.get('message', 'Flood alert')
+    
+    # Save to Firestore if available
+    if firebase_initialized and db:
+        try:
+            db.collection('alerts').add({
+                'message': msg,
+                'timestamp': time.time(),
+                'type': 'alert'
+            })
+        except Exception as e:
+            print(f"Error saving alert to Firestore: {e}")
+
     broadcast({'type': 'alert', 'message': msg})
     return jsonify({'ok': True})
 
@@ -105,6 +118,7 @@ def api_sos():
         return jsonify({"error": "lat and lng required"}), 400
     
     sos_id = uuid.uuid4().hex[:8]
+    now = time.time()
     msg = {
         'type': 'location',
         'id': sos_id,
@@ -112,8 +126,23 @@ def api_sos():
         'lng': float(lng),
         'isSOS': True,
         'name': name,
-        'timestamp': time.time()
+        'timestamp': now
     }
+    
+    # Save to Firestore if available
+    if firebase_initialized and db:
+        try:
+            db.collection('helpRequests').document(sos_id).set({
+                'name': name,
+                'lat': float(lat),
+                'lng': float(lng),
+                'isSOS': True,
+                'timestamp': now,
+                'status': 'active'
+            })
+        except Exception as e:
+            print(f"Error saving SOS to Firestore: {e}")
+
     active_sos[sos_id] = msg
     broadcast(msg)
     return jsonify({"ok": True, "id": sos_id})
