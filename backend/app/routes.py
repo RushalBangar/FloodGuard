@@ -88,8 +88,9 @@ def api_notify():
     success = send_sms_alert(msg, phone)
     return jsonify({"ok": success})
 
-# Catch-all route to serve static files from the frontend directory
-@app.route('/', defaults={'path': 'index.html'})
-@app.route('/<path:path>')
-def static_proxy(path):
-    return send_from_directory(app.static_folder, path)
+# Catch-all route to serve static files from the frontend directory (local dev only)
+if app.static_folder:
+    @app.route('/', defaults={'path': 'index.html'})
+    @app.route('/<path:path>')
+    def static_proxy(path):
+        return send_from_directory(app.static_folder, path)

@@ -1,14 +1,22 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 from flask_sock import Sock
 
 sock = Sock()
 
 def create_app():
-    # Define the frontend directory path (two levels up from this file)
+    # On Render, rootDir is 'backend', so '../../frontend' won't exist.
+    # The frontend is served by Vercel; Flask only needs to serve the API.
     frontend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'frontend'))
     
-    app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
+    if os.path.isdir(frontend_dir):
+        app = Flask(__name__, static_folder=frontend_dir, static_url_path='')
+    else:
+        app = Flask(__name__)
+    
+    # Allow cross-origin requests from the Vercel frontend
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     
     # Initialize extensions
     sock.init_app(app)
@@ -17,7 +25,5 @@ def create_app():
         # Import components
         from . import routes, sockets, firebase_config
         
-        # Register components (sockets are registered via decorator, so they just need to be imported)
-        # Routes are registered via @app.route in routes.py
-        
         return app
+

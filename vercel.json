@@ -1,18 +1,9 @@
 {
-  "name": "floodguard-frontend",
-  "cleanUrls": true,
+  "outputDirectory": "frontend",
   "rewrites": [
     {
       "source": "/api/:path*",
       "destination": "https://floodguard-backend.onrender.com/api/:path*"
-    },
-    {
-      "source": "/ws",
-      "destination": "https://floodguard-backend.onrender.com/ws"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/frontend/$1"
     }
   ]
 }
