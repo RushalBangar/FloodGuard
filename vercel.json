@@ -3,7 +3,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://floodguard-backend.onrender.com/api/:path*"
+      "destination": "https://floodguard-8sfc.onrender.com/api/:path*"
     }
   ]
 }

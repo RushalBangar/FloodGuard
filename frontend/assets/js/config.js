@@ -6,7 +6,7 @@ const FG_CONFIG = {
     if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       return 'http://' + location.hostname + ':5000';
     }
-    return 'https://floodguard-backend.onrender.com';
+    return 'https://floodguard-8sfc.onrender.com';
   })(),
 
   WS_URL: (function(){
@@ -16,7 +16,7 @@ const FG_CONFIG = {
         return 'ws://' + location.hostname + ':5000/ws';
       }
       // Production: connect directly to Render backend (Vercel can't proxy WebSockets)
-      return 'wss://floodguard-backend.onrender.com/ws';
+      return 'wss://floodguard-8sfc.onrender.com/ws';
     }catch(e){ return 'ws://localhost:5000/ws'; }
   })(),
 
