@@ -21,9 +21,9 @@ def create_app():
     # Initialize extensions
     sock.init_app(app)
     
-    with app.app_context():
-        # Import components
-        from . import routes, sockets, firebase_config
-        
-        return app
-
+    # Import and register components
+    from . import firebase_config, sockets
+    from .routes import api
+    app.register_blueprint(api)
+    
+    return app

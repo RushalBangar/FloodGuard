@@ -1,11 +1,13 @@
 import os
-from flask import current_app as app, send_from_directory, request, jsonify
+from flask import Blueprint, send_from_directory, request, jsonify, current_app
 from .firebase_config import db, firebase_initialized
 from .predictor import calculate_flood_risk
 from .notifier import send_sms_alert
 import requests
 
-@app.route('/api/alert', methods=['POST'])
+api = Blueprint('api', __name__)
+
+@api.route('/api/alert', methods=['POST'])
 def api_alert():
     from .sockets import broadcast
     data = request.get_json() or {}
@@ -13,7 +15,7 @@ def api_alert():
     broadcast({'type': 'alert', 'message': msg})
     return jsonify({'ok': True})
 
-@app.route('/api/locations', methods=['GET'])
+@api.route('/api/locations', methods=['GET'])
 def api_locations():
     if firebase_initialized and db:
         try:
@@ -29,7 +31,7 @@ def api_locations():
     else:
         return jsonify([])
 
-@app.route('/api/predict', methods=['POST'])
+@api.route('/api/predict', methods=['POST'])
 def api_predict():
     data = request.get_json() or {}
     water_level = float(data.get('water_level', 0))
@@ -40,10 +42,8 @@ def api_predict():
     result = calculate_flood_risk(water_level, rainfall, hum, temp)
     return jsonify(result)
 
-@app.route('/api/weather', methods=['GET'])
+@api.route('/api/weather', methods=['GET'])
 def api_weather():
-    # Placeholder for real weather API integration
-    # For now, return mock data or fetch from OpenWeather if API_KEY exists
     api_key = os.environ.get('WEATHER_API_KEY')
     lat = request.args.get('lat', '20.0')
     lon = request.args.get('lon', '78.0')
@@ -63,10 +63,9 @@ def api_weather():
         "wind": {"speed": 4.1}
     })
 
-@app.route('/api/simulate', methods=['POST'])
+@api.route('/api/simulate', methods=['POST'])
 def api_simulate():
     data = request.get_json() or {}
-    # Broadcast simulation data to all connected clients via WebSockets
     from .sockets import broadcast
     broadcast({
         "type": "simulation",
@@ -77,7 +76,7 @@ def api_simulate():
     })
     return jsonify({"status": "Simulation broadcasted"})
 
-@app.route('/api/notify', methods=['POST'])
+@api.route('/api/notify', methods=['POST'])
 def api_notify():
     data = request.get_json() or {}
     msg = data.get('message', 'Flood Alert')
@@ -88,9 +87,14 @@ def api_notify():
     success = send_sms_alert(msg, phone)
     return jsonify({"ok": success})
 
+@api.route('/api/health', methods=['GET'])
+def api_health():
+    return jsonify({"status": "ok", "firebase": firebase_initialized})
+
 # Catch-all route to serve static files from the frontend directory (local dev only)
-if app.static_folder:
-    @app.route('/', defaults={'path': 'index.html'})
-    @app.route('/<path:path>')
-    def static_proxy(path):
-        return send_from_directory(app.static_folder, path)
+@api.route('/', defaults={'path': 'index.html'})
+@api.route('/<path:path>')
+def static_proxy(path):
+    if current_app.static_folder:
+        return send_from_directory(current_app.static_folder, path)
+    return jsonify({"error": "Frontend not available on this server"}), 404

@@ -138,10 +138,14 @@
         return null;
     }
 
+    let wsRetryDelay = 3000;
+    const WS_MAX_RETRY = 30000;
+
     function connect(){
-      try{ socket = new WebSocket(WS_URL); }catch(e){ setTimeout(connect,3000); return; }
+      try{ socket = new WebSocket(WS_URL); }catch(e){ wsRetryDelay = Math.min(wsRetryDelay * 2, WS_MAX_RETRY); setTimeout(connect, wsRetryDelay); return; }
 
       socket.addEventListener('open', ()=>{ 
+          wsRetryDelay = 3000; // reset on successful connection
           if(statusEl) {
               statusEl.textContent = 'Status: Connected';
               statusEl.className = 'status connected';
@@ -164,7 +168,8 @@
               statusEl.textContent = 'Status: Disconnected';
               statusEl.className = 'status disconnected';
           }
-          setTimeout(connect,3000); 
+          wsRetryDelay = Math.min(wsRetryDelay * 2, WS_MAX_RETRY);
+          setTimeout(connect, wsRetryDelay); 
       });
     }
 
