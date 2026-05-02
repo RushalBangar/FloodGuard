@@ -244,9 +244,17 @@
       document.getElementById('stop-sharing').hidden = true;
     });
 
-    document.getElementById('helpBtn').addEventListener('click', ()=>{
+    document.getElementById('helpBtn').addEventListener('click', (ev)=>{
+        const btn = ev.currentTarget;
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'LOCATING...';
+
         const name = document.getElementById('helpName').value || 'Anonymous';
         navigator.geolocation.getCurrentPosition(pos=>{
+            btn.disabled = false;
+            btn.textContent = originalText;
+
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
             const sosData = {
                 name: name,
@@ -290,6 +298,8 @@
                 });
             }
         }, err => {
+            btn.disabled = false;
+            btn.textContent = originalText;
             showAlertBox('Location access denied. Please enable GPS for SOS.', true);
         }, { enableHighAccuracy: true });
     });

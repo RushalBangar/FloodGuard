@@ -39,14 +39,23 @@ body {
     transition: background 0.5s ease;
 }
 
-/* Lightning Flash */
-.bg-animation.lightning {
-    animation: flash 5s infinite;
+/* Lightning Overlay (for performance) */
+.lightning-flash {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: #cbd5e1;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
 }
 
-@keyframes flash {
-    0%, 95%, 98%, 100% { background: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%); }
-    96%, 99% { background: #cbd5e1; }
+.bg-animation.lightning .lightning-flash {
+    animation: flash-v2 5s infinite;
+}
+
+@keyframes flash-v2 {
+    0%, 95%, 98%, 100% { opacity: 0; }
+    96%, 99% { opacity: 0.8; }
 }
 
 /* Rain Particles */
@@ -80,13 +89,14 @@ body {
     position: absolute;
     bottom: 0;
     left: 0;
-    width: 100%;
+    width: 200%;
     height: 150px;
     background: url('https://cdn.pixabay.com/photo/2017/02/07/16/47/wave-2046397_1280.png');
     background-size: 1000px 150px;
     opacity: 0.15;
-    animation: wave-move 10s linear infinite;
+    animation: wave-move-v2 15s linear infinite;
     transition: height 2s ease, opacity 2s ease;
+    will-change: transform;
 }
 
 .bg-animation.flood .wave {
@@ -97,12 +107,12 @@ body {
 .wave:nth-child(2) {
     bottom: 20px;
     opacity: 0.1;
-    animation: wave-move 15s linear infinite reverse;
+    animation: wave-move-v2 20s linear infinite reverse;
 }
 
-@keyframes wave-move {
-    0% { background-position-x: 0; }
-    100% { background-position-x: 1000px; }
+@keyframes wave-move-v2 {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
 }
 
 /* --- Navigation --- */
@@ -133,12 +143,17 @@ body {
 .lang-btn {
     background: var(--glass);
     border: 1px solid var(--glass-border);
-    padding: 0.4rem 0.8rem;
+    padding: 0.6rem 1rem;
     border-radius: 8px;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     cursor: pointer;
     color: var(--text-dim);
     transition: 0.3s;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .lang-btn.active {
@@ -354,6 +369,23 @@ input {
 
 input:focus {
     border-color: var(--primary);
+}
+
+input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- Accessibility --- */
+@media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+        animation-delay: -1ms !important;
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        background-attachment: initial !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+    }
 }
 
 /* --- Responsive --- */

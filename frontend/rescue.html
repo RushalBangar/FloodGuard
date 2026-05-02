@@ -20,6 +20,7 @@
 </head>
 <body>
   <div class="bg-animation" id="bgAnim">
+    <div class="lightning-flash"></div>
     <div class="rain" id="rain"></div>
     <div class="wave"></div>
     <div class="wave"></div>
@@ -86,6 +87,9 @@
         map = new google.maps.Map(document.getElementById('map'), { 
             center: {lat:20.0, lng:78.0}, 
             zoom:5,
+            disableDefaultUI: true,
+            zoomControl: true,
+            gestureHandling: 'greedy',
             styles: [
                 { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
                 { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] },
