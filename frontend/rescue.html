@@ -103,9 +103,44 @@
         // Connect WebSocket
         connectWS();
         
-        // Also poll REST API for SOS signals (fallback for when WS is down)
+        // Listen for SOS signals in Firestore
+        if (window.FG_DB) {
+            console.log("Listening for Firestore SOS signals...");
+            const helpCol = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.HELP_COLLECTION) ? FG_CONFIG.HELP_COLLECTION : 'sos_signals';
+            FG_DB.collection(helpCol)
+                .orderBy('createdAt', 'desc')
+                .limit(20)
+                .onSnapshot(snap => {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                            const data = change.doc.data();
+                            const id = change.doc.id;
+                            if (!knownSOS.has(id)) {
+                                handleLocation({ ...data, id: id });
+                            }
+                        }
+                    });
+                }, err => {
+                    console.error("Firestore listen error:", err);
+                });
+
+            // Also listen for regular user locations
+            const locCol = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.LOCATION_COLLECTION) ? FG_CONFIG.LOCATION_COLLECTION : 'user_locations';
+            FG_DB.collection(locCol)
+                .onSnapshot(snap => {
+                    snap.docChanges().forEach(change => {
+                        if (change.type === 'added' || change.type === 'modified') {
+                            const data = change.doc.data();
+                            const id = change.doc.id;
+                            handleLocation({ ...data, id: id, isSOS: false });
+                        }
+                    });
+                });
+        }
+        
+        // Also poll REST API for SOS signals (fallback for when WS and Firestore are down)
         fetchSOSSignals();
-        setInterval(fetchSOSSignals, 10000);
+        setInterval(fetchSOSSignals, 15000);
       });
 
       // Generate rain drops

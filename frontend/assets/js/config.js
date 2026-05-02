@@ -23,9 +23,17 @@ const FG_CONFIG = {
   // Replace with your Google Maps API key (restrict it to your domain in Google Cloud Console)
   GOOGLE_MAPS_API_KEY: 'AIzaSyA8DL6iCvkgVNCdKknc5G_qsQiAaiC6kwE',
 
-  // Optional: client-side Firebase config (if you want the frontend to read Firestore directly)
-  // Replace with your Firebase web SDK config object or leave `null` to rely on server-side Firebase Admin SDK.
-  FIREBASE_CONFIG: null,
+  // Firebase client-side config for real-time Firestore access
+  FIREBASE_CONFIG: {
+    apiKey: "AIzaSyBtWqoJgOOB9yGJzmPI1WR3dbIkNjB3UtE",
+    authDomain: "floodguard-a024c.firebaseapp.com",
+    databaseURL: "https://floodguard-a024c-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "floodguard-a024c",
+    storageBucket: "floodguard-a024c.firebasestorage.app",
+    messagingSenderId: "913368784119",
+    appId: "1:913368784119:web:9b7d93b64986ff5d6407f2",
+    measurementId: "G-RHRH43R0W4"
+  },
 
   // Thresholds (tweak to match your sensor units)
   WATER_LEVEL_THRESHOLD: 0.7, // example: fraction or metres depending on your device
@@ -35,6 +43,7 @@ const FG_CONFIG = {
   SENSOR_COLLECTION: 'sensor_readings',
   HELP_COLLECTION: 'helpRequests',
   ALERTS_COLLECTION: 'alerts',
+  LOCATION_COLLECTION: 'user_locations',
 
   // Optional safe destinations used by the map navigation (name, lat, lng)
   SAFE_DESTINATIONS: [

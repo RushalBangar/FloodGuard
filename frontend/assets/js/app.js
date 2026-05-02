@@ -218,8 +218,19 @@
       if(!navigator.geolocation) return alert('Geolocation not supported');
       watchId = navigator.geolocation.watchPosition(pos=>{
         const lat = pos.coords.latitude, lng = pos.coords.longitude;
+        // 1. Broadcast via WebSocket
         if(socket && socket.readyState === WebSocket.OPEN){ socket.send(JSON.stringify({type:'location', lat, lng})); }
-      });
+        
+        // 2. Write to Firestore
+        if(window.FG_DB) {
+            const colName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.LOCATION_COLLECTION) ? FG_CONFIG.LOCATION_COLLECTION : 'user_locations';
+            const uid = socket ? (socket.id || 'me') : 'anon_' + Math.random().toString(36).substr(2, 9);
+            FG_DB.collection(colName).doc(uid).set({
+                lat, lng,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
+      }, null, { enableHighAccuracy: true });
       document.getElementById('start-sharing').hidden = true;
       document.getElementById('stop-sharing').hidden = false;
     });
@@ -234,28 +245,50 @@
         const name = document.getElementById('helpName').value || 'Anonymous';
         navigator.geolocation.getCurrentPosition(pos=>{
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
+            const sosData = {
+                name: name,
+                lat: lat,
+                lng: lng,
+                isSOS: true,
+                timestamp: new Date().toISOString(),
+                status: 'active'
+            };
             
-            // Try WebSocket first
+            // 1. Write to Firestore (primary — persists in database)
+            if(window.FG_DB) {
+                const colName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.HELP_COLLECTION) ? FG_CONFIG.HELP_COLLECTION : 'sos_signals';
+                FG_DB.collection(colName).add({
+                    ...sosData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    showAlertBox('SOS TRANSMITTED to database. Rescue teams notified.', true);
+                }).catch(e => {
+                    console.error('Firestore SOS write failed:', e);
+                    showAlertBox('SOS database write failed. Trying backup...', true);
+                });
+            }
+
+            // 2. Also broadcast via WebSocket for real-time delivery
             if(socket && socket.readyState === WebSocket.OPEN){
                 socket.send(JSON.stringify({type:'location', lat, lng, isSOS: true, name: name}));
-                showAlertBox('SOS TRANSMITTED. Rescue teams notified.', true);
-            } else {
-                // Fallback to REST API
+            }
+            
+            // 3. REST API fallback
+            if(!window.FG_DB) {
                 const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
                 fetch(backendUrl + '/api/sos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lat, lng, name })
                 }).then(r => r.json()).then(data => {
-                    if(data.ok) showAlertBox('SOS TRANSMITTED via backup channel. Rescue teams notified.', true);
-                    else showAlertBox('SOS failed. Please try again.', true);
+                    if(data.ok) showAlertBox('SOS TRANSMITTED. Rescue teams notified.', true);
                 }).catch(() => {
                     showAlertBox('SOS failed — no connection. Please call emergency services.', true);
                 });
             }
         }, err => {
             showAlertBox('Location access denied. Please enable GPS for SOS.', true);
-        });
+        }, { enableHighAccuracy: true });
     });
 
     window.addEventListener('fg:firebase-ready', (ev)=>{
