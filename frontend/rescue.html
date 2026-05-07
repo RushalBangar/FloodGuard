@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FloodGuard — Rescue Control</title>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" type="image/png" href="/assets/img/logo.png?v=2" />
+  <link rel="apple-touch-icon" href="/assets/img/logo.png?v=2" />
   <style>
     .rescue-layout { display: flex; gap: 1.5rem; margin-top: 1.5rem; height: 80vh; }
     .rescue-sidebar { width: 350px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 24px; padding: 1.5rem; overflow-y: auto; }
@@ -27,6 +29,10 @@
   </div>
 
   <header class="site-header">
+    <div class="header-brand">
+      <img src="assets/img/logo.png" alt="FloodGuard Logo" class="site-logo">
+      <span class="logo-text">FloodGuard</span>
+    </div>
     <nav class="nav">
       <a href="/index.html" data-i18n="nav_dashboard">Dashboard</a>
       <a href="/map.html" data-i18n="nav_safe_routes">Safe Routes</a>
