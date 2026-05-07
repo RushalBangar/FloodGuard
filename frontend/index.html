@@ -5,7 +5,24 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FloodGuard — AI-Driven Command Center</title>
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" type="image/png" href="assets/img/logo.png" />
+  
   <meta name="description" content="FloodGuard: AI-driven flood prediction, alerts, and live rescue management." />
+  
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://floodguard.vercel.app/" />
+  <meta property="og:title" content="FloodGuard — AI-Driven Flood Prediction" />
+  <meta property="og:description" content="Saving lives through real-time AI-driven disaster intelligence and emergency response." />
+  <meta property="og:image" content="https://floodguard.vercel.app/assets/img/og-preview.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://floodguard.vercel.app/" />
+  <meta property="twitter:title" content="FloodGuard — AI-Driven Flood Prediction" />
+  <meta property="twitter:description" content="Saving lives through real-time AI-driven disaster intelligence and emergency response." />
+  <meta property="twitter:image" content="https://floodguard.vercel.app/assets/img/og-preview.png" />
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -30,6 +47,10 @@
   </script>
 
   <header class="site-header">
+    <div class="header-brand">
+      <img src="assets/img/logo.png" alt="FloodGuard Logo" class="site-logo">
+      <span class="logo-text">FloodGuard</span>
+    </div>
     <nav class="nav">
       <a href="/index.html" class="active" data-i18n="nav_dashboard">Dashboard</a>
       <a href="/map.html" data-i18n="nav_safe_routes">Safe Routes</a>
@@ -207,7 +228,10 @@
   <footer class="site-footer">
     <div class="footer-container">
       <div class="footer-brand">
-        <h2>FloodGuard</h2>
+        <div class="footer-logo-wrap">
+          <img src="assets/img/logo.png" alt="FloodGuard Logo" class="footer-logo">
+          <h2>FloodGuard</h2>
+        </div>
         <p>Saving lives through AI-driven disaster intelligence. Our mission is to build resilient communities through real-time monitoring and rapid response tech.</p>
         <div class="social-links">
           <a href="#">𝕏</a>
