@@ -72,6 +72,28 @@ def websocket(ws):
                 if is_sos:
                     active_sos[client_id] = msg
                     
+            elif obj.get('type') == 'sensor_data':
+                from .predictor import calculate_flood_risk
+                water_level = float(obj.get('water_level', 0))
+                rainfall = float(obj.get('rainfall', 0))
+                humidity = float(obj.get('humidity', 50))
+                temperature = float(obj.get('temperature', 25))
+                
+                result = calculate_flood_risk(water_level, rainfall, humidity, temperature)
+                # Attach original data for broadcasting to other clients
+                result['type'] = 'prediction'
+                result['raw_data'] = {
+                    'water_level': water_level,
+                    'rainfall': rainfall,
+                    'humidity': humidity,
+                    'temperature': temperature
+                }
+                
+                # Send prediction back to the sender
+                ws.send(json.dumps(result))
+                # Also broadcast to all other clients (dashboard)
+                broadcast(result)
+
             elif obj.get('type') == 'alert':
                 broadcast({'type': 'alert', 'message': obj.get('message', 'Flood alert')})
     finally:
