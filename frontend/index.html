@@ -129,7 +129,124 @@
         </div>
       </div>
     </div>
+
+    <!-- How it Works Section -->
+    <section class="info-section">
+      <div class="section-header">
+        <h2 data-i18n="how_it_works_title">System Architecture</h2>
+        <p class="tagline" data-i18n="how_it_works_tagline">How FloodGuard protects your community</p>
+      </div>
+      
+      <div class="how-it-works">
+        <div class="how-it-works-img">
+          <img src="assets/img/ecosystem.png" alt="FloodGuard Ecosystem Illustration" onerror="this.src='https://images.unsplash.com/photo-1545156521-77bd85671d30?auto=format&fit=crop&q=80&w=1000'">
+        </div>
+        <div class="how-it-works-content">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <h3 data-i18n="step1_title">Data Acquisition</h3>
+              <p data-i18n="step1_desc">IOT-enabled nodes (ESP32) monitor water levels, rainfall, and atmospheric conditions in real-time across critical points.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              <h3 data-i18n="step2_title">AI Risk Analysis</h3>
+              <p data-i18n="step2_desc">Our proprietary neural network processes telemetry data to predict flood risks with 98% accuracy up to 6 hours in advance.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              <h3 data-i18n="step3_title">Automated Response</h3>
+              <p data-i18n="step3_desc">Instant alerts are dispatched to authorities and residents, while the rescue dashboard coordinates emergency efforts.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Core Features Bento Grid -->
+    <section class="info-section">
+      <div class="section-header">
+        <h2 data-i18n="features_title">Advanced Capabilities</h2>
+        <p class="tagline" data-i18n="features_tagline">Precision tools for disaster management</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">🧠</div>
+          <h3 data-i18n="feature1_title">Predictive AI</h3>
+          <p data-i18n="feature1_desc">Uses historical weather patterns and live sensor telemetry to simulate flooding scenarios before they occur.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📍</div>
+          <h3 data-i18n="feature2_title">Live SOS Tracking</h3>
+          <p data-i18n="feature2_desc">Visualizes emergency requests on a dynamic heat map, allowing rescuers to prioritize high-risk zones.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🛤️</div>
+          <h3 data-i18n="feature3_title">Safe Route Engine</h3>
+          <p data-i18n="feature3_desc">Calculates evacuation paths in real-time by avoiding rising water levels and blocked corridors.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📡</div>
+          <h3 data-i18n="feature4_title">Multi-Node Ecosystem</h3>
+          <p data-i18n="feature4_desc">Seamlessly integrates with ESP32 and other IoT hardware via high-speed WebSockets for zero-latency monitoring.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🌍</div>
+          <h3 data-i18n="feature5_title">Multi-Lingual</h3>
+          <p data-i18n="feature5_desc">Built-in support for English, Hindi, and Marathi ensures that critical info reaches everyone instantly.</p>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h2>FloodGuard</h2>
+        <p>Saving lives through AI-driven disaster intelligence. Our mission is to build resilient communities through real-time monitoring and rapid response tech.</p>
+        <div class="social-links">
+          <a href="#">𝕏</a>
+          <a href="#">in</a>
+          <a href="#">Git</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4 data-i18n="footer_platform">Platform</h4>
+        <ul>
+          <li><a href="index.html" data-i18n="nav_dashboard">Dashboard</a></li>
+          <li><a href="map.html" data-i18n="nav_safe_routes">Safe Routes</a></li>
+          <li><a href="rescue.html" data-i18n="nav_rescue">Rescue Center</a></li>
+          <li><a href="synopsis.html">Project Synopsis</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4 data-i18n="footer_support">Support</h4>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Hardware Setup</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-newsletter">
+        <h4 data-i18n="footer_newsletter">Stay Informed</h4>
+        <p style="color:var(--text-dim); font-size:0.8rem; margin-bottom:1rem;">Receive critical flood updates for your region.</p>
+        <div class="newsletter-form">
+          <input type="email" placeholder="Email Address">
+          <button style="padding: 0.5rem 1rem;">Join</button>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 FloodGuard Project. All rights reserved.</p>
+      <p>System Status: <span style="color:#4ade80;">Operational</span></p>
+    </div>
+  </footer>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/firebase.js"></script>
