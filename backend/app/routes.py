@@ -2,7 +2,7 @@ import os
 from flask import Blueprint, send_from_directory, request, jsonify, current_app
 from .firebase_config import db, firebase_initialized
 from .predictor import calculate_flood_risk
-from .notifier import send_sms_alert
+from .notifier import send_sms_alert, send_push_notification
 import requests
 
 api = Blueprint('api', __name__)
@@ -26,6 +26,7 @@ def api_alert():
             print(f"Error saving alert to Firestore: {e}")
 
     broadcast({'type': 'alert', 'message': msg})
+    send_push_notification("FloodGuard Alert", msg)
     return jsonify({'ok': True})
 
 @api.route('/api/locations', methods=['GET'])

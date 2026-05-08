@@ -4,6 +4,7 @@ import time
 from flask import current_app as app
 from . import sock
 from .firebase_config import db, firebase_initialized
+from .notifier import send_push_notification
 
 clients = set()
 
@@ -93,6 +94,10 @@ def websocket(ws):
                 ws.send(json.dumps(result))
                 # Also broadcast to all other clients (dashboard)
                 broadcast(result)
+
+                # Trigger push notification if in Danger
+                if result.get('status') == 'Danger':
+                    send_push_notification("CRITICAL FLOOD ALERT", f"Risk level at {result['risk_percentage']}%. {result['recommendation']}")
 
             elif obj.get('type') == 'alert':
                 broadcast({'type': 'alert', 'message': obj.get('message', 'Flood alert')})

@@ -306,6 +306,22 @@
 
     window.addEventListener('fg:firebase-ready', (ev)=>{
       if(!ev.detail || !ev.detail.available || !window.FG_DB) return;
+      
+      // Request Notification Permission
+      if (window.FG_MESSAGING) {
+        FG_MESSAGING.getToken({ vapidKey: FG_CONFIG.VAPID_KEY }).then((currentToken) => {
+          if (currentToken) {
+            console.log('FCM Token:', currentToken);
+            // In a real app, you'd send this to your backend to associate with the user
+            localStorage.setItem('fcm_token', currentToken);
+          } else {
+            console.log('No registration token available. Requesting permission...');
+          }
+        }).catch((err) => {
+          console.log('An error occurred while retrieving token. ', err);
+        });
+      }
+
       const col = FG_DB.collection(FG_CONFIG.SENSOR_COLLECTION || 'sensor_readings').orderBy('ts','desc').limit(1);
       col.onSnapshot(async snap=>{
           if(snap.empty) return;

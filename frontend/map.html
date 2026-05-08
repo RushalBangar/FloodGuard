@@ -53,9 +53,10 @@
     let map;
     let userMarker = null;
     let watchId = null;
-    const routes = [];
+    let directionsService;
+    const renderers = []; // Store multiple renderers if needed
     const destMarkers = [];
-
+ 
     function loadGoogleMaps(cb){
       if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
         alert('Please set FG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
@@ -67,9 +68,10 @@
       script.async = true; script.defer = true; script.onload = cb;
       document.head.appendChild(script);
     }
-
+ 
     function init(){
       loadGoogleMaps(()=>{
+        directionsService = new google.maps.DirectionsService();
         map = new google.maps.Map(document.getElementById('map'), { 
             center: {lat:20.0, lng:78.0}, 
             zoom:5,
@@ -88,10 +90,10 @@
                 { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
             ]
         });
-
+ 
         // Auto-start location tracking
         startTracking();
-
+ 
         // Button also triggers safe route calculation
         document.getElementById('locate').addEventListener('click', ()=>{
           if(!navigator.geolocation){ alert('Geolocation not supported'); return; }
@@ -101,7 +103,7 @@
           }, err=>{ alert('Unable to get location: ' + err.message); });
         });
       });
-
+ 
       // Generate rain drops
       const rainContainer = document.getElementById('rain');
       for (let i = 0; i < 50; i++) {
@@ -113,16 +115,15 @@
           rainContainer.appendChild(drop);
       }
     }
-
+ 
     let accuracyCircle = null;
-
+ 
     function startTracking() {
         if(!navigator.geolocation) return;
         
-        // Continuously watch position
         watchId = navigator.geolocation.watchPosition(pos => {
             const lat = pos.coords.latitude, lng = pos.coords.longitude;
-            const accuracy = pos.coords.accuracy; // in metres
+            const accuracy = pos.coords.accuracy;
             updateUserPosition(lat, lng, accuracy);
         }, err => {
             console.log('Location tracking error:', err.message);
@@ -132,7 +133,7 @@
             timeout: 10000
         });
     }
-
+ 
     function updateUserPosition(lat, lng, accuracy) {
         const pos = {lat, lng};
         
@@ -156,8 +157,7 @@
             map.setCenter(pos);
             map.setZoom(14);
         }
-
-        // Show accuracy radius
+ 
         if(accuracy) {
             if(accuracyCircle) {
                 accuracyCircle.setCenter(pos);
@@ -176,31 +176,57 @@
             }
         }
     }
-
+ 
     function showSafeRoutes(lat, lng) {
         // Clear previous routes and destination markers
-        routes.forEach(r => r.setMap(null)); routes.length = 0;
+        renderers.forEach(r => r.setMap(null)); renderers.length = 0;
         destMarkers.forEach(m => m.setMap(null)); destMarkers.length = 0;
         
-        // Update user position
         updateUserPosition(lat, lng);
-
-        const dests = FG_CONFIG.SAFE_DESTINATIONS || [{name:'Safe Point A', lat:lat+0.02, lng:lng+0.02}, {name:'Safe Point B', lat:lat-0.02, lng:lng-0.02}];
-        dests.forEach((d,i)=>{
-          const marker = new google.maps.Marker({position:d, map, label: (i+1).toString(), title: d.name || 'Safe point '+(i+1)});
-          destMarkers.push(marker);
-          const line = new google.maps.Polyline({path:[{lat,lng}, d], strokeColor:'#4ade80', strokeWeight:5, map, opacity: 0.8});
-          routes.push(line);
+ 
+        const dests = FG_CONFIG.SAFE_DESTINATIONS || [{name:'Safe Point A', lat:lat+0.02, lng:lng+0.02}];
+        const origin = new google.maps.LatLng(lat, lng);
+ 
+        dests.forEach((d, i) => {
+            const destination = new google.maps.LatLng(d.lat, d.lng);
+            
+            const request = {
+                origin: origin,
+                destination: destination,
+                travelMode: 'DRIVING'
+            };
+ 
+            directionsService.route(request, (result, status) => {
+                if (status == 'OK') {
+                    const renderer = new google.maps.DirectionsRenderer({
+                        map: map,
+                        directions: result,
+                        suppressMarkers: false,
+                        polylineOptions: {
+                            strokeColor: i === 0 ? '#4ade80' : '#94a3b8',
+                            strokeWeight: 6,
+                            strokeOpacity: 0.8
+                        }
+                    });
+                    renderers.push(renderer);
+                } else {
+                    console.error('Directions request failed due to ' + status);
+                    // Fallback to straight line if directions fail
+                    const line = new google.maps.Polyline({
+                        path: [origin, destination],
+                        strokeColor: '#ff4b2b',
+                        strokeWeight: 3,
+                        map: map,
+                        opacity: 0.5,
+                        dashStyle: 'dash'
+                    });
+                }
+            });
         });
-
-        const bounds = new google.maps.LatLngBounds();
-        bounds.extend({lat, lng});
-        routes.forEach(r=> r.getPath().forEach(p=> bounds.extend(p)));
-        destMarkers.forEach(m=> bounds.extend(m.getPosition()));
-        map.fitBounds(bounds);
     }
-
+ 
     window.addEventListener('DOMContentLoaded', init);
   </script>
+
 </body>
 </html>

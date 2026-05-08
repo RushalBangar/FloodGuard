@@ -18,7 +18,8 @@
     const urls = [
       'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js',
       'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js',
-      'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js'
+      'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js',
+      'https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js'
     ];
 
     try{
@@ -29,6 +30,20 @@
         window.FG_FIREBASE = firebase;
         window.FG_AUTH = firebase.auth();
         window.FG_DB = firebase.firestore();
+        
+        // Push Notifications
+        if ('serviceWorker' in navigator) {
+          const messaging = firebase.messaging();
+          window.FG_MESSAGING = messaging;
+          
+          messaging.onMessage((payload) => {
+            console.log('Message received. ', payload);
+            if (typeof window.showAlert === 'function') {
+                window.showAlert(payload.notification.title + ": " + payload.notification.body, "urgent");
+            }
+          });
+        }
+
         console.log('Firebase initialized (client)');
         window.dispatchEvent(new CustomEvent('fg:firebase-ready', {detail:{available:true}}));
       }catch(e){
