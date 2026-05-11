@@ -180,6 +180,9 @@ body {
     gap: 0.5rem;
 }
 
+.mobile-only { display: none !important; }
+.desktop-only { display: flex !important; }
+
 .lang-btn {
     background: var(--glass);
     border: 1px solid var(--glass-border);
@@ -492,9 +495,9 @@ input::placeholder {
     .nav a { font-size: 1rem; padding: 0.8rem; border-bottom: 1px solid var(--glass-border); width: 100%; }
     .nav a:last-child { border-bottom: none; }
 
-    .lang-toggle.desktop-only { display: none; }
+    .lang-toggle.desktop-only { display: none !important; }
     .lang-toggle.mobile-only { 
-        display: flex; 
+        display: flex !important; 
         flex-direction: row; 
         justify-content: center; 
         gap: 1rem; 
