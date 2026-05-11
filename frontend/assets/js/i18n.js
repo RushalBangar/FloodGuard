@@ -71,14 +71,5 @@
   document.addEventListener('DOMContentLoaded', () => {
       const currentLang = localStorage.getItem('selectedLang') || 'en';
       window.setLang(currentLang);
-
-      // Mobile Menu Toggle
-      const menuToggle = document.getElementById('menuToggle');
-      const nav = document.querySelector('.nav');
-      if (menuToggle && nav) {
-          menuToggle.addEventListener('click', () => {
-              nav.classList.toggle('open');
-          });
-      }
   });
 })();

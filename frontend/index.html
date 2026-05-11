@@ -7,6 +7,12 @@
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="icon" type="image/png" href="/assets/img/logo.png?v=2" />
   <meta name="description" content="Life Guard: AI-powered multi-hazard disaster management platform integrating Flood, Earthquake, and Wildfire monitoring." />
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#00d2ff" />
+  <meta property="og:title" content="Life Guard — AI Disaster Management" />
+  <meta property="og:description" content="Integrated IoT & AI Based Disaster Management System" />
+  <meta property="og:image" content="/assets/img/og-preview.png" />
+  <meta property="og:type" content="website" />
 </head>
 <body class="dashboard-mode">
   <div class="bg-animation" id="bgAnim"></div>
@@ -264,43 +270,6 @@
   <script src="assets/js/bg-effects.js"></script>
   <script src="assets/js/firebase.js"></script>
   <script src="assets/js/dashboard.js"></script>
-
-  <!-- Scroll Reveal & Counter Animation -->
-  <script>
-  (function() {
-    // Scroll reveal
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.15 });
-
-    document.querySelectorAll('.card, .step-card, .feature-item, .stat-item, .hero-badge, .hero-actions')
-      .forEach(el => { el.classList.add('reveal-on-scroll'); observer.observe(el); });
-
-    // Counter animation
-    const countObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const el = entry.target;
-          const target = parseInt(el.dataset.count);
-          let current = 0;
-          const step = Math.ceil(target / 40);
-          const timer = setInterval(() => {
-            current += step;
-            if (current >= target) { current = target; clearInterval(timer); }
-            el.textContent = current;
-          }, 40);
-          countObserver.unobserve(el);
-        }
-      });
-    }, { threshold: 0.5 });
-
-    document.querySelectorAll('.stat-value[data-count]').forEach(el => countObserver.observe(el));
-  })();
-  </script>
+  <script src="assets/js/ui-effects.js"></script>
 </body>
 </html>

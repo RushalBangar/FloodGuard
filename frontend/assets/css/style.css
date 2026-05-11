@@ -133,18 +133,7 @@ body {
     background: radial-gradient(circle at 50% 50%, hsl(0, 50%, 15%) 0%, var(--bg-dark) 100%);
 }
 
-.particle {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-    pointer-events: none;
-    animation: moveParticle linear infinite;
-}
-
-@keyframes moveParticle {
-    0% { transform: translateY(0) translateX(0); }
-    100% { transform: translateY(-100vh) translateX(50px); }
-}
+/* Canvas particle network handles the background animation now */
 
 .wave:nth-child(2) {
     bottom: 20px;
@@ -232,8 +221,13 @@ body {
     height: 3px;
     background: var(--primary);
     border-radius: 10px;
-    transition: 0.3s;
+    transition: 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+    transform-origin: center;
 }
+
+.menu-toggle.active span:nth-child(1) { transform: translateY(9px) rotate(45deg); }
+.menu-toggle.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.menu-toggle.active span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); }
 
 .lang-toggle {
     display: flex;
@@ -1083,4 +1077,119 @@ input::placeholder {
 @keyframes sosPulse {
     from { box-shadow: 0 0 10px rgba(255, 75, 43, 0.5), inset 0 0 10px rgba(255, 75, 43, 0.2); }
     to { box-shadow: 0 0 30px rgba(255, 75, 43, 1), inset 0 0 30px rgba(255, 75, 43, 0.6); }
+}
+
+/* ===== TOAST NOTIFICATIONS ===== */
+#toastContainer {
+    position: fixed; bottom: 2rem; right: 2rem; z-index: 9999;
+    display: flex; flex-direction: column-reverse; gap: 0.8rem;
+    pointer-events: none;
+}
+.toast {
+    display: flex; align-items: center; gap: 0.8rem;
+    padding: 1rem 1.5rem;
+    background: hsla(222, 47%, 12%, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: 0.9rem;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+    transform: translateX(120%); opacity: 0;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: auto;
+    min-width: 280px;
+}
+.toast.show { transform: translateX(0); opacity: 1; }
+.toast-info { border-left: 4px solid var(--primary); }
+.toast-success { border-left: 4px solid var(--success); }
+.toast-warning { border-left: 4px solid var(--warning); }
+.toast-danger { border-left: 4px solid var(--danger); }
+.toast-icon { font-size: 1.2rem; flex-shrink: 0; }
+.toast-msg { flex: 1; }
+
+/* ===== BACK TO TOP ===== */
+#backToTop {
+    position: fixed; bottom: 2rem; left: 2rem; z-index: 999;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: var(--bg-card); backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    color: var(--primary); font-size: 1.2rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transform: translateY(20px); pointer-events: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    padding: 0;
+}
+#backToTop.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+#backToTop:hover { background: var(--primary); color: #fff; transform: translateY(-3px); }
+
+/* ===== PAGE TRANSITIONS ===== */
+.page-transition-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: var(--bg-dark); z-index: 10000;
+    opacity: 1; pointer-events: none;
+    transition: opacity 0.35s ease;
+}
+body.page-loaded .page-transition-overlay { opacity: 0; }
+.page-transition-overlay.active { opacity: 1; pointer-events: all; }
+
+/* ===== CUSTOM CURSOR GLOW ===== */
+.cursor-glow {
+    position: fixed; top: 0; left: 0; width: 30px; height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsla(var(--primary-h),100%,50%,0.2), transparent 70%);
+    pointer-events: none; z-index: 9998;
+    transition: width 0.3s, height 0.3s;
+    mix-blend-mode: screen;
+}
+
+/* ===== SKELETON LOADING ===== */
+.skeleton-line {
+    height: 14px; border-radius: 8px;
+    background: linear-gradient(90deg, var(--glass) 25%, hsla(0,0%,100%,0.06) 50%, var(--glass) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    margin-bottom: 0.8rem;
+}
+.skeleton-line.short { width: 60%; }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* ===== TOOLTIPS ===== */
+.has-tooltip { position: relative; cursor: help; }
+.has-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%) translateY(5px);
+    background: hsla(222, 47%, 15%, 0.95); backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim); font-size: 0.75rem; font-weight: 400;
+    padding: 0.4rem 0.8rem; border-radius: 8px; white-space: nowrap;
+    opacity: 0; pointer-events: none;
+    transition: all 0.2s ease;
+    z-index: 100;
+}
+.has-tooltip:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ===== SOS PULSE BUTTON ===== */
+#helpBtn, button[data-i18n="btn_sos"] {
+    position: relative;
+}
+#helpBtn::before, button[data-i18n="btn_sos"]::before {
+    content: '';
+    position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px;
+    border-radius: inherit;
+    background: var(--danger);
+    opacity: 0;
+    animation: sosBtnPulse 2s ease-in-out infinite;
+    z-index: -1;
+}
+@keyframes sosBtnPulse {
+    0%, 100% { opacity: 0; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(1.05); }
+}
+
+/* ===== MOBILE TOAST ===== */
+@media (max-width: 600px) {
+    #toastContainer { left: 1rem; right: 1rem; bottom: 1rem; }
+    .toast { min-width: auto; }
 }
