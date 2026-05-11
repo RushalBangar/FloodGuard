@@ -53,9 +53,12 @@
       <div class="hero-badge">🛡️ AI-Powered Emergency Response</div>
       <h1 data-i18n="hero_title">Life Guard</h1>
       <p class="tagline" data-i18n="hero_tagline">INTEGRATED IOT & AI BASED DISASTER MANAGEMENT SYSTEM</p>
-      <div class="hero-actions">
-        <a href="/flood.html" class="hero-btn primary-btn">Explore Dashboard →</a>
-        <a href="/rescue.html" class="hero-btn ghost-btn">SOS & Rescue</a>
+      <div class="hero-actions" style="align-items: center;">
+        <a href="#howSection" class="hero-btn primary-btn">Explore Application →</a>
+        <div class="sos-action" style="display: flex; gap: 0.5rem;">
+            <input type="text" id="helpName" placeholder="Your Name (Opt)" style="padding: 0.8rem; border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: var(--glass); color: white; outline: none; width: 140px;">
+            <button id="helpBtn" class="hero-btn ghost-btn" style="border-color: var(--danger); color: var(--danger);" data-i18n="btn_sos">SEND SOS</button>
+        </div>
       </div>
     </section>
 

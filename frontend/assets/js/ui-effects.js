@@ -131,6 +131,51 @@
       link.href = fav.toDataURL();
     };
 
+    // ====== 9.5. SOS SIGNALING ======
+    const helpBtn = document.getElementById('helpBtn');
+    if (helpBtn) {
+        helpBtn.addEventListener('click', (ev) => {
+            const btn = ev.currentTarget;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'LOCATING...';
+
+            const nameInput = document.getElementById('helpName');
+            const name = (nameInput && nameInput.value) ? nameInput.value : 'Anonymous';
+            
+            navigator.geolocation.getCurrentPosition(pos => {
+                btn.disabled = false;
+                btn.textContent = 'SOS SENT';
+                setTimeout(() => { btn.textContent = originalText; }, 5000);
+
+                const lat = pos.coords.latitude, lng = pos.coords.longitude;
+                const sosData = {
+                    name: name, lat: lat, lng: lng, isSOS: true,
+                    timestamp: new Date().toISOString(), status: 'active'
+                };
+                
+                // Write to Firestore
+                if(window.FG_DB) {
+                    const colName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.HELP_COLLECTION) ? FG_CONFIG.HELP_COLLECTION : 'sos_signals';
+                    // We check if firebase object exists since FG_DB uses it
+                    const timestamp = (typeof firebase !== 'undefined') ? firebase.firestore.FieldValue.serverTimestamp() : new Date();
+                    FG_DB.collection(colName).add({ ...sosData, createdAt: timestamp })
+                        .then(() => window.showToast('SOS TRANSMITTED. Rescue teams notified.', 'danger'))
+                        .catch(e => {
+                            console.error('Firestore SOS write failed:', e);
+                            window.showToast('SOS database write failed. Trying backup...', 'warning');
+                        });
+                } else {
+                    window.showToast('SOS failed — no connection. Please call emergency services.', 'danger');
+                }
+            }, err => {
+                btn.disabled = false;
+                btn.textContent = originalText;
+                window.showToast('Location access denied. Please enable GPS for SOS.', 'warning');
+            }, { enableHighAccuracy: true });
+        });
+    }
+
     // ====== 10. SCROLL REVEAL (global) ======
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {

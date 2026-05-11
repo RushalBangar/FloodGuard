@@ -1034,8 +1034,10 @@ input::placeholder {
     .footer-bottom-links { justify-content: center; }
     .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
     .stat-value { font-size: 2rem; }
-    .hero-actions { flex-direction: column; align-items: center; }
+    .hero-actions { flex-direction: column; align-items: stretch; }
     .hero-btn { width: 100%; text-align: center; }
+    .sos-action { flex-direction: column; width: 100%; }
+    .sos-action input { width: 100% !important; }
 }
 
 /* --- DisasterShield Custom Styles --- */
