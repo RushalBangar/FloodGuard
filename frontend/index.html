@@ -29,6 +29,11 @@
         <button class="lang-btn" onclick="setLang('hi')">HI</button>
         <button class="lang-btn" onclick="setLang('mr')">MR</button>
     </div>
+    <button class="menu-toggle" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </header>
 
   <main class="container">
@@ -79,11 +84,117 @@
         <a href="/fire.html" class="btn secondary">Click here to know more</a>
       </div>
     </div>
+
+    <!-- Informative Section: How it Works -->
+    <section class="info-section">
+      <div class="section-header">
+        <h2 data-i18n="section_how_title">Intelligent Disaster Management</h2>
+        <p data-i18n="section_how_subtitle">How Life Guard protects communities through AI & IoT</p>
+      </div>
+
+      <div class="how-it-works">
+        <div class="how-it-works-img">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" alt="Data Analytics" />
+        </div>
+        <div class="how-it-works-content">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <h3 data-i18n="step1_title">Real-time Sensing</h3>
+              <p data-i18n="step1_text">Distributed IoT sensors monitor water levels, tremors, and atmospheric gas levels 24/7 across critical nodes.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              <h3 data-i18n="step2_title">AI Risk Analysis</h3>
+              <p data-i18n="step2_text">Our proprietary machine learning models analyze sensor data streams to predict disaster probability with high precision.</p>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              <h3 data-i18n="step3_title">Automated Response</h3>
+              <p data-i18n="step3_text">System instantly triggers emergency broadcasts, SOS protocols, and dynamic evacuation routing for at-risk areas.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bento Features -->
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">🛡️</div>
+          <h3>Multi-Hazard Protection</h3>
+          <p>Integrated coverage for Floods, Earthquakes, and Wildfires within a single unified command center.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🛰️</div>
+          <h3>Low-Latency Alerts</h3>
+          <p>Sub-second notification delivery through Firebase Cloud Messaging and WebSocket technology.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">📍</div>
+          <h3>Dynamic Evacuation</h3>
+          <p>AI-driven route optimization using Google Maps API to guide users to the nearest safe zones.</p>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">🤝</div>
+          <h3>Rescue Coordination</h3>
+          <p>Direct bridge between victims and rescue teams with live location tracking and SOS signaling.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="footer-logo-wrap">
+          <img src="assets/img/logo.png" alt="Life Guard Logo" class="footer-logo">
+          <h2>Life Guard</h2>
+        </div>
+        <p>A mission-critical disaster management platform leveraging the power of AI and IoT to save lives and protect infrastructure during emergency events.</p>
+        <div class="social-links">
+          <a href="#">FB</a>
+          <a href="#">TW</a>
+          <a href="#">IN</a>
+          <a href="#">GH</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <h4>Ecosystem</h4>
+        <ul>
+          <li><a href="/flood.html">Flood Guard</a></li>
+          <li><a href="/quake.html">QuakeShield</a></li>
+          <li><a href="/fire.html">Wildfire Guard</a></li>
+          <li><a href="/rescue.html">Rescue Ops</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="/map.html">Safe Routes</a></li>
+          <li><a href="#">Architecture</a></li>
+          <li><a href="#">API Docs</a></li>
+          <li><a href="#">Open Source</a></li>
+        </ul>
+      </div>
+      <div class="footer-newsletter">
+        <h4>Stay Alerted</h4>
+        <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--text-dim);">Get emergency protocol updates.</p>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Email address">
+          <button type="submit">GO</button>
+        </form>
+      </div>
+    </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 DisasterShield AI Project. All rights reserved.</p>
+      <p>&copy; 2026 Life Guard AI Project. All rights reserved.</p>
+      <div style="display: flex; gap: 2rem;">
+        <a href="#" style="color: var(--text-dim); text-decoration: none;">Privacy Policy</a>
+        <a href="#" style="color: var(--text-dim); text-decoration: none;">Terms of Service</a>
+      </div>
     </div>
   </footer>
 
