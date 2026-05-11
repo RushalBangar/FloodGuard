@@ -1,6 +1,6 @@
-# Firebase Schema - FloodGuard
+# Firebase Schema - LifeGuard
 
-This document outlines the Firestore collection structure used by the FloodGuard application.
+This document outlines the Firestore collection structure used by the LifeGuard application.
 
 ## Collections
 

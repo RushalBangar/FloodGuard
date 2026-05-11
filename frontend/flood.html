@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LifeGuard — AI-Driven Command Center</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" type="image/png" href="/assets/img/logo.png?v=2" />
+  <link rel="apple-touch-icon" href="/assets/img/logo.png?v=2" />
+  
+  <meta name="description" content="LifeGuard: AI-driven flood prediction, alerts, and live rescue management." />
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="bg-animation" id="bgAnim">
+    <div class="lightning-flash"></div>
+    <div class="rain" id="rain"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+
+  <script>
+    // Generate rain drops
+    const rainContainer = document.getElementById('rain');
+    for (let i = 0; i < 100; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'drop';
+        drop.style.left = Math.random() * 100 + 'vw';
+        drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
+        drop.style.animationDelay = Math.random() * 2 + 's';
+        rainContainer.appendChild(drop);
+    }
+  </script>
+
+  <header class="site-header">
+    <div class="header-brand">
+      <img src="assets/img/logo.png" alt="LifeGuard Logo" class="site-logo">
+      <span class="logo-text">LifeGuard Node</span>
+    </div>
+    <nav class="nav">
+      <a href="/index.html" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="/flood.html" class="active" data-i18n="nav_flood">LifeGuard</a>
+      <a href="/quake.html" data-i18n="nav_quake">QuakeShield</a>
+      <a href="/fire.html" data-i18n="nav_fire">WildFireGuard</a>
+      <a href="/rescue.html" data-i18n="nav_rescue">Rescue Ops</a>
+    </nav>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('hi')">HI</button>
+        <button class="lang-btn" onclick="setLang('mr')">MR</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1 data-i18n="hero_title">LifeGuard</h1>
+      <p class="tagline" data-i18n="hero_tagline">AI-DRIVEN FLOOD PREDICTION & EMERGENCY RESPONSE</p>
+      <div id="status" class="status disconnected" style="display:inline-block; margin-top:1rem;">Status: Disconnected</div>
+    </section>
+
+    <div class="dashboard-grid">
+      <!-- AI Risk Prediction Card -->
+      <div class="card risk-card">
+        <h2 data-i18n="card_risk_title">AI Flood Risk</h2>
+        <div class="risk-meter-container">
+          <div id="riskCircle" class="risk-circle">
+            <span id="riskVal" class="risk-value">0%</span>
+          </div>
+          <p id="riskStatus" class="status" data-i18n="status_standby">System Standby</p>
+          <p id="riskRecommendation" style="margin-top:1.5rem; text-align:center; font-size:0.9rem; color:var(--text-dim);"></p>
+        </div>
+      </div>
+
+      <!-- Live Sensor Data Card -->
+      <div class="card sensor-card">
+        <h2 data-i18n="card_sensor_title">Live Sensor Matrix</h2>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="label_water_level">Water Level</span>
+          <span id="waterVal" class="sensor-value">—</span>
+        </div>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="label_temp">Temperature</span>
+          <span id="tempVal" class="sensor-value">—</span>
+        </div>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="label_humidity">Humidity</span>
+          <span id="humVal" class="sensor-value">—</span>
+        </div>
+        <div class="sensor-row">
+          <span class="sensor-label" data-i18n="label_rainfall">Rainfall Forecast</span>
+          <span id="rainVal" class="sensor-value">—</span>
+        </div>
+        
+        <div class="actions" style="margin-top:2rem; display:flex; gap:1rem;">
+          <button id="test-alert" style="flex:1;" data-i18n="btn_test_alert">Test Alert</button>
+        </div>
+      </div>
+
+      <!-- Local Weather Card -->
+      <div class="card weather-card">
+        <h2 data-i18n="card_weather_title">Hydrological Data Trend</h2>
+        <div style="height: 180px;">
+          <canvas id="sensorChart"></canvas>
+        </div>
+        <div id="weatherDesc" style="margin-top:1rem; text-align:center; font-style:italic; color:var(--text-dim);" data-i18n="weather_loading">
+          Loading weather data...
+        </div>
+      </div>
+    </div>
+
+    <!-- Simulation Trigger Button -->
+    <button onclick="toggleSim()" style="position:fixed; bottom:20px; left:20px; border-radius:50%; width:50px; height:50px; padding:0; background:var(--glass);">🛠️</button>
+
+    <!-- Simulation Panel -->
+    <div id="simPanel" class="card sim-panel" style="display: none;">
+        <h3 style="margin-bottom:1rem;">Sensor Simulator</h3>
+        <label style="font-size:0.7rem; color:var(--text-dim);">Water Level (0-1)</label>
+        <input type="range" id="simWater" min="0" max="1" step="0.1" value="0.2" oninput="runSim()">
+        <label style="font-size:0.7rem; color:var(--text-dim);">Rainfall (0-50 mm/h)</label>
+        <input type="range" id="simRain" min="0" max="50" step="1" value="5" oninput="runSim()">
+        <button onclick="toggleSim()" class="secondary" style="width:100%; margin-top:1rem;">Close</button>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 DisasterShield AI Project. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/firebase.js"></script>
+  <script src="assets/js/app.js"></script>
+  <script>
+      function toggleSim() {
+          const p = document.getElementById('simPanel');
+          p.style.display = (p.style.display === 'block') ? 'none' : 'block';
+      }
+      function runSim() {
+          const w = document.getElementById('simWater').value;
+          const r = document.getElementById('simRain').value;
+          const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+          fetch(backendUrl + '/api/simulate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ water_level: w, rainfall: r })
+          });
+      }
+  </script>
+</body>
+</html>

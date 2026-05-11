@@ -50,4 +50,4 @@ app.get('/api/locations', (req,res)=>{
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, ()=> console.log('FloodGuard server running at http://localhost:'+PORT));
+server.listen(PORT, ()=> console.log('LifeGuard server running at http://localhost:'+PORT));

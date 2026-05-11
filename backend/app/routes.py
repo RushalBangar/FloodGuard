@@ -26,7 +26,7 @@ def api_alert():
             print(f"Error saving alert to Firestore: {e}")
 
     broadcast({'type': 'alert', 'message': msg})
-    send_push_notification("FloodGuard Alert", msg)
+    send_push_notification("LifeGuard Alert", msg)
     return jsonify({'ok': True})
 
 @api.route('/api/locations', methods=['GET'])

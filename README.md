@@ -1,7 +1,7 @@
-# FloodGuard
+# LifeGuard
 AI-Driven Flood Prediction & Alert System
 
-FloodGuard is a comprehensive solution for flood monitoring and emergency response, featuring real-time sensor integration, AI-driven alerts, and a rescue dashboard with live location sharing.
+LifeGuard is a comprehensive solution for flood monitoring and emergency response, featuring real-time sensor integration, AI-driven alerts, and a rescue dashboard with live location sharing.
 
 ## Project Structure
 

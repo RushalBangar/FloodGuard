@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>QuakeShield AI — Structural Safety Node</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="icon" type="image/png" href="/assets/img/logo.png?v=2" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div class="bg-animation" id="bgAnim"></div>
+
+  <header class="site-header">
+    <div class="header-brand">
+      <img src="assets/img/logo.png" alt="DisasterShield Logo" class="site-logo">
+      <span class="logo-text">QuakeShield Node</span>
+    </div>
+    <nav class="nav">
+      <a href="/index.html" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="/flood.html" data-i18n="nav_flood">LifeGuard</a>
+      <a href="/quake.html" class="active" data-i18n="nav_quake">QuakeShield</a>
+      <a href="/fire.html" data-i18n="nav_fire">WildFireGuard</a>
+      <a href="/rescue.html" data-i18n="nav_rescue">Rescue Ops</a>
+    </nav>
+    <div class="lang-toggle">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('hi')">HI</button>
+        <button class="lang-btn" onclick="setLang('mr')">MR</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>🌍 QuakeShield AI</h1>
+      <p class="tagline">EARTHQUAKE & STRUCTURAL SAFETY MONITORING SYSTEM</p>
+      <div id="status" class="status disconnected" style="display:inline-block; margin-top:1rem;">Status: Disconnected</div>
+    </section>
+
+    <div class="dashboard-grid">
+      <!-- AI Risk Prediction Card -->
+      <div class="card risk-card">
+        <h2>AI Structural Threat Risk</h2>
+        <div class="risk-meter-container">
+          <div id="riskCircle" class="risk-circle">
+            <span id="riskVal" class="risk-value">0%</span>
+          </div>
+          <p id="riskStatus" class="status" data-i18n="status_standby">System Standby</p>
+          <p id="riskRecommendation" style="margin-top:1.5rem; text-align:center; font-size:0.9rem; color:var(--text-dim);"></p>
+        </div>
+      </div>
+
+      <!-- Live Sensor Data Card -->
+      <div class="card sensor-card">
+        <h2>Live Seismograph Matrix</h2>
+        <div class="sensor-row">
+          <span class="sensor-label">Vibration X-Axis</span>
+          <span id="vibXVal" class="sensor-value">—</span>
+        </div>
+        <div class="sensor-row">
+          <span class="sensor-label">Vibration Y-Axis</span>
+          <span id="vibYVal" class="sensor-value">—</span>
+        </div>
+        <div class="sensor-row">
+          <span class="sensor-label">Vibration Z-Axis</span>
+          <span id="vibZVal" class="sensor-value">—</span>
+        </div>
+        <div class="sensor-row">
+          <span class="sensor-label">Shock Detected (SW420)</span>
+          <span id="shockVal" class="sensor-value">—</span>
+        </div>
+        
+        <div class="actions" style="margin-top:2rem; display:flex; gap:1rem;">
+          <button id="test-alert" style="flex:1;" data-i18n="btn_test_alert">Test Alert</button>
+        </div>
+      </div>
+
+      <!-- Seismograph Chart Card -->
+      <div class="card weather-card" style="grid-column: span 2;">
+        <h2>Real-Time Tremor Activity</h2>
+        <div style="height: 250px;">
+          <canvas id="seismoChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-bottom">
+      <p>&copy; 2026 DisasterShield AI Project. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/firebase.js"></script>
+  <script src="assets/js/quake.js"></script>
+</body>
+</html>

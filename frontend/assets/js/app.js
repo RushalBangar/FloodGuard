@@ -3,8 +3,8 @@
 
   const i18n = {
       en: {
-          nav_dashboard: "Dashboard", nav_synopsis: "Synopsis", nav_diagrams: "Diagrams", nav_safe_routes: "Safe Routes", nav_rescue: "Rescue",
-          hero_title: "FloodGuard", hero_tagline: "AI-DRIVEN FLOOD PREDICTION & EMERGENCY RESPONSE",
+          nav_dashboard: "Dashboard", nav_safe_routes: "Safe Routes", nav_rescue: "Rescue",
+          hero_title: "LifeGuard", hero_tagline: "AI-DRIVEN FLOOD PREDICTION & EMERGENCY RESPONSE",
           hero_map_title: "Escape Navigation", hero_map_tagline: "OPTIMIZED EVACUATION PATHS BASED ON AI RISK LEVELS",
           hero_rescue_title: "Rescue Operations Center", hero_rescue_tagline: "REAL-TIME SOS TRACKING & HEATMAP VISUALIZATION",
           card_risk_title: "AI Risk Prediction", status_standby: "System Standby",
@@ -15,7 +15,7 @@
           sidebar_sos_title: "Active SOS Signals"
       },
       hi: {
-          nav_dashboard: "डैशबोर्ड", nav_synopsis: "सारांश", nav_diagrams: "आरेख", nav_safe_routes: "सुरक्षित मार्ग", nav_rescue: "बचाव",
+          nav_dashboard: "डैशबोर्ड", nav_safe_routes: "सुरक्षित मार्ग", nav_rescue: "बचाव",
           hero_title: "फ्लडगार्ड", hero_tagline: "एआई-संचालित बाढ़ भविष्यवाणी और आपातकालीन प्रतिक्रिया",
           hero_map_title: "एस्केप नेविगेशन", hero_map_tagline: "एआई जोखिम स्तरों के आधार पर अनुकूलित निकासी मार्ग",
           hero_rescue_title: "बचाव अभियान केंद्र", hero_rescue_tagline: "रीयल-टाइम एसओएस ट्रैकिंग और हीटमैप विज़ुअलाइज़ेशन",
@@ -27,7 +27,7 @@
           sidebar_sos_title: "सक्रिय एसओएस संकेत"
       },
       mr: {
-          nav_dashboard: "डॅशबोर्ड", nav_synopsis: "सारांश", nav_diagrams: "आकृत्या", nav_safe_routes: "सुरक्षित मार्ग", nav_rescue: "बचाव",
+          nav_dashboard: "डॅशबोर्ड", nav_safe_routes: "सुरक्षित मार्ग", nav_rescue: "बचाव",
           hero_title: "फ्लडगार्ड", hero_tagline: "एआय-आधारित पूर अंदाज आणि आपत्कालीन प्रतिसाद",
           hero_map_title: "एस्केप नेव्हिगेशन", hero_map_tagline: "एआय जोखीम स्तरांवर आधारित इष्टतम निर्वासन मार्ग",
           hero_rescue_title: "बचाव कार्य केंद्र", hero_rescue_tagline: "रिअल-टाइम एसओएस ट्रॅकिंग आणि हीटमॅप व्हिज्युअलायझेशन",
@@ -322,15 +322,26 @@
         });
       }
 
-      const col = FG_DB.collection(FG_CONFIG.SENSOR_COLLECTION || 'sensor_readings').orderBy('ts','desc').limit(1);
+      const col = FG_DB.collection('flood_data').orderBy('timestamp','desc').limit(1);
       col.onSnapshot(async snap=>{
           if(snap.empty) return;
           const doc = snap.docs[0].data();
-          const w = doc.waterLevel || doc.water_level || 0;
-          document.getElementById('tempVal').textContent = (doc.temp || 25) + ' °C';
-          document.getElementById('humVal').textContent = (doc.hum || 50) + ' %';
+          const w = doc.water_level || 0;
+          const r = doc.rainfall || 0;
+          document.getElementById('tempVal').textContent = (doc.temperature || 25).toFixed(1) + ' °C';
+          document.getElementById('humVal').textContent = (doc.humidity || 50).toFixed(1) + ' %';
           document.getElementById('waterVal').textContent = (w * 100).toFixed(1) + ' %';
+          document.getElementById('rainVal').textContent = r + ' mm/h';
           updateChart(w);
+
+          // Use AI Risk Score from database if available, otherwise fetch prediction
+          if(doc.ai_risk_score !== undefined) {
+              updateRiskUI({
+                  risk_percentage: doc.ai_risk_score,
+                  status: doc.ai_risk_score > 50 ? 'Danger' : (doc.ai_risk_score > 20 ? 'Advisory' : 'Safe'),
+                  recommendation: doc.ai_risk_score > 50 ? 'Evacuate immediately.' : 'Monitor levels.'
+              });
+          }
       });
 
       // Listen for persistent alerts in Firestore

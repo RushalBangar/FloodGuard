@@ -1,4 +1,4 @@
-// FloodGuard configuration — edit values below
+// LifeGuard configuration — edit values below
 const FG_CONFIG = {
   // WebSocket server URL used by the frontend. Default: localhost:5000/ws
   // Backend base URL — used for WebSocket and can be used for API calls

@@ -701,3 +701,44 @@ input::placeholder {
     .footer-container { grid-template-columns: 1fr; }
     .footer-bottom { flex-direction: column; gap: 1.5rem; text-align: center; }
 }
+
+/* --- DisasterShield Custom Styles --- */
+.dashboard-mode .card.module-card {
+    text-align: center;
+    padding: 2.5rem;
+}
+.dashboard-mode .card.module-card h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+.dashboard-mode .card.module-card p {
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+}
+.dashboard-mode .card.module-card .mini-risk {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+.integrated-card {
+    grid-column: 1 / -1;
+    text-align: center;
+}
+.integrated-card .risk-circle {
+    width: 250px;
+    height: 250px;
+    border-width: 15px;
+}
+.integrated-card .risk-value {
+    font-size: 3.5rem;
+}
+
+/* SOS Glow Animation */
+.sos-glow {
+    animation: sosPulse 1s infinite alternate;
+    border-color: var(--danger) !important;
+}
+
+@keyframes sosPulse {
+    from { box-shadow: 0 0 10px rgba(255, 75, 43, 0.5), inset 0 0 10px rgba(255, 75, 43, 0.2); }
+    to { box-shadow: 0 0 30px rgba(255, 75, 43, 1), inset 0 0 30px rgba(255, 75, 43, 0.6); }
+}

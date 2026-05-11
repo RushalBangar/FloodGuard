@@ -26,4 +26,8 @@ def create_app():
     from .routes import api
     app.register_blueprint(api)
     
+    # Start AI listeners
+    from .ai_listener import start_background_thread
+    start_background_thread()
+    
     return app

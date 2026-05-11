@@ -3,59 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>FloodGuard — AI-Driven Command Center</title>
+  <title>DisasterShield AI — Central Command Center</title>
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="icon" type="image/png" href="/assets/img/logo.png?v=2" />
-  <link rel="apple-touch-icon" href="/assets/img/logo.png?v=2" />
   
-  <meta name="description" content="FloodGuard: AI-driven flood prediction, alerts, and live rescue management." />
-  
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://floodguard.vercel.app/" />
-  <meta property="og:title" content="FloodGuard — AI-Driven Flood Prediction" />
-  <meta property="og:description" content="Saving lives through real-time AI-driven disaster intelligence and emergency response." />
-  <meta property="og:image" content="https://floodguard.vercel.app/assets/img/og-preview.png" />
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://floodguard.vercel.app/" />
-  <meta property="twitter:title" content="FloodGuard — AI-Driven Flood Prediction" />
-  <meta property="twitter:description" content="Saving lives through real-time AI-driven disaster intelligence and emergency response." />
-  <meta property="twitter:image" content="https://floodguard.vercel.app/assets/img/og-preview.png" />
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="description" content="DisasterShield AI: Integrated Flood, Earthquake, and Wildfire monitoring." />
 </head>
-<body>
-  <div class="bg-animation" id="bgAnim">
-    <div class="lightning-flash"></div>
-    <div class="rain" id="rain"></div>
-    <div class="wave"></div>
-    <div class="wave"></div>
-  </div>
-
-  <script>
-    // Generate rain drops
-    const rainContainer = document.getElementById('rain');
-    for (let i = 0; i < 100; i++) {
-        const drop = document.createElement('div');
-        drop.className = 'drop';
-        drop.style.left = Math.random() * 100 + 'vw';
-        drop.style.animationDuration = (Math.random() * 0.5 + 0.5) + 's';
-        drop.style.animationDelay = Math.random() * 2 + 's';
-        rainContainer.appendChild(drop);
-    }
-  </script>
+<body class="dashboard-mode">
+  <div class="bg-animation" id="bgAnim"></div>
 
   <header class="site-header">
     <div class="header-brand">
-      <img src="assets/img/logo.png" alt="FloodGuard Logo" class="site-logo">
-      <span class="logo-text">FloodGuard</span>
+      <img src="assets/img/logo.png" alt="DisasterShield Logo" class="site-logo">
+      <span class="logo-text">DisasterShield AI</span>
     </div>
     <nav class="nav">
-      <a href="/index.html" class="active" data-i18n="nav_dashboard">Dashboard</a>
-      <a href="/map.html" data-i18n="nav_safe_routes">Safe Routes</a>
-      <a href="/rescue.html" data-i18n="nav_rescue">Rescue</a>
+      <a href="/index.html" class="active" data-i18n="nav_dashboard">Global Dashboard</a>
+      <a href="/flood.html" data-i18n="nav_flood">LifeGuard</a>
+      <a href="/quake.html" data-i18n="nav_quake">QuakeShield</a>
+      <a href="/fire.html" data-i18n="nav_fire">WildFireGuard</a>
+      <a href="/rescue.html" data-i18n="nav_rescue">Rescue Ops</a>
     </nav>
     <div class="lang-toggle">
         <button class="lang-btn active" onclick="setLang('en')">EN</button>
@@ -66,231 +33,62 @@
 
   <main class="container">
     <section class="hero">
-      <h1 data-i18n="hero_title">FloodGuard</h1>
-      <p class="tagline" data-i18n="hero_tagline">AI-DRIVEN FLOOD PREDICTION & EMERGENCY RESPONSE</p>
-      <div id="status" class="status disconnected" style="display:inline-block; margin-top:1rem;">Status: Disconnected</div>
+      <h1 data-i18n="hero_title">DisasterShield Hub</h1>
+      <p class="tagline" data-i18n="hero_tagline">INTEGRATED IOT & AI BASED DISASTER MANAGEMENT SYSTEM</p>
     </section>
 
-    <div class="dashboard-grid">
-      <!-- AI Risk Prediction Card -->
-      <div class="card risk-card">
-        <h2 data-i18n="card_risk_title">AI Risk Prediction</h2>
+    <div class="dashboard-grid master-dashboard">
+      <!-- 1. Integrated Risk Card -->
+      <div class="card risk-card integrated-card" id="integratedRiskCard">
+        <h2>Integrated AI Risk Level</h2>
         <div class="risk-meter-container">
-          <div id="riskCircle" class="risk-circle">
-            <span id="riskVal" class="risk-value">0%</span>
+          <div id="integratedRiskCircle" class="risk-circle">
+            <span id="integratedRiskVal" class="risk-value">0%</span>
           </div>
-          <p id="riskStatus" class="status" data-i18n="status_standby">System Standby</p>
-          <p id="riskRecommendation" style="margin-top:1.5rem; text-align:center; font-size:0.9rem; color:var(--text-dim);"></p>
+          <p id="integratedRiskStatus" class="status" data-i18n="status_standby">System Normal</p>
         </div>
       </div>
 
-      <!-- Live Sensor Data Card -->
-      <div class="card sensor-card">
-        <h2 data-i18n="card_sensor_title">Live Sensor Matrix</h2>
-        <div class="sensor-row">
-          <span class="sensor-label" data-i18n="label_water_level">Water Level</span>
-          <span id="waterVal" class="sensor-value">—</span>
+      <!-- 2. FloodGuard Card -->
+      <div class="card module-card">
+        <h2>🌊 LifeGuard AI</h2>
+        <p>Flood Prediction & Rescue System</p>
+        <div class="mini-risk">
+            Risk: <span id="floodRiskSummary" class="status safe">0%</span>
         </div>
-        <div class="sensor-row">
-          <span class="sensor-label" data-i18n="label_temp">Temperature</span>
-          <span id="tempVal" class="sensor-value">—</span>
-        </div>
-        <div class="sensor-row">
-          <span class="sensor-label" data-i18n="label_humidity">Humidity</span>
-          <span id="humVal" class="sensor-value">—</span>
-        </div>
-        <div class="sensor-row">
-          <span class="sensor-label" data-i18n="label_rainfall">Rainfall Forecast</span>
-          <span id="rainVal" class="sensor-value">—</span>
-        </div>
-        
-        <div class="actions" style="margin-top:2rem; display:flex; gap:1rem;">
-          <button id="test-alert" style="flex:1;" data-i18n="btn_test_alert">Test Alert</button>
-          <button id="start-sharing" style="flex:1;" data-i18n="btn_share_location">Share Location</button>
-          <button id="stop-sharing" style="flex:1;" hidden data-i18n="btn_stop_sharing">Stop Sharing</button>
-        </div>
+        <a href="/flood.html" class="btn secondary">Click here to know more</a>
       </div>
 
-      <!-- Local Weather Card -->
-      <div class="card weather-card">
-        <h2 data-i18n="card_weather_title">Atmospheric Data</h2>
-        <div style="height: 180px;">
-          <canvas id="sensorChart"></canvas>
+      <!-- 3. QuakeShield Card -->
+      <div class="card module-card">
+        <h2>🌍 QuakeShield AI</h2>
+        <p>Earthquake & Structural Safety</p>
+        <div class="mini-risk">
+            Risk: <span id="quakeRiskSummary" class="status safe">0%</span>
         </div>
-        <div id="weatherDesc" style="margin-top:1rem; text-align:center; font-style:italic; color:var(--text-dim);" data-i18n="weather_loading">
-          Loading weather data...
+        <a href="/quake.html" class="btn secondary">Click here to know more</a>
+      </div>
+
+      <!-- 4. WildFireGuard Card -->
+      <div class="card module-card">
+        <h2>🔥 WildFireGuard AI</h2>
+        <p>Forest Fire Detection & Alert</p>
+        <div class="mini-risk">
+            Risk: <span id="fireRiskSummary" class="status safe">0%</span>
         </div>
+        <a href="/fire.html" class="btn secondary">Click here to know more</a>
       </div>
     </div>
-
-    <!-- Simulation Trigger Button -->
-    <button onclick="toggleSim()" style="position:fixed; bottom:20px; left:20px; border-radius:50%; width:50px; height:50px; padding:0; background:var(--glass);">🛠️</button>
-
-    <!-- Simulation Panel -->
-    <div id="simPanel" class="card sim-panel">
-        <h3 style="margin-bottom:1rem;">Sensor Simulator</h3>
-        <label style="font-size:0.7rem; color:var(--text-dim);">Water Level (0-1)</label>
-        <input type="range" id="simWater" min="0" max="1" step="0.1" value="0.2" oninput="runSim()">
-        <label style="font-size:0.7rem; color:var(--text-dim);">Rainfall (0-50 mm/h)</label>
-        <input type="range" id="simRain" min="0" max="50" step="1" value="5" oninput="runSim()">
-        <button onclick="toggleSim()" class="secondary" style="width:100%; margin-top:1rem;">Close</button>
-    </div>
-
-    <div class="dashboard-grid" style="margin-top:1.5rem;">
-      <!-- Alerts & Emergency Card -->
-      <div class="card" style="grid-column: span 2;">
-        <h2 data-i18n="card_alert_title">Emergency Broadcasts</h2>
-        <div id="alertBox" class="alert-box" aria-live="polite"></div>
-        
-        <div class="help-form" style="margin-top:2rem; border-top: 1px solid var(--glass-border); padding-top:1.5rem;">
-          <h3 data-i18n="form_sos_title">Request Emergency Assistance</h3>
-          <div style="display:flex; gap:1rem; margin-top:1rem;">
-            <input id="helpName" placeholder="Rescuer ID or Your Name" data-i18n-placeholder="placeholder_name" />
-            <button id="helpBtn" style="min-width:150px; background:var(--danger);" data-i18n="btn_sos">SEND SOS</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- How it Works Section -->
-    <section class="info-section">
-      <div class="section-header">
-        <h2 data-i18n="how_it_works_title">System Architecture</h2>
-        <p class="tagline" data-i18n="how_it_works_tagline">How FloodGuard protects your community</p>
-      </div>
-      
-      <div class="how-it-works">
-        <div class="how-it-works-img">
-          <img src="assets/img/ecosystem.png" alt="FloodGuard Ecosystem Illustration" onerror="this.src='https://images.unsplash.com/photo-1545156521-77bd85671d30?auto=format&fit=crop&q=80&w=1000'">
-        </div>
-        <div class="how-it-works-content">
-          <div class="step-item">
-            <div class="step-num">1</div>
-            <div class="step-text">
-              <h3 data-i18n="step1_title">Data Acquisition</h3>
-              <p data-i18n="step1_desc">IOT-enabled nodes (ESP32) monitor water levels, rainfall, and atmospheric conditions in real-time across critical points.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <div class="step-num">2</div>
-            <div class="step-text">
-              <h3 data-i18n="step2_title">AI Risk Analysis</h3>
-              <p data-i18n="step2_desc">Our proprietary neural network processes telemetry data to predict flood risks with 98% accuracy up to 6 hours in advance.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <div class="step-num">3</div>
-            <div class="step-text">
-              <h3 data-i18n="step3_title">Automated Response</h3>
-              <p data-i18n="step3_desc">Instant alerts are dispatched to authorities and residents, while the rescue dashboard coordinates emergency efforts.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Core Features Bento Grid -->
-    <section class="info-section">
-      <div class="section-header">
-        <h2 data-i18n="features_title">Advanced Capabilities</h2>
-        <p class="tagline" data-i18n="features_tagline">Precision tools for disaster management</p>
-      </div>
-
-      <div class="features-grid">
-        <div class="feature-item">
-          <div class="feature-icon">🧠</div>
-          <h3 data-i18n="feature1_title">Predictive AI</h3>
-          <p data-i18n="feature1_desc">Uses historical weather patterns and live sensor telemetry to simulate flooding scenarios before they occur.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">📍</div>
-          <h3 data-i18n="feature2_title">Live SOS Tracking</h3>
-          <p data-i18n="feature2_desc">Visualizes emergency requests on a dynamic heat map, allowing rescuers to prioritize high-risk zones.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">🛤️</div>
-          <h3 data-i18n="feature3_title">Safe Route Engine</h3>
-          <p data-i18n="feature3_desc">Calculates evacuation paths in real-time by avoiding rising water levels and blocked corridors.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">📡</div>
-          <h3 data-i18n="feature4_title">Multi-Node Ecosystem</h3>
-          <p data-i18n="feature4_desc">Seamlessly integrates with ESP32 and other IoT hardware via high-speed WebSockets for zero-latency monitoring.</p>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon">🌍</div>
-          <h3 data-i18n="feature5_title">Multi-Lingual</h3>
-          <p data-i18n="feature5_desc">Built-in support for English, Hindi, and Marathi ensures that critical info reaches everyone instantly.</p>
-        </div>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-brand">
-        <div class="footer-logo-wrap">
-          <img src="assets/img/logo.png" alt="FloodGuard Logo" class="footer-logo">
-          <h2>FloodGuard</h2>
-        </div>
-        <p>Saving lives through AI-driven disaster intelligence. Our mission is to build resilient communities through real-time monitoring and rapid response tech.</p>
-        <div class="social-links">
-          <a href="#">𝕏</a>
-          <a href="#">in</a>
-          <a href="#">Git</a>
-        </div>
-      </div>
-      <div class="footer-links">
-        <h4 data-i18n="footer_platform">Platform</h4>
-        <ul>
-          <li><a href="index.html" data-i18n="nav_dashboard">Dashboard</a></li>
-          <li><a href="map.html" data-i18n="nav_safe_routes">Safe Routes</a></li>
-          <li><a href="rescue.html" data-i18n="nav_rescue">Rescue Center</a></li>
-          <li><a href="synopsis.html">Project Synopsis</a></li>
-        </ul>
-      </div>
-      <div class="footer-links">
-        <h4 data-i18n="footer_support">Support</h4>
-        <ul>
-          <li><a href="#">Documentation</a></li>
-          <li><a href="#">API Reference</a></li>
-          <li><a href="#">Hardware Setup</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-        </ul>
-      </div>
-      <div class="footer-newsletter">
-        <h4 data-i18n="footer_newsletter">Stay Informed</h4>
-        <p style="color:var(--text-dim); font-size:0.8rem; margin-bottom:1rem;">Receive critical flood updates for your region.</p>
-        <div class="newsletter-form">
-          <input type="email" placeholder="Email Address">
-          <button style="padding: 0.5rem 1rem;">Join</button>
-        </div>
-      </div>
-    </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 FloodGuard Project. All rights reserved.</p>
-      <p>System Status: <span style="color:#4ade80;">Operational</span></p>
+      <p>&copy; 2026 DisasterShield AI Project. All rights reserved.</p>
     </div>
   </footer>
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/firebase.js"></script>
-  <script src="assets/js/app.js"></script>
-  <script>
-      function toggleSim() {
-          const p = document.getElementById('simPanel');
-          p.style.display = (p.style.display === 'block') ? 'none' : 'block';
-      }
-      function runSim() {
-          const w = document.getElementById('simWater').value;
-          const r = document.getElementById('simRain').value;
-          const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
-          fetch(backendUrl + '/api/simulate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ water_level: w, rainfall: r })
-          });
-      }
-  </script>
+  <script src="assets/js/dashboard.js"></script>
 </body>
 </html>

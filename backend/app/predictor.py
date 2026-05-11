@@ -48,3 +48,42 @@ def get_recommendation(status):
         return "Prepare for potential rising waters. Secure valuables."
     else:
         return "IMMEDIATE EVACUATION ADVISED. Follow safe routes on the map."
+
+def calculate_quake_risk(vib_x, vib_y, vib_z, shock_alert):
+    # Mock AI calculation for earthquake
+    magnitude = math.sqrt(vib_x**2 + vib_y**2 + vib_z**2)
+    risk_score = magnitude * 10
+    if shock_alert:
+        risk_score += 50
+    risk_percentage = min(risk_score, 100.0)
+    
+    if risk_percentage < 30:
+        status = "Normal"
+    elif risk_percentage < 70:
+        status = "Moderate Tremor"
+    else:
+        status = "Structural Threat"
+        
+    return {
+        "risk_percentage": round(risk_percentage, 2),
+        "status": status
+    }
+
+def calculate_fire_risk(gas_ppm, temperature, humidity, flame_detected):
+    # Mock AI calculation for fire
+    risk_score = (gas_ppm / 1000.0) * 40 + (temperature / 50.0) * 30 + ((100 - humidity) / 100.0) * 10
+    if flame_detected:
+        risk_score += 60
+    risk_percentage = min(risk_score, 100.0)
+    
+    if risk_percentage < 30:
+        status = "Normal"
+    elif risk_percentage < 70:
+        status = "Elevated Smoke"
+    else:
+        status = "High Fire Risk"
+        
+    return {
+        "risk_percentage": round(risk_percentage, 2),
+        "status": status
+    }

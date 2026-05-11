@@ -1,0 +1,95 @@
+(function(){
+  function ready(fn){ if(document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
+
+  ready(()=>{
+      const riskValEl = document.getElementById('riskVal');
+      const riskCircle = document.getElementById('riskCircle');
+      const riskStatusEl = document.getElementById('riskStatus');
+      
+      const gasCtx = document.getElementById('gasChart').getContext('2d');
+      const gasChart = new Chart(gasCtx, {
+          type: 'line',
+          data: {
+              labels: [],
+              datasets: [{
+                  label: 'Gas/Smoke PPM',
+                  data: [],
+                  borderColor: '#f97316',
+                  backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                  fill: true,
+                  tension: 0.2
+              }]
+          },
+          options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                  y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                  x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+              },
+              plugins: { legend: { display: false } }
+          }
+      });
+
+      function updateRiskUI(riskScore) {
+          riskValEl.textContent = riskScore + '%';
+          
+          let status = 'Safe';
+          let color = '#4ade80';
+          
+          if (riskScore > 50) {
+              status = 'High Fire Risk';
+              color = '#ff4b2b';
+          } else if (riskScore > 20) {
+              status = 'Elevated Smoke';
+              color = '#fbc02d';
+          }
+          
+          riskStatusEl.textContent = status;
+          riskCircle.style.borderColor = color;
+          riskValEl.style.color = color;
+          riskStatusEl.style.color = color;
+          riskStatusEl.className = 'status ' + (riskScore > 50 ? 'danger' : riskScore > 20 ? 'warning' : 'safe');
+      }
+
+      function updateChart(gasPPM) {
+          const now = new Date().toLocaleTimeString();
+          gasChart.data.labels.push(now);
+          gasChart.data.datasets[0].data.push(gasPPM);
+          if (gasChart.data.labels.length > 15) {
+              gasChart.data.labels.shift();
+              gasChart.data.datasets[0].data.shift();
+          }
+          gasChart.update();
+      }
+
+      window.addEventListener('fg:firebase-ready', (ev) => {
+          if (!ev.detail || !ev.detail.available || !window.FG_DB) {
+              document.getElementById('status').textContent = 'Status: Disconnected';
+              return;
+          }
+          
+          document.getElementById('status').textContent = 'Status: Connected';
+          document.getElementById('status').className = 'status connected';
+
+          FG_DB.collection('fire_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
+              if(!snap.empty) {
+                  const data = snap.docs[0].data();
+                  
+                  // Update DOM
+                  document.getElementById('gasVal').textContent = (data.gas_ppm || 0).toFixed(1) + ' PPM';
+                  document.getElementById('tempVal').textContent = (data.temperature || 25).toFixed(1) + ' °C';
+                  document.getElementById('humVal').textContent = (data.humidity || 50).toFixed(1) + ' %';
+                  
+                  const flameVal = data.flame_detected ? 'YES' : 'NO';
+                  const flameEl = document.getElementById('flameVal');
+                  flameEl.textContent = flameVal;
+                  flameEl.style.color = data.flame_detected ? '#ff4b2b' : '#4ade80';
+
+                  updateRiskUI(data.ai_risk_score || 0);
+                  updateChart(data.gas_ppm || 0);
+              }
+          });
+      });
+  });
+})();

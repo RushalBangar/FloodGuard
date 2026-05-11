@@ -1,5 +1,5 @@
 /*
- * FloodGuard ESP32 IoT Firmware (WebSocket Version)
+ * LifeGuard ESP32 IoT Firmware (WebSocket Version)
  * 
  * Sensors:
  * - HC-SR04 (Ultrasonic) -> Water Level
