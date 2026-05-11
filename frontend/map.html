@@ -25,12 +25,23 @@
       <a href="/index.html" data-i18n="nav_dashboard">Dashboard</a>
       <a href="/map.html" class="active" data-i18n="nav_safe_routes">Safe Routes</a>
       <a href="/rescue.html" data-i18n="nav_rescue">Rescue</a>
+
+      <div class="lang-toggle mobile-only">
+          <button class="lang-btn active" onclick="setLang('en')">EN</button>
+          <button class="lang-btn" onclick="setLang('hi')">HI</button>
+          <button class="lang-btn" onclick="setLang('mr')">MR</button>
+      </div>
     </nav>
-    <div class="lang-toggle">
+    <div class="lang-toggle desktop-only">
         <button class="lang-btn active" onclick="setLang('en')">EN</button>
         <button class="lang-btn" onclick="setLang('hi')">HI</button>
         <button class="lang-btn" onclick="setLang('mr')">MR</button>
     </div>
+    <button class="menu-toggle" id="menuToggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
   </header>
 
   <main class="container">

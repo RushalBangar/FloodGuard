@@ -492,8 +492,18 @@ input::placeholder {
     .nav a { font-size: 1rem; padding: 0.8rem; border-bottom: 1px solid var(--glass-border); width: 100%; }
     .nav a:last-child { border-bottom: none; }
 
-    .lang-toggle { order: 2; flex-direction: column; gap: 2px; }
-    .lang-btn { padding: 0.2rem 0.4rem; min-width: 32px; min-height: 32px; font-size: 0.6rem; }
+    .lang-toggle.desktop-only { display: none; }
+    .lang-toggle.mobile-only { 
+        display: flex; 
+        flex-direction: row; 
+        justify-content: center; 
+        gap: 1rem; 
+        margin-top: 1.5rem; 
+        padding-top: 1.5rem; 
+        border-top: 1px solid var(--glass-border); 
+        width: 100%;
+    }
+    .lang-btn { padding: 0.6rem 1rem; min-width: 44px; min-height: 44px; font-size: 0.8rem; }
 }
 
 @media (max-width: 480px) {
