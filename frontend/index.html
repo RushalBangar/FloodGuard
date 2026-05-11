@@ -3,27 +3,26 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>LifeGuard — Global Dashboard</title>
+  <title>Life Guard — Intelligent Disaster Management</title>
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="icon" type="image/png" href="/assets/img/logo.png?v=2" />
-  
-  <meta name="description" content="DisasterShield AI: Integrated Flood, Earthquake, and Wildfire monitoring." />
+  <meta name="description" content="Life Guard: AI-powered multi-hazard disaster management platform integrating Flood, Earthquake, and Wildfire monitoring." />
 </head>
 <body class="dashboard-mode">
   <div class="bg-animation" id="bgAnim"></div>
 
   <header class="site-header">
     <div class="header-brand">
-      <img src="assets/img/logo.png" alt="LifeGuard Logo" class="site-logo">
-      <span class="logo-text">Life Guard Central</span>
+      <img src="assets/img/logo.png" alt="Life Guard Logo" class="site-logo">
+      <span class="logo-text">Life Guard</span>
     </div>
     <nav class="nav">
-      <a href="/index.html" class="active" data-i18n="nav_dashboard">Global Dashboard</a>
-      <a href="/flood.html" data-i18n="nav_flood">LifeGuard</a>
+      <a href="/index.html" class="active" data-i18n="nav_dashboard">Dashboard</a>
+      <a href="/flood.html" data-i18n="nav_flood">Flood Guard</a>
       <a href="/quake.html" data-i18n="nav_quake">QuakeShield</a>
-      <a href="/fire.html" data-i18n="nav_fire">WildFireGuard</a>
+      <a href="/fire.html" data-i18n="nav_fire">Wildfire Guard</a>
       <a href="/rescue.html" data-i18n="nav_rescue">Rescue Ops</a>
-      
+
       <div class="lang-toggle mobile-only">
         <button class="lang-btn active" onclick="setLang('en')">EN</button>
         <button class="lang-btn" onclick="setLang('hi')">HI</button>
@@ -43,22 +42,31 @@
   </header>
 
   <main class="container">
-    <section class="hero">
-      <h1 data-i18n="hero_title">LifeGuard Hub</h1>
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero" id="heroSection">
+      <div class="hero-badge">🛡️ AI-Powered Emergency Response</div>
+      <h1 data-i18n="hero_title">Life Guard</h1>
       <p class="tagline" data-i18n="hero_tagline">INTEGRATED IOT & AI BASED DISASTER MANAGEMENT SYSTEM</p>
+      <div class="hero-actions">
+        <a href="/flood.html" class="hero-btn primary-btn">Explore Dashboard →</a>
+        <a href="/rescue.html" class="hero-btn ghost-btn">SOS & Rescue</a>
+      </div>
     </section>
 
-    <section class="dashboard-section animate-reveal">
+    <!-- ===== LIVE TELEMETRY BENTO GRID ===== -->
+    <section class="dashboard-section" id="telemetrySection">
+      <div class="section-label"><span class="pulse-dot"></span> Live Telemetry</div>
+
       <div class="bento-grid">
-        <!-- Main Risk Gauge Card (Takes 2 columns) -->
+        <!-- Main Risk Gauge -->
         <div class="card bento-card risk-main">
           <h2 data-i18n="card_risk_title">Integrated AI Risk Level</h2>
           <div class="gauge-container">
             <svg class="risk-gauge" viewBox="0 0 200 200">
               <circle class="gauge-bg" cx="100" cy="100" r="90"></circle>
               <circle class="gauge-progress" cx="100" cy="100" r="90" id="riskCircle"></circle>
-              <text x="100" y="100" class="risk-value" id="riskValue">0%</text>
-              <text x="100" y="130" class="risk-status" id="riskStatus" data-i18n="status_standby">System Standby</text>
+              <text x="100" y="95" class="risk-value" id="riskValue">0%</text>
+              <text x="100" y="125" class="risk-status" id="riskStatus" data-i18n="status_standby">System Standby</text>
             </svg>
           </div>
         </div>
@@ -67,77 +75,115 @@
         <div class="card bento-card weather-card">
           <div class="card-header">
             <h3 data-i18n="card_weather_title">Atmospheric Data</h3>
-            <span class="live-indicator">LIVE</span>
+            <span class="live-indicator"><span class="live-dot"></span>LIVE</span>
           </div>
-          <div id="weather" data-i18n="weather_loading">Loading weather data...</div>
+          <div id="weather" class="weather-placeholder" data-i18n="weather_loading">Loading weather data...</div>
         </div>
 
         <!-- System Alerts Card -->
         <div class="card bento-card alerts-card">
-          <h3 data-i18n="card_alert_title">Emergency Broadcasts</h3>
-          <div id="alerts" class="alert-list"></div>
+          <div class="card-header">
+            <h3 data-i18n="card_alert_title">Emergency Broadcasts</h3>
+            <span class="alert-count" id="alertCount">0</span>
+          </div>
+          <div id="alerts" class="alert-list">
+            <div class="empty-state">No active alerts — All systems nominal</div>
+          </div>
         </div>
 
-        <!-- Modules Quick Access -->
+        <!-- Active Modules Card -->
         <div class="card bento-card module-quick-card">
-          <h3>Active Guard Modules</h3>
+          <h3>Guard Modules</h3>
           <div class="module-grid">
-            <div class="mini-module">
-              <span class="status-dot online"></span>
-              <span>Flood</span>
-            </div>
-            <div class="mini-module">
-              <span class="status-dot online"></span>
-              <span>Quake</span>
-            </div>
-            <div class="mini-module">
-              <span class="status-dot warning"></span>
-              <span>Fire</span>
-            </div>
+            <a href="/flood.html" class="mini-module">
+              <span class="module-icon">🌊</span>
+              <div class="module-info">
+                <span class="module-name">Flood Guard</span>
+                <span class="module-status"><span class="status-dot online"></span>Online</span>
+              </div>
+            </a>
+            <a href="/quake.html" class="mini-module">
+              <span class="module-icon">🌍</span>
+              <div class="module-info">
+                <span class="module-name">QuakeShield</span>
+                <span class="module-status"><span class="status-dot online"></span>Online</span>
+              </div>
+            </a>
+            <a href="/fire.html" class="mini-module">
+              <span class="module-icon">🔥</span>
+              <div class="module-info">
+                <span class="module-name">Wildfire Guard</span>
+                <span class="module-status"><span class="status-dot warning"></span>Standby</span>
+              </div>
+            </a>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Informative Section: How it Works -->
-    <section class="info-section">
+    <!-- ===== STATS COUNTER ===== -->
+    <section class="stats-section" id="statsSection">
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" data-count="3">0</div>
+          <div class="stat-label">Guard Modules</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" data-count="24">0</div>
+          <div class="stat-label">Hour Monitoring</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" data-count="50">0</div>
+          <div class="stat-label">IoT Sensor Nodes</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" data-count="99">0</div>
+          <div class="stat-label">% AI Accuracy</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="info-section" id="howSection">
       <div class="section-header">
+        <div class="section-label center"><span class="pulse-dot accent"></span> How It Works</div>
         <h2 data-i18n="section_how_title">Intelligent Disaster Management</h2>
         <p data-i18n="section_how_subtitle">How Life Guard protects communities through AI & IoT</p>
       </div>
 
-      <div class="how-it-works">
-        <div class="how-it-works-img">
-          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1000" alt="Data Analytics" />
+      <div class="how-steps">
+        <div class="step-card">
+          <div class="step-number">01</div>
+          <div class="step-icon">📡</div>
+          <h3 data-i18n="step1_title">Real-time Sensing</h3>
+          <p data-i18n="step1_text">Distributed IoT sensors monitor water levels, tremors, and atmospheric gas levels 24/7 across critical nodes.</p>
         </div>
-        <div class="how-it-works-content">
-          <div class="step-item">
-            <div class="step-num">1</div>
-            <div class="step-text">
-              <h3 data-i18n="step1_title">Real-time Sensing</h3>
-              <p data-i18n="step1_text">Distributed IoT sensors monitor water levels, tremors, and atmospheric gas levels 24/7 across critical nodes.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <div class="step-num">2</div>
-            <div class="step-text">
-              <h3 data-i18n="step2_title">AI Risk Analysis</h3>
-              <p data-i18n="step2_text">Our proprietary machine learning models analyze sensor data streams to predict disaster probability with high precision.</p>
-            </div>
-          </div>
-          <div class="step-item">
-            <div class="step-num">3</div>
-            <div class="step-text">
-              <h3 data-i18n="step3_title">Automated Response</h3>
-              <p data-i18n="step3_text">System instantly triggers emergency broadcasts, SOS protocols, and dynamic evacuation routing for at-risk areas.</p>
-            </div>
-          </div>
+        <div class="step-connector"></div>
+        <div class="step-card">
+          <div class="step-number">02</div>
+          <div class="step-icon">🧠</div>
+          <h3 data-i18n="step2_title">AI Risk Analysis</h3>
+          <p data-i18n="step2_text">Our proprietary machine learning models analyze sensor data streams to predict disaster probability with high precision.</p>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step-card">
+          <div class="step-number">03</div>
+          <div class="step-icon">🚨</div>
+          <h3 data-i18n="step3_title">Automated Response</h3>
+          <p data-i18n="step3_text">System instantly triggers emergency broadcasts, SOS protocols, and dynamic evacuation routing for at-risk areas.</p>
         </div>
       </div>
+    </section>
 
-      <!-- Bento Features -->
+    <!-- ===== FEATURES BENTO ===== -->
+    <section class="info-section" id="featuresSection">
+      <div class="section-header">
+        <div class="section-label center"><span class="pulse-dot"></span> Platform Capabilities</div>
+        <h2>Why Life Guard?</h2>
+      </div>
+
       <div class="features-grid">
-        <div class="feature-item">
+        <div class="feature-item feature-wide">
           <div class="feature-icon">🛡️</div>
           <h3>Multi-Hazard Protection</h3>
           <p>Integrated coverage for Floods, Earthquakes, and Wildfires within a single unified command center.</p>
@@ -152,7 +198,7 @@
           <h3>Dynamic Evacuation</h3>
           <p>AI-driven route optimization using Google Maps API to guide users to the nearest safe zones.</p>
         </div>
-        <div class="feature-item">
+        <div class="feature-item feature-wide">
           <div class="feature-icon">🤝</div>
           <h3>Rescue Coordination</h3>
           <p>Direct bridge between victims and rescue teams with live location tracking and SOS signaling.</p>
@@ -161,6 +207,7 @@
     </section>
   </main>
 
+  <!-- ===== PREMIUM FOOTER ===== -->
   <footer class="site-footer">
     <div class="footer-container">
       <div class="footer-brand">
@@ -170,10 +217,10 @@
         </div>
         <p>A mission-critical disaster management platform leveraging the power of AI and IoT to save lives and protect infrastructure during emergency events.</p>
         <div class="social-links">
-          <a href="#">FB</a>
-          <a href="#">TW</a>
-          <a href="#">IN</a>
-          <a href="#">GH</a>
+          <a href="#" aria-label="Facebook">FB</a>
+          <a href="#" aria-label="Twitter">TW</a>
+          <a href="#" aria-label="LinkedIn">IN</a>
+          <a href="https://github.com/RushalBangar/LifeGuard" aria-label="GitHub">GH</a>
         </div>
       </div>
       <div class="footer-links">
@@ -196,7 +243,7 @@
       </div>
       <div class="footer-newsletter">
         <h4>Stay Alerted</h4>
-        <p style="font-size: 0.8rem; margin-bottom: 1rem; color: var(--text-dim);">Get emergency protocol updates.</p>
+        <p style="font-size: 0.85rem; margin-bottom: 1rem; color: var(--text-dim);">Get emergency protocol updates.</p>
         <form class="newsletter-form">
           <input type="email" placeholder="Email address">
           <button type="submit">GO</button>
@@ -205,9 +252,9 @@
     </div>
     <div class="footer-bottom">
       <p>&copy; 2026 Life Guard AI Project. All rights reserved.</p>
-      <div style="display: flex; gap: 2rem;">
-        <a href="#" style="color: var(--text-dim); text-decoration: none;">Privacy Policy</a>
-        <a href="#" style="color: var(--text-dim); text-decoration: none;">Terms of Service</a>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
       </div>
     </div>
   </footer>
@@ -217,6 +264,43 @@
   <script src="assets/js/bg-effects.js"></script>
   <script src="assets/js/firebase.js"></script>
   <script src="assets/js/dashboard.js"></script>
-  <script src="assets/js/app.js"></script>
+
+  <!-- Scroll Reveal & Counter Animation -->
+  <script>
+  (function() {
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.card, .step-card, .feature-item, .stat-item, .hero-badge, .hero-actions')
+      .forEach(el => { el.classList.add('reveal-on-scroll'); observer.observe(el); });
+
+    // Counter animation
+    const countObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.count);
+          let current = 0;
+          const step = Math.ceil(target / 40);
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(timer); }
+            el.textContent = current;
+          }, 40);
+          countObserver.unobserve(el);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.stat-value[data-count]').forEach(el => countObserver.observe(el));
+  })();
+  </script>
 </body>
 </html>
