@@ -48,48 +48,56 @@
       <p class="tagline" data-i18n="hero_tagline">INTEGRATED IOT & AI BASED DISASTER MANAGEMENT SYSTEM</p>
     </section>
 
-    <div class="dashboard-grid master-dashboard">
-      <!-- 1. Integrated Risk Card -->
-      <div class="card risk-card integrated-card" id="integratedRiskCard">
-        <h2>Integrated AI Risk Level</h2>
-        <div class="risk-meter-container">
-          <div id="integratedRiskCircle" class="risk-circle">
-            <span id="integratedRiskVal" class="risk-value">0%</span>
+    <section class="dashboard-section animate-reveal">
+      <div class="bento-grid">
+        <!-- Main Risk Gauge Card (Takes 2 columns) -->
+        <div class="card bento-card risk-main">
+          <h2 data-i18n="card_risk_title">Integrated AI Risk Level</h2>
+          <div class="gauge-container">
+            <svg class="risk-gauge" viewBox="0 0 200 200">
+              <circle class="gauge-bg" cx="100" cy="100" r="90"></circle>
+              <circle class="gauge-progress" cx="100" cy="100" r="90" id="riskCircle"></circle>
+              <text x="100" y="100" class="risk-value" id="riskValue">0%</text>
+              <text x="100" y="130" class="risk-status" id="riskStatus" data-i18n="status_standby">System Standby</text>
+            </svg>
           </div>
-          <p id="integratedRiskStatus" class="status" data-i18n="status_standby">System Normal</p>
         </div>
-      </div>
 
-      <!-- 2. FloodGuard Card -->
-      <div class="card module-card">
-        <h2>🌊 FloodGuard AI</h2>
-        <p>Flood Prediction & Rescue System</p>
-        <div class="mini-risk">
-            Risk: <span id="floodRiskSummary" class="status safe">0%</span>
+        <!-- Weather Card -->
+        <div class="card bento-card weather-card">
+          <div class="card-header">
+            <h3 data-i18n="card_weather_title">Atmospheric Data</h3>
+            <span class="live-indicator">LIVE</span>
+          </div>
+          <div id="weather" data-i18n="weather_loading">Loading weather data...</div>
         </div>
-        <a href="/flood.html" class="btn secondary">Click here to know more</a>
-      </div>
 
-      <!-- 3. QuakeShield Card -->
-      <div class="card module-card">
-        <h2>🌍 QuakeShield AI</h2>
-        <p>Earthquake & Structural Safety</p>
-        <div class="mini-risk">
-            Risk: <span id="quakeRiskSummary" class="status safe">0%</span>
+        <!-- System Alerts Card -->
+        <div class="card bento-card alerts-card">
+          <h3 data-i18n="card_alert_title">Emergency Broadcasts</h3>
+          <div id="alerts" class="alert-list"></div>
         </div>
-        <a href="/quake.html" class="btn secondary">Click here to know more</a>
-      </div>
 
-      <!-- 4. WildFireGuard Card -->
-      <div class="card module-card">
-        <h2>🔥 WildFireGuard AI</h2>
-        <p>Forest Fire Detection & Alert</p>
-        <div class="mini-risk">
-            Risk: <span id="fireRiskSummary" class="status safe">0%</span>
+        <!-- Modules Quick Access -->
+        <div class="card bento-card module-quick-card">
+          <h3>Active Guard Modules</h3>
+          <div class="module-grid">
+            <div class="mini-module">
+              <span class="status-dot online"></span>
+              <span>Flood</span>
+            </div>
+            <div class="mini-module">
+              <span class="status-dot online"></span>
+              <span>Quake</span>
+            </div>
+            <div class="mini-module">
+              <span class="status-dot warning"></span>
+              <span>Fire</span>
+            </div>
+          </div>
         </div>
-        <a href="/fire.html" class="btn secondary">Click here to know more</a>
       </div>
-    </div>
+    </section>
 
     <!-- Informative Section: How it Works -->
     <section class="info-section">
@@ -206,7 +214,8 @@
 
   <script src="assets/js/config.js"></script>
   <script src="assets/js/i18n.js"></script>
-  <script src="assets/js/firebase.js"></script>
-  <script src="assets/js/dashboard.js"></script>
+  <script src="assets/js/bg-effects.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>

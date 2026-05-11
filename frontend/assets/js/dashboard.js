@@ -22,32 +22,35 @@
           if(fiEl) { fiEl.textContent = fiRisk + '%'; fiEl.className = 'status ' + getRiskClass(fiRisk); }
 
           // Calculate Integrated Risk
-          const maxRisk = Math.max(fRisk, qRisk, fiRisk);
-          const integratedEl = document.getElementById('integratedRiskVal');
-          const integratedStatus = document.getElementById('integratedRiskStatus');
-          const integratedCard = document.getElementById('integratedRiskCard');
+          updateIntegratedRisk();
+      }
 
-          if(integratedEl) {
-              integratedEl.textContent = maxRisk + '%';
-              
-              if(maxRisk > 50) {
-                  integratedStatus.textContent = 'DANGER: SOS ALERT';
-                  integratedStatus.style.color = '#ff4b2b';
-                  integratedEl.style.color = '#ff4b2b';
-                  document.getElementById('integratedRiskCircle').style.borderColor = '#ff4b2b';
-                  integratedCard.classList.add('sos-glow');
-              } else if (maxRisk > 20) {
-                  integratedStatus.textContent = 'ADVISORY: Monitor situation';
-                  integratedStatus.style.color = '#fbc02d';
-                  integratedEl.style.color = '#fbc02d';
-                  document.getElementById('integratedRiskCircle').style.borderColor = '#fbc02d';
-                  integratedCard.classList.remove('sos-glow');
-              } else {
-                  integratedStatus.textContent = 'System Normal';
-                  integratedStatus.style.color = '#4ade80';
-                  integratedEl.style.color = '#4ade80';
-                  document.getElementById('integratedRiskCircle').style.borderColor = '#4ade80';
-                  integratedCard.classList.remove('sos-glow');
+      function updateIntegratedRisk() {
+          const maxRisk = Math.max(riskScores.flood, riskScores.quake, riskScores.fire);
+          const valEl = document.getElementById('riskValue');
+          const statusEl = document.getElementById('riskStatus');
+          const circle = document.getElementById('riskCircle');
+          const bgAnim = document.getElementById('bgAnim');
+
+          if(valEl) {
+              valEl.textContent = maxRisk + '%';
+              const offset = 565 - (565 * maxRisk / 100);
+              if(circle) {
+                  circle.style.strokeDashoffset = offset;
+                  
+                  if(maxRisk > 50) {
+                      circle.style.stroke = 'var(--danger)';
+                      if(statusEl) statusEl.textContent = 'Critical Alert';
+                      if(bgAnim) bgAnim.classList.add('emergency-red');
+                  } else if (maxRisk > 20) {
+                      circle.style.stroke = 'var(--warning)';
+                      if(statusEl) statusEl.textContent = 'Elevated Risk';
+                      if(bgAnim) bgAnim.classList.remove('emergency-red');
+                  } else {
+                      circle.style.stroke = 'var(--primary)';
+                      if(statusEl) statusEl.textContent = 'System Standby';
+                      if(bgAnim) bgAnim.classList.remove('emergency-red');
+                  }
               }
           }
       }
