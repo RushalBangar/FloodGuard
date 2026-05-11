@@ -1,14 +1,7 @@
 (function(){
   function ready(fn){ if(document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
 
-  window.setLang = function(lang) {
-      // Very basic implementation, assuming i18n from app.js isn't loaded on dashboard
-      document.querySelectorAll('[data-i18n]').forEach(el => {
-          // If we had the dict here...
-      });
-      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
-  };
+
 
   ready(()=>{
       // We will listen to Firebase directly for the 3 collections: flood_data, quake_data, fire_data.
