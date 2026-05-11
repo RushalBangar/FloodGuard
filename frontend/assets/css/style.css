@@ -458,35 +458,48 @@ input::placeholder {
 
 /* --- Mobile Responsiveness --- */
 @media (max-width: 900px) {
-    .site-header { padding: 1rem 1.5rem; position: relative; }
-    .menu-toggle { display: flex; order: 2; }
-    .header-brand { flex: 1; }
+    .site-header { padding: 0.8rem 1rem; position: relative; gap: 0.5rem; }
+    .menu-toggle { display: flex; order: 3; }
+    .header-brand { flex: 1; min-width: 0; }
+    .logo-text { font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .site-logo { height: 32px; }
     
     .nav { 
-        display: none; 
+        display: flex; 
         position: absolute; 
         top: 100%; 
         left: 0; 
         width: 100%; 
-        background: rgba(15, 23, 42, 0.95);
+        background: rgba(15, 23, 42, 0.98);
         backdrop-filter: blur(20px);
         flex-direction: column; 
-        padding: 2rem; 
+        padding: 1.5rem; 
         border-bottom: 1px solid var(--glass-border);
         text-align: center;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: 0.3s ease;
+        z-index: 99;
     }
     
-    .nav.open { display: flex; }
-    .nav a { font-size: 1.1rem; padding: 1rem; border-bottom: 1px solid var(--glass-border); }
+    .nav.open { 
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .nav a { font-size: 1rem; padding: 0.8rem; border-bottom: 1px solid var(--glass-border); width: 100%; }
     .nav a:last-child { border-bottom: none; }
 
-    .hero h1 { font-size: 3rem; }
-    .dashboard-grid { grid-template-columns: 1fr; }
-    .card { padding: 1.5rem; }
-    .rescue-layout { flex-direction: column; height: auto; }
-    .rescue-sidebar { width: 100%; height: 400px; order: 2; }
-    .rescue-main { height: 500px; order: 1; }
-    .lang-toggle { order: 3; }
+    .lang-toggle { order: 2; gap: 0.2rem; }
+    .lang-btn { padding: 0.4rem 0.6rem; min-width: 38px; min-height: 38px; font-size: 0.7rem; }
+}
+
+@media (max-width: 480px) {
+    .logo-text { font-size: 1rem; }
+    .site-header { padding: 0.6rem 0.8rem; }
+    .lang-toggle { display: none; } /* Hide lang toggle on ultra-small if menu is more important, or we can move it inside nav */
 }
 
 @media (max-width: 600px) {
