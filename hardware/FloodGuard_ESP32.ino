@@ -225,7 +225,7 @@ void sendSOS() {
   doc["lat"] = 20.0;
   doc["lng"] = 78.0; 
   doc["isSOS"] = true;
-  doc["name"] = "Hardware-WS-Node-01";
+  doc["name"] = "LifeGuard-WS-Node-01";
   
   String json;
   serializeJson(doc, json);

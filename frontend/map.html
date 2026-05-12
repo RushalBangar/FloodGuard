@@ -120,11 +120,11 @@
     const destMarkers = [];
  
     function loadGoogleMaps(cb){
-      if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
-        alert('Please set FG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
+      if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY || LG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
+        alert('Please set LG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
         return;
       }
-      const key = FG_CONFIG.GOOGLE_MAPS_API_KEY;
+      const key = LG_CONFIG.GOOGLE_MAPS_API_KEY;
       const script = document.createElement('script');
       script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=places';
       script.async = true; script.defer = true; script.onload = cb;
@@ -246,7 +246,7 @@
         
         updateUserPosition(lat, lng);
  
-        const dests = FG_CONFIG.SAFE_DESTINATIONS || [{name:'Safe Point A', lat:lat+0.02, lng:lng+0.02}];
+        const dests = LG_CONFIG.SAFE_DESTINATIONS || [{name:'Safe Point A', lat:lat+0.02, lng:lng+0.02}];
         const origin = new google.maps.LatLng(lat, lng);
  
         dests.forEach((d, i) => {

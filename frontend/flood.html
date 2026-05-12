@@ -216,7 +216,7 @@
       function runSim() {
           const w = document.getElementById('simWater').value;
           const r = document.getElementById('simRain').value;
-          const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+          const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
           fetch(backendUrl + '/api/simulate', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },

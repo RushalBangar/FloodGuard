@@ -9,9 +9,9 @@
   }
 
   async function initFirebase(){
-    if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.FIREBASE_CONFIG){
+    if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.FIREBASE_CONFIG){
       // No client-side firebase configured — emit ready event anyway so app can fallback
-      window.dispatchEvent(new CustomEvent('fg:firebase-ready', {detail:{available:false}}));
+      window.dispatchEvent(new CustomEvent('lg:firebase-ready', {detail:{available:false}}));
       return;
     }
 
@@ -26,15 +26,15 @@
       await Promise.all(urls.map(loadScript));
       // Initialize
       try{
-        firebase.initializeApp(FG_CONFIG.FIREBASE_CONFIG);
-        window.FG_FIREBASE = firebase;
-        window.FG_AUTH = firebase.auth();
-        window.FG_DB = firebase.firestore();
+        firebase.initializeApp(LG_CONFIG.FIREBASE_CONFIG);
+        window.LG_FIREBASE = firebase;
+        window.LG_AUTH = firebase.auth();
+        window.LG_DB = firebase.firestore();
         
         // Push Notifications
         if ('serviceWorker' in navigator) {
           const messaging = firebase.messaging();
-          window.FG_MESSAGING = messaging;
+          window.LG_MESSAGING = messaging;
           
           messaging.onMessage((payload) => {
             console.log('Message received. ', payload);
@@ -45,14 +45,14 @@
         }
 
         console.log('Firebase initialized (client)');
-        window.dispatchEvent(new CustomEvent('fg:firebase-ready', {detail:{available:true}}));
+        window.dispatchEvent(new CustomEvent('lg:firebase-ready', {detail:{available:true}}));
       }catch(e){
         console.error('Firebase init failed', e);
-        window.dispatchEvent(new CustomEvent('fg:firebase-ready', {detail:{available:false}}));
+        window.dispatchEvent(new CustomEvent('lg:firebase-ready', {detail:{available:false}}));
       }
     }catch(e){
       console.error('Failed to load Firebase SDK', e);
-      window.dispatchEvent(new CustomEvent('fg:firebase-ready', {detail:{available:false}}));
+      window.dispatchEvent(new CustomEvent('lg:firebase-ready', {detail:{available:false}}));
     }
   }
 

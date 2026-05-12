@@ -11,7 +11,7 @@
     const riskRecEl = document.getElementById('riskRecommendation');
     const sensorChartCtx = document.getElementById('sensorChart').getContext('2d');
     
-    const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.host;
+    const WS_URL = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.WS_URL) ? LG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.host;
     let socket = null;
     let watchId = null;
     
@@ -65,7 +65,7 @@
 
     async function fetchPrediction(waterLevel, rain, hum, temp) {
         try {
-            const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+            const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
             const resp = await fetch(backendUrl + '/api/predict', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -78,7 +78,7 @@
 
     async function fetchWeather() {
         try {
-            const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+            const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
             const resp = await fetch(backendUrl + '/api/weather');
             const data = await resp.json();
             if (data.main) {
@@ -163,7 +163,7 @@
     setInterval(fetchWeather, 60000);
 
     document.getElementById('test-alert').addEventListener('click', ()=>{
-      const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+      const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
       fetch(backendUrl + '/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'System Alert: Flood risk assessment in progress.'})});
     });
 
@@ -175,10 +175,10 @@
         if(socket && socket.readyState === WebSocket.OPEN){ socket.send(JSON.stringify({type:'location', lat, lng})); }
         
         // 2. Write to Firestore
-        if(window.FG_DB) {
-            const colName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.LOCATION_COLLECTION) ? FG_CONFIG.LOCATION_COLLECTION : 'user_locations';
+        if(window.LG_DB) {
+            const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.LOCATION_COLLECTION) ? LG_CONFIG.LOCATION_COLLECTION : 'user_locations';
             const uid = socket ? (socket.id || 'me') : 'anon_' + Math.random().toString(36).substr(2, 9);
-            FG_DB.collection(colName).doc(uid).set({
+            LG_DB.collection(colName).doc(uid).set({
                 lat, lng,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             }, { merge: true });
@@ -216,9 +216,9 @@
             };
             
             // 1. Write to Firestore (primary — persists in database)
-            if(window.FG_DB) {
-                const colName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.HELP_COLLECTION) ? FG_CONFIG.HELP_COLLECTION : 'sos_signals';
-                FG_DB.collection(colName).add({
+            if(window.LG_DB) {
+                const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'sos_signals';
+                LG_DB.collection(colName).add({
                     ...sosData,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => {
@@ -235,8 +235,8 @@
             }
             
             // 3. REST API fallback
-            if(!window.FG_DB) {
-                const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+            if(!window.LG_DB) {
+                const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
                 fetch(backendUrl + '/api/sos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -254,12 +254,12 @@
         }, { enableHighAccuracy: true });
     });
 
-    window.addEventListener('fg:firebase-ready', (ev)=>{
-      if(!ev.detail || !ev.detail.available || !window.FG_DB) return;
+    window.addEventListener('lg:firebase-ready', (ev)=>{
+      if(!ev.detail || !ev.detail.available || !window.LG_DB) return;
       
       // Request Notification Permission
-      if (window.FG_MESSAGING) {
-        FG_MESSAGING.getToken({ vapidKey: FG_CONFIG.VAPID_KEY }).then((currentToken) => {
+      if (window.LG_MESSAGING) {
+        LG_MESSAGING.getToken({ vapidKey: LG_CONFIG.VAPID_KEY }).then((currentToken) => {
           if (currentToken) {
             console.log('FCM Token:', currentToken);
             // In a real app, you'd send this to your backend to associate with the user
@@ -272,7 +272,7 @@
         });
       }
 
-      const col = FG_DB.collection('flood_data').orderBy('timestamp','desc').limit(1);
+      const col = LG_DB.collection('flood_data').orderBy('timestamp','desc').limit(1);
       col.onSnapshot(async snap=>{
           if(snap.empty) return;
           const doc = snap.docs[0].data();
@@ -295,9 +295,9 @@
       });
 
       // Listen for persistent alerts in Firestore
-      const alertColName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.ALERTS_COLLECTION) ? FG_CONFIG.ALERTS_COLLECTION : 'alerts';
+      const alertColName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.ALERTS_COLLECTION) ? LG_CONFIG.ALERTS_COLLECTION : 'alerts';
       const shownAlerts = new Set();
-      FG_DB.collection(alertColName).orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
+      LG_DB.collection(alertColName).orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
           snap.docChanges().forEach(change => {
               if (change.type === 'added') {
                   const data = change.doc.data();

@@ -155,11 +155,11 @@
                 };
                 
                 // Write to Firestore
-                if(window.FG_DB) {
-                    const colName = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.HELP_COLLECTION) ? FG_CONFIG.HELP_COLLECTION : 'sos_signals';
-                    // We check if firebase object exists since FG_DB uses it
+                if(window.LG_DB) {
+                    const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'sos_signals';
+                    // We check if firebase object exists since LG_DB uses it
                     const timestamp = (typeof firebase !== 'undefined') ? firebase.firestore.FieldValue.serverTimestamp() : new Date();
-                    FG_DB.collection(colName).add({ ...sosData, createdAt: timestamp })
+                    LG_DB.collection(colName).add({ ...sosData, createdAt: timestamp })
                         .then(() => window.showToast('SOS TRANSMITTED. Rescue teams notified.', 'danger'))
                         .catch(e => {
                             console.error('Firestore SOS write failed:', e);

@@ -63,8 +63,8 @@
           gasChart.update();
       }
 
-      window.addEventListener('fg:firebase-ready', (ev) => {
-          if (!ev.detail || !ev.detail.available || !window.FG_DB) {
+      window.addEventListener('lg:firebase-ready', (ev) => {
+          if (!ev.detail || !ev.detail.available || !window.LG_DB) {
               document.getElementById('status').textContent = 'Status: Disconnected';
               return;
           }
@@ -72,7 +72,7 @@
           document.getElementById('status').textContent = 'Status: Connected';
           document.getElementById('status').className = 'status connected';
 
-          FG_DB.collection('fire_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
+          LG_DB.collection('fire_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
                   const data = snap.docs[0].data();
                   

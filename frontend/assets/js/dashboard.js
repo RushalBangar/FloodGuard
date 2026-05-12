@@ -61,11 +61,11 @@
           return 'safe';
       }
 
-      window.addEventListener('fg:firebase-ready', (ev) => {
-          if (!ev.detail || !ev.detail.available || !window.FG_DB) return;
+      window.addEventListener('lg:firebase-ready', (ev) => {
+          if (!ev.detail || !ev.detail.available || !window.LG_DB) return;
 
           // Listen to Flood Data
-          FG_DB.collection('flood_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
+          LG_DB.collection('flood_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
                   riskScores.flood = snap.docs[0].data().ai_risk_score || 0;
                   updateDashboard();
@@ -73,7 +73,7 @@
           });
 
           // Listen to Quake Data
-          FG_DB.collection('quake_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
+          LG_DB.collection('quake_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
                   riskScores.quake = snap.docs[0].data().ai_risk_score || 0;
                   updateDashboard();
@@ -81,7 +81,7 @@
           });
 
           // Listen to Fire Data
-          FG_DB.collection('fire_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
+          LG_DB.collection('fire_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
                   riskScores.fire = snap.docs[0].data().ai_risk_score || 0;
                   updateDashboard();

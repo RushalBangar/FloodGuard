@@ -163,11 +163,11 @@
     const WS_MAX_RETRY = 30000;
 
     function loadGoogleMaps(cb){
-      if(typeof FG_CONFIG === 'undefined' || !FG_CONFIG.GOOGLE_MAPS_API_KEY || FG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
-        alert('Please set FG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
+      if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY || LG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
+        alert('Please set LG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
         return;
       }
-      const key = FG_CONFIG.GOOGLE_MAPS_API_KEY;
+      const key = LG_CONFIG.GOOGLE_MAPS_API_KEY;
       const script = document.createElement('script');
       script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=visualization';
       script.async = true; script.defer = true; script.onload = cb;
@@ -200,10 +200,10 @@
         connectWS();
         
         // Listen for SOS signals in Firestore
-        if (window.FG_DB) {
+        if (window.LG_DB) {
             console.log("Listening for Firestore SOS signals...");
-            const helpCol = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.HELP_COLLECTION) ? FG_CONFIG.HELP_COLLECTION : 'sos_signals';
-            FG_DB.collection(helpCol)
+            const helpCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'sos_signals';
+            LG_DB.collection(helpCol)
                 .orderBy('createdAt', 'desc')
                 .limit(20)
                 .onSnapshot(snap => {
@@ -221,8 +221,8 @@
                 });
 
             // Also listen for regular user locations
-            const locCol = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.LOCATION_COLLECTION) ? FG_CONFIG.LOCATION_COLLECTION : 'user_locations';
-            FG_DB.collection(locCol)
+            const locCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.LOCATION_COLLECTION) ? LG_CONFIG.LOCATION_COLLECTION : 'user_locations';
+            LG_DB.collection(locCol)
                 .onSnapshot(snap => {
                     snap.docChanges().forEach(change => {
                         if (change.type === 'added' || change.type === 'modified') {
@@ -252,7 +252,7 @@
     }
 
     function connectWS() {
-        const WS_URL = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.WS_URL) ? FG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.hostname + ':5000/ws';
+        const WS_URL = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.WS_URL) ? LG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.hostname + ':5000/ws';
         try { ws = new WebSocket(WS_URL); } catch(e) { wsRetryDelay = Math.min(wsRetryDelay * 2, WS_MAX_RETRY); setTimeout(connectWS, wsRetryDelay); return; }
         
         ws.addEventListener('open', () => {
@@ -276,7 +276,7 @@
     }
 
     function fetchSOSSignals() {
-        const backendUrl = (typeof FG_CONFIG !== 'undefined' && FG_CONFIG.BACKEND_URL) ? FG_CONFIG.BACKEND_URL : '';
+        const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
         fetch(backendUrl + '/api/sos')
             .then(r => r.json())
             .then(signals => {
