@@ -7,9 +7,11 @@
   if (!bgAnim) return;
   bgAnim.appendChild(canvas);
 
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { alpha: false }); // Performance optimization
   let w, h, particles = [], mouse = { x: null, y: null, radius: 150 };
-  const PARTICLE_COUNT = 80;
+  
+  // Adaptive particle count
+  const PARTICLE_COUNT = window.innerWidth < 768 ? 40 : 80;
   const CONNECTION_DIST = 140;
   const BASE_COLOR = { r: 0, g: 210, b: 255 }; // Primary cyan
 
@@ -116,7 +118,11 @@
   }
 
   function animate() {
-    ctx.clearRect(0, 0, w, h);
+    // Semi-transparent clear for motion blur effect (if alpha was true)
+    // But we use alpha:false for performance, so full clear
+    ctx.fillStyle = '#0f172a'; // Matches --bg-dark
+    ctx.fillRect(0, 0, w, h);
+    
     particles.forEach(p => { p.update(); p.draw(); });
     drawConnections();
     requestAnimationFrame(animate);

@@ -46,20 +46,29 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ====== 4. PAGE TRANSITION ======
-    const overlay = document.createElement('div');
-    overlay.className = 'page-transition-overlay';
-    document.body.appendChild(overlay);
-    document.body.classList.add('page-loaded');
+    // ====== 4. PAGE TRANSITION & REVEAL ======
+    const overlay = document.querySelector('.page-transition-overlay') || document.createElement('div');
+    if(!overlay.parentNode) {
+      overlay.className = 'page-transition-overlay';
+      document.body.appendChild(overlay);
+    }
+    
+    // Smooth reveal once ready
+    setTimeout(() => {
+      document.body.classList.add('page-ready');
+      document.body.classList.add('page-loaded');
+    }, 100);
 
     document.querySelectorAll('a[href]').forEach(link => {
       const href = link.getAttribute('href');
       if (!href || href.startsWith('#') || href.startsWith('javascript') || link.target === '_blank') return;
       link.addEventListener('click', e => {
+        const targetHref = link.href;
+        if (targetHref === window.location.href) return;
+        
         e.preventDefault();
-        document.body.classList.remove('page-loaded');
         overlay.classList.add('active');
-        setTimeout(() => { window.location.href = href; }, 350);
+        setTimeout(() => { window.location.href = href; }, 600);
       });
     });
 
@@ -82,19 +91,45 @@
 
     // ====== 6. CUSTOM CURSOR GLOW ======
     if (window.matchMedia('(pointer: fine)').matches) {
-      const cursor = document.createElement('div');
-      cursor.className = 'cursor-glow';
-      document.body.appendChild(cursor);
+      const cursor = document.querySelector('.cursor-glow') || document.createElement('div');
+      if(!cursor.parentNode) {
+        cursor.className = 'cursor-glow';
+        document.body.appendChild(cursor);
+      }
+      
       let cx = 0, cy = 0, tx = 0, ty = 0;
       document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+      
       function updateCursor() {
         cx += (tx - cx) * 0.15;
         cy += (ty - cy) * 0.15;
-        cursor.style.transform = `translate(${cx - 15}px, ${cy - 15}px)`;
+        cursor.style.left = `${cx}px`;
+        cursor.style.top = `${cy}px`;
         requestAnimationFrame(updateCursor);
       }
       updateCursor();
+
+      // Hover effect for cursor
+      document.querySelectorAll('a, button, .card, .mini-module').forEach(el => {
+        el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+        el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+      });
     }
+
+    // ====== 6.5. MAGNETIC BUTTONS ======
+    document.querySelectorAll('.primary-btn, button:not(.lang-btn), .nav a').forEach(btn => {
+        btn.addEventListener('mousemove', (e) => {
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+            btn.style.transform = 'translate(0, 0)';
+        });
+    });
 
     // ====== 7. SKELETON LOADING ======
     document.querySelectorAll('#weather, #alerts').forEach(el => {
