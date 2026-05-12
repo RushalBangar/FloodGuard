@@ -247,5 +247,80 @@
 
     document.querySelectorAll('.stat-value[data-count]').forEach(el => countObserver.observe(el));
 
+    // ====== 12. SERVICE WORKER REGISTRATION ======
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => {
+          console.log('[App] Service Worker registered, scope:', reg.scope);
+
+          // Listen for sync messages from SW
+          navigator.serviceWorker.addEventListener('message', event => {
+            if (event.data && event.data.type === 'SYNC_SOS') {
+              syncQueuedSOS();
+            }
+          });
+        })
+        .catch(err => console.warn('[App] SW registration failed:', err));
+    }
+
+    // ====== 13. OFFLINE SOS QUEUE SYNC ======
+    function syncQueuedSOS() {
+      const queue = JSON.parse(localStorage.getItem('lg_sos_queue') || '[]');
+      if (queue.length === 0) return;
+
+      console.log(`[App] Syncing ${queue.length} queued SOS signal(s)...`);
+
+      queue.forEach((signal, i) => {
+        // Try Firestore
+        if (window.LG_DB) {
+          const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'sos_signals';
+          LG_DB.collection(colName).add({
+            ...signal,
+            status: 'synced',
+            syncedAt: new Date().toISOString(),
+            createdAt: (typeof firebase !== 'undefined') ? firebase.firestore.FieldValue.serverTimestamp() : new Date()
+          }).then(() => {
+            console.log(`[App] SOS signal ${i + 1} synced successfully`);
+          }).catch(e => console.error('[App] SOS sync error:', e));
+        }
+      });
+
+      // Clear the queue
+      localStorage.removeItem('lg_sos_queue');
+      if (window.showToast) {
+        window.showToast(`${queue.length} queued SOS signal(s) transmitted!`, 'success');
+      }
+    }
+
+    // Sync on page load if online
+    if (navigator.onLine) {
+      syncQueuedSOS();
+    }
+
+    // Sync when coming back online
+    window.addEventListener('online', () => {
+      console.log('[App] Connection restored — syncing...');
+      syncQueuedSOS();
+      if (window.showToast) {
+        window.showToast('Connection restored! Syncing data...', 'success');
+      }
+    });
+
+    window.addEventListener('offline', () => {
+      if (window.showToast) {
+        window.showToast('Connection lost — switching to offline mode.', 'warning');
+      }
+    });
+
+    // ====== 14. LOCALSTORAGE SENSOR CACHING ======
+    // Cache sensor data whenever it updates (observed via DOM mutations)
+    window.cacheSensorData = function(data) {
+      try {
+        const existing = JSON.parse(localStorage.getItem('lg_last_sensor_data') || '{}');
+        const updated = { ...existing, ...data, timestamp: Date.now() };
+        localStorage.setItem('lg_last_sensor_data', JSON.stringify(updated));
+      } catch(e) {}
+    };
+
   });
 })();

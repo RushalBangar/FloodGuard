@@ -23,6 +23,15 @@
 
           // Calculate Integrated Risk
           updateIntegratedRisk();
+
+          // Cache for offline mode
+          if (window.cacheSensorData) {
+            window.cacheSensorData({
+              floodRisk: riskScores.flood,
+              quakeRisk: riskScores.quake,
+              fireRisk: riskScores.fire
+            });
+          }
       }
 
       function updateIntegratedRisk() {

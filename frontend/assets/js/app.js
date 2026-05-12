@@ -132,6 +132,15 @@
         }
         if(data.rainfall !== undefined) document.getElementById('rainVal').textContent = data.rainfall + ' mm/h';
         
+        // Cache for offline mode
+        if (window.cacheSensorData) {
+          window.cacheSensorData({
+            waterLevel: (data.water_level !== undefined) ? (data.water_level * 100).toFixed(1) + ' %' : undefined,
+            temperature: data.temperature ? data.temperature.toFixed(1) + ' °C' : undefined,
+            humidity: data.humidity ? data.humidity.toFixed(1) + ' %' : undefined
+          });
+        }
+
         const w = parseFloat(data.water_level || 0);
         const r = parseFloat(data.rainfall || 0);
         fetchPrediction(w, r, 60, 28);
