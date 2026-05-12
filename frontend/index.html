@@ -122,12 +122,12 @@
 
     <!-- ===== LIVE TELEMETRY BENTO GRID ===== -->
     <section class="dashboard-section" id="telemetrySection">
-      <div class="section-label"><span class="pulse-dot"></span> Live Telemetry</div>
+      <div class="section-label"><span class="pulse-dot"></span> <span data-i18n="label_live_telemetry">Live Telemetry</span></div>
 
       <div class="bento-grid">
         <!-- Main Risk Gauge -->
         <div class="card bento-card risk-main">
-          <h2 data-i18n="card_risk_title">Integrated AI Risk Level</h2>
+          <h2 data-i18n="label_integrated_risk">Integrated AI Risk Level</h2>
           <div class="gauge-container">
             <svg class="risk-gauge" viewBox="0 0 200 200">
               <circle class="gauge-bg" cx="100" cy="100" r="90"></circle>
@@ -160,7 +160,7 @@
 
         <!-- Active Modules Card -->
         <div class="card bento-card module-quick-card">
-          <h3>Guard Modules</h3>
+          <h3 data-i18n="label_guard_modules">Guard Modules</h3>
           <div class="module-grid">
             <a href="/flood.html" class="mini-module">
               <span class="module-icon">🌊</span>
@@ -193,19 +193,19 @@
       <div class="stats-grid">
         <div class="stat-item">
           <div class="stat-value" data-count="3">0</div>
-          <div class="stat-label">Guard Modules</div>
+          <div class="stat-label" data-i18n="stat_modules">Guard Modules</div>
         </div>
         <div class="stat-item">
           <div class="stat-value" data-count="24">0</div>
-          <div class="stat-label">Hour Monitoring</div>
+          <div class="stat-label" data-i18n="stat_monitoring">Hour Monitoring</div>
         </div>
         <div class="stat-item">
           <div class="stat-value" data-count="50">0</div>
-          <div class="stat-label">IoT Sensor Nodes</div>
+          <div class="stat-label" data-i18n="stat_sensors">IoT Sensor Nodes</div>
         </div>
         <div class="stat-item">
           <div class="stat-value" data-count="99">0</div>
-          <div class="stat-label">% AI Accuracy</div>
+          <div class="stat-label" data-i18n="stat_accuracy">% AI Accuracy</div>
         </div>
       </div>
     </section>
@@ -213,7 +213,7 @@
     <!-- ===== HOW IT WORKS ===== -->
     <section class="info-section" id="howSection">
       <div class="section-header">
-        <div class="section-label center"><span class="pulse-dot accent"></span> How It Works</div>
+        <div class="section-label center"><span class="pulse-dot accent"></span> <span data-i18n="label_how_it_works">How It Works</span></div>
         <h2 data-i18n="section_how_title">Intelligent Disaster Management</h2>
         <p data-i18n="section_how_subtitle">How Life Guard protects communities through AI & IoT</p>
       </div>
@@ -245,30 +245,30 @@
     <!-- ===== FEATURES BENTO ===== -->
     <section class="info-section" id="featuresSection">
       <div class="section-header">
-        <div class="section-label center"><span class="pulse-dot"></span> Platform Capabilities</div>
-        <h2>Why Life Guard?</h2>
+        <div class="section-label center"><span class="pulse-dot"></span> <span data-i18n="label_platform_caps">Platform Capabilities</span></div>
+        <h2 data-i18n="label_why_lifeguard">Why Life Guard?</h2>
       </div>
 
       <div class="features-grid">
         <div class="feature-item feature-wide">
           <div class="feature-icon">🛡️</div>
-          <h3>Multi-Hazard Protection</h3>
-          <p>Integrated coverage for Floods, Earthquakes, and Wildfires within a single unified command center.</p>
+          <h3 data-i18n="feat_multi_hazard">Multi-Hazard Protection</h3>
+          <p data-i18n="feat_multi_hazard_desc">Integrated coverage for Floods, Earthquakes, and Wildfires within a single unified command center.</p>
         </div>
         <div class="feature-item">
           <div class="feature-icon">🛰️</div>
-          <h3>Low-Latency Alerts</h3>
-          <p>Sub-second notification delivery through Firebase Cloud Messaging and WebSocket technology.</p>
+          <h3 data-i18n="feat_low_latency">Low-Latency Alerts</h3>
+          <p data-i18n="feat_low_latency_desc">Sub-second notification delivery through Firebase Cloud Messaging and WebSocket technology.</p>
         </div>
         <div class="feature-item">
           <div class="feature-icon">📍</div>
-          <h3>Dynamic Evacuation</h3>
-          <p>AI-driven route optimization using Google Maps API to guide users to the nearest safe zones.</p>
+          <h3 data-i18n="feat_dynamic_evac">Dynamic Evacuation</h3>
+          <p data-i18n="feat_dynamic_evac_desc">AI-driven route optimization using Google Maps API to guide users to the nearest safe zones.</p>
         </div>
         <div class="feature-item feature-wide">
           <div class="feature-icon">🤝</div>
-          <h3>Rescue Coordination</h3>
-          <p>Direct bridge between victims and rescue teams with live location tracking and SOS signaling.</p>
+          <h3 data-i18n="feat_rescue_coord">Rescue Coordination</h3>
+          <p data-i18n="feat_rescue_coord_desc">Direct bridge between victims and rescue teams with live location tracking and SOS signaling.</p>
         </div>
       </div>
     </section>
@@ -282,7 +282,7 @@
           <img src="assets/img/logo.png" alt="Life Guard Logo" class="footer-logo">
           <h2>Life Guard</h2>
         </div>
-        <p>A mission-critical disaster management platform leveraging the power of AI and IoT to save lives and protect infrastructure during emergency events.</p>
+        <p data-i18n="footer_newsletter_desc">A mission-critical disaster management platform leveraging the power of AI and IoT to save lives and protect infrastructure during emergency events.</p>
         <div class="social-links">
           <a href="#" aria-label="Facebook">FB</a>
           <a href="#" aria-label="Twitter">TW</a>
@@ -291,37 +291,37 @@
         </div>
       </div>
       <div class="footer-links">
-        <h4>Ecosystem</h4>
+        <h4 data-i18n="footer_ecosystem">Ecosystem</h4>
         <ul>
-          <li><a href="/flood.html">Flood Guard</a></li>
-          <li><a href="/quake.html">QuakeShield</a></li>
-          <li><a href="/fire.html">Wildfire Guard</a></li>
-          <li><a href="/rescue.html">Rescue Ops</a></li>
+          <li><a href="/flood.html" data-i18n="nav_flood">Flood Guard</a></li>
+          <li><a href="/quake.html" data-i18n="nav_quake">QuakeShield</a></li>
+          <li><a href="/fire.html" data-i18n="nav_fire">Wildfire Guard</a></li>
+          <li><a href="/rescue.html" data-i18n="nav_rescue">Rescue Ops</a></li>
         </ul>
       </div>
       <div class="footer-links">
-        <h4>Resources</h4>
+        <h4 data-i18n="footer_resources">Resources</h4>
         <ul>
-          <li><a href="/map.html">Safe Routes</a></li>
+          <li><a href="/map.html" data-i18n="nav_safe_routes">Safe Routes</a></li>
           <li><a href="#">Architecture</a></li>
           <li><a href="#">API Docs</a></li>
           <li><a href="#">Open Source</a></li>
         </ul>
       </div>
       <div class="footer-newsletter">
-        <h4>Stay Alerted</h4>
-        <p style="font-size: 0.85rem; margin-bottom: 1rem; color: var(--text-dim);">Get emergency protocol updates.</p>
+        <h4 data-i18n="footer_stay_alerted">Stay Alerted</h4>
+        <p style="font-size: 0.85rem; margin-bottom: 1rem; color: var(--text-dim);" data-i18n="footer_newsletter_desc">Get emergency protocol updates.</p>
         <form class="newsletter-form">
-          <input type="email" placeholder="Email address">
+          <input type="email" placeholder="Email address" data-i18n-placeholder="placeholder_email">
           <button type="submit">GO</button>
         </form>
       </div>
     </div>
     <div class="footer-bottom">
-      <p>&copy; 2026 Life Guard AI Project. All rights reserved.</p>
+      <p data-i18n="footer_copyright">&copy; 2026 Life Guard AI Project. All rights reserved.</p>
       <div class="footer-bottom-links">
-        <a href="#">Privacy Policy</a>
-        <a href="#">Terms of Service</a>
+        <a href="#" data-i18n="footer_privacy">Privacy Policy</a>
+        <a href="#" data-i18n="footer_terms">Terms of Service</a>
       </div>
     </div>
   </footer>

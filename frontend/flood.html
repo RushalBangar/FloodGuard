@@ -83,10 +83,10 @@
 
   <main class="container">
     <section class="hero">
-      <div class="hero-badge">🌊 Flood Intelligence Module</div>
+      <div class="hero-badge" data-i18n="label_flood_module">🌊 Flood Intelligence Module</div>
       <h1 data-i18n="hero_flood_title">Flood Guard</h1>
       <p class="tagline" data-i18n="hero_flood_tagline">AI-DRIVEN FLOOD PREDICTION & EMERGENCY RESPONSE</p>
-      <div id="status" class="status disconnected" style="display:inline-block; margin-top:1rem;">Status: Disconnected</div>
+      <div id="status" class="status disconnected" style="display:inline-block; margin-top:1rem;" data-i18n="status_disconnected">Status: Disconnected</div>
     </section>
 
     <div class="dashboard-grid">
@@ -106,7 +106,7 @@
       <div class="card sensor-card">
         <div class="card-header">
           <h2 data-i18n="card_sensor_title">Live Sensor Matrix</h2>
-          <span class="live-indicator"><span class="live-dot"></span>LIVE</span>
+          <span class="live-indicator"><span class="live-dot"></span><span data-i18n="label_live">LIVE</span></span>
         </div>
         <div class="sensor-row">
           <span class="sensor-label" data-i18n="label_water_level">Water Level</span>
@@ -132,7 +132,7 @@
 
       <!-- Hydrological Chart Card -->
       <div class="card weather-card">
-        <h2 data-i18n="card_weather_title">Hydrological Data Trend</h2>
+        <h2 data-i18n="label_hydro_trend">Hydrological Data Trend</h2>
         <div style="height: 180px;">
           <canvas id="sensorChart"></canvas>
         </div>
@@ -145,10 +145,10 @@
     <!-- Simulation -->
     <button onclick="toggleSim()" style="position:fixed; bottom:20px; left:20px; border-radius:50%; width:50px; height:50px; padding:0; background:var(--glass);">🛠️</button>
     <div id="simPanel" class="card sim-panel" style="display: none;">
-        <h3 style="margin-bottom:1rem;">Sensor Simulator</h3>
-        <label style="font-size:0.7rem; color:var(--text-dim);">Water Level (0-1)</label>
+        <h3 style="margin-bottom:1rem;" data-i18n="label_simulator">Sensor Simulator</h3>
+        <label style="font-size:0.7rem; color:var(--text-dim);" data-i18n="label_sim_water">Water Level (0-1)</label>
         <input type="range" id="simWater" min="0" max="1" step="0.1" value="0.2" oninput="runSim()">
-        <label style="font-size:0.7rem; color:var(--text-dim);">Rainfall (0-50 mm/h)</label>
+        <label style="font-size:0.7rem; color:var(--text-dim);" data-i18n="label_sim_rain">Rainfall (0-50 mm/h)</label>
         <input type="range" id="simRain" min="0" max="50" step="1" value="5" oninput="runSim()">
         <button onclick="toggleSim()" class="secondary" style="width:100%; margin-top:1rem;">Close</button>
     </div>
