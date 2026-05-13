@@ -244,17 +244,25 @@
         if (window.LG_DB) {
             console.log("Listening for Firestore SOS signals...");
             const helpCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'sos_signals';
+        // Listen for SOS signals in Firestore
+        if (window.LG_DB) {
+            console.log("Listening for Firestore SOS signals...");
+            const helpCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'helpRequests';
+            
+            // Only listen for 'active' SOS signals
             LG_DB.collection(helpCol)
-                .orderBy('createdAt', 'desc')
-                .limit(20)
+                .where('status', '==', 'active')
                 .onSnapshot(snap => {
                     snap.docChanges().forEach(change => {
+                        const data = change.doc.data();
+                        const id = change.doc.id;
+
                         if (change.type === 'added') {
-                            const data = change.doc.data();
-                            const id = change.doc.id;
                             if (!knownSOS.has(id)) {
                                 handleLocation({ ...data, id: id });
                             }
+                        } else if (change.type === 'removed' || (change.type === 'modified' && data.status !== 'active')) {
+                            removeSOS(id);
                         }
                     });
                 }, err => {
@@ -262,7 +270,7 @@
                 });
 
             // Also listen for regular user locations
-            const locCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.LOCATION_COLLECTION) ? LG_CONFIG.LOCATION_COLLECTION : 'user_locations';
+            const locCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.LOCATION_COLLECTION) ? LG_CONFIG.LOCATION_COLLECTION : 'locations';
             LG_DB.collection(locCol)
                 .onSnapshot(snap => {
                     snap.docChanges().forEach(change => {
@@ -305,7 +313,8 @@
             try {
                 const data = JSON.parse(ev.data);
                 if(data.type === 'location') {
-                    handleLocation(data);
+                    // Only handle WS locations if they are active SOS (basic filtering)
+                    if(data.isSOS) handleLocation(data);
                 }
             } catch(e) {}
         });
@@ -323,7 +332,8 @@
             .then(signals => {
                 if(Array.isArray(signals)) {
                     signals.forEach(data => {
-                        if(!knownSOS.has(data.id)) {
+                        // For API fallback, we check if it's already known or resolved locally
+                        if(!knownSOS.has(data.id) && data.status === 'active') {
                             handleLocation(data);
                         }
                     });
@@ -353,8 +363,12 @@
         if(isSOS && !knownSOS.has(id)) {
             knownSOS.add(id);
             addSOSCard(data);
-            heatPoints.push(new google.maps.LatLng(lat, lng));
+            
+            // Add to heatmap
+            const point = new google.maps.LatLng(lat, lng);
+            heatPoints.push(point);
             heatmap.setData(heatPoints);
+            
             // Play alert sound
             const audio = new Audio('https://assets.mixkit.co/sfx/preview/mixkit-emergency-alert-alarm-1007.mp3');
             audio.play().catch(e=>{});
@@ -364,23 +378,62 @@
         }
     }
 
+    function removeSOS(id) {
+        // Remove Marker
+        if (markers[id]) {
+            markers[id].setMap(null);
+            delete markers[id];
+        }
+        // Remove Card
+        const card = document.getElementById(`sos-${id}`);
+        if (card) card.remove();
+        // Remove from tracking
+        knownSOS.delete(id);
+        
+        // Show empty state if none left
+        const list = document.getElementById('sosList');
+        if (list.children.length === 0) {
+            list.innerHTML = '<p style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>';
+        }
+    }
+
     function addSOSCard(data) {
         const list = document.getElementById('sosList');
         if(list.querySelector('p')) list.innerHTML = '';
+        
+        const id = data.id || 'unknown';
         const card = document.createElement('div');
         card.className = 'sos-card';
-        const time = new Date().toLocaleTimeString();
+        card.id = `sos-${id}`;
+        const time = data.timestamp ? new Date(data.timestamp).toLocaleTimeString() : new Date().toLocaleTimeString();
+        
         card.innerHTML = `
             <span class="status-pill">URGENT</span>
             <h4>${data.name || 'Anonymous User'}</h4>
-            <p>ID: ${data.id || 'Unknown'} · ${time}</p>
+            <p>ID: ${id} · ${time}</p>
             <p>Coord: ${data.lat.toFixed(4)}, ${data.lng.toFixed(4)}</p>
-            <div style="margin-top:0.5rem; display:flex; gap:0.5rem;">
-                <button style="font-size:0.6rem; padding:0.3rem 0.5rem;" onclick="focusUser(${data.lat}, ${data.lng})">LOCATE</button>
-                <button class="secondary" style="font-size:0.6rem; padding:0.3rem 0.5rem;" onclick="this.parentElement.parentElement.remove()">CLEAR</button>
+            <div style="margin-top:0.8rem; display:flex; gap:0.5rem;">
+                <button style="font-size:0.7rem; padding:0.4rem 0.6rem; flex:1;" onclick="focusUser(${data.lat}, ${data.lng})">LOCATE</button>
+                <button class="secondary" style="font-size:0.7rem; padding:0.4rem 0.6rem; flex:1;" onclick="resolveSOS('${id}')">RESOLVE</button>
             </div>
         `;
         list.prepend(card);
+    }
+
+    async function resolveSOS(id) {
+        if (!window.LG_DB) return alert("Database not connected.");
+        
+        try {
+            const helpCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'helpRequests';
+            await LG_DB.collection(helpCol).doc(id).update({
+                status: 'resolved',
+                resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            console.log(`SOS ${id} resolved in database.`);
+        } catch (e) {
+            console.error("Error resolving SOS:", e);
+            alert("Failed to update database. Check your permissions.");
+        }
     }
 
     function focusUser(lat, lng) {

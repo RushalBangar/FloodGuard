@@ -43,7 +43,7 @@ const LG_CONFIG = {
   SENSOR_COLLECTION: 'sensor_readings',
   HELP_COLLECTION: 'helpRequests',
   ALERTS_COLLECTION: 'alerts',
-  LOCATION_COLLECTION: 'user_locations',
+  LOCATION_COLLECTION: 'locations',
 
   // Optional safe destinations used by the map navigation (name, lat, lng)
   SAFE_DESTINATIONS: [
