@@ -99,6 +99,13 @@ def websocket(ws):
                 if result.get('status') == 'Danger':
                     send_push_notification("CRITICAL FLOOD ALERT", f"Risk level at {result['risk_percentage']}%. {result['recommendation']}")
 
+            elif obj.get('type') == 'resolve':
+                sos_id = obj.get('id')
+                if sos_id in active_sos:
+                    del active_sos[sos_id]
+                # Broadcast to all clients so they "refresh" instantly
+                broadcast({'type': 'resolve', 'id': sos_id})
+
             elif obj.get('type') == 'alert':
                 broadcast({'type': 'alert', 'message': obj.get('message', 'Flood alert')})
     finally:

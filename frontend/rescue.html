@@ -311,6 +311,9 @@
                 if(data.type === 'location') {
                     // Only handle WS locations if they are active SOS (basic filtering)
                     if(data.isSOS) handleLocation(data);
+                } else if(data.type === 'resolve') {
+                    // Instant refresh signal via WebSocket
+                    removeSOS(data.id);
                 }
             } catch(e) {}
         });
@@ -420,15 +423,22 @@
         if (!window.LG_DB) return alert("Database not connected.");
         
         try {
+            // 1. Update Firestore (persistence)
             const helpCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'helpRequests';
             await LG_DB.collection(helpCol).doc(id).update({
                 status: 'resolved',
                 resolvedAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log(`SOS ${id} resolved in database.`);
+
+            // 2. Broadcast via WebSocket (instant "refresh" for all connected teams)
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'resolve', id: id }));
+            }
+
+            console.log(`SOS ${id} resolved.`);
         } catch (e) {
             console.error("Error resolving SOS:", e);
-            alert("Failed to update database. Check your permissions.");
+            alert("Failed to update database.");
         }
     }
 
