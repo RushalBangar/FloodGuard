@@ -17,6 +17,8 @@ serviceAccountKey.json
 *.json
 !.github/*.json
 !vercel.json
+!manifest.json
+!package*.json
 .env
 .env.*
 

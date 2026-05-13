@@ -1,0 +1,22 @@
+{
+  "name": "Life Guard — AI-Powered Disaster Management",
+  "short_name": "Life Guard",
+  "description": "Next-generation AI-powered platform for real-time monitoring of floods, earthquakes, and wildfires.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0a1128",
+  "theme_color": "#00d2ff",
+  "categories": ["productivity", "utilities", "safety"],
+  "icons": [
+    { "src": "/assets/img/logo.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/assets/img/logo.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "screenshots": [
+    {
+      "src": "/assets/img/og-preview.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "label": "Life Guard Dashboard"
+    }
+  ]
+}
