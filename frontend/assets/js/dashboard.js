@@ -76,16 +76,7 @@
       let isEvacuating = false; 
       const renderers = [];
 
-      function loadGoogleMaps(cb){
-          if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY) return;
-          if(window.google && window.google.maps) return cb();
-          const script = document.createElement('script');
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${LG_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places`;
-          script.async = true; script.defer = true; script.onload = cb;
-          document.head.appendChild(script);
-      }
-
-      function initMap() {
+      window.dashboardInitMap = function() {
           const mapEl = document.getElementById('dashboardMap');
           if(!mapEl) return;
 
@@ -112,6 +103,27 @@
                   showSafeRoutes(p.lat, p.lng);
               });
           });
+      };
+
+      function loadGoogleMaps(){
+          if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY) return;
+          if(window.google && window.google.maps && window.google.maps.DirectionsService) return window.dashboardInitMap();
+          
+          // Prevent multiple script injections
+          if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+              const checkReady = setInterval(() => {
+                  if (window.google && window.google.maps && window.google.maps.DirectionsService) {
+                      clearInterval(checkReady);
+                      window.dashboardInitMap();
+                  }
+              }, 100);
+              return;
+          }
+
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${LG_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places&callback=dashboardInitMap`;
+          script.async = true; script.defer = true;
+          document.head.appendChild(script);
       }
 
       function startTracking() {
@@ -197,7 +209,7 @@
       }
 
       // Initialize
-      loadGoogleMaps(initMap);
+      loadGoogleMaps();
 
       window.addEventListener('lg:firebase-ready', (ev) => {
           if (!ev.detail || !ev.detail.available || !window.LG_DB) return;

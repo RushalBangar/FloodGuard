@@ -22,7 +22,9 @@
     ];
 
     try{
-      await Promise.all(urls.map(loadScript));
+      for(const url of urls) {
+        await loadScript(url);
+      }
       // Initialize
       try{
         firebase.initializeApp(LG_CONFIG.FIREBASE_CONFIG);

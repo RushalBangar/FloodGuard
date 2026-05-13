@@ -203,20 +203,7 @@
     let wsRetryDelay = 3000;
     const WS_MAX_RETRY = 30000;
 
-    function loadGoogleMaps(cb){
-      if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY || LG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
-        alert('Please set LG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
-        return;
-      }
-      const key = LG_CONFIG.GOOGLE_MAPS_API_KEY;
-      const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=visualization';
-      script.async = true; script.defer = true; script.onload = cb;
-      document.head.appendChild(script);
-    }
-
-    function init(){
-      loadGoogleMaps(()=>{
+    window.rescueMapInitGlobal = function() {
         map = new google.maps.Map(document.getElementById('map'), { 
             center: {lat:20.0, lng:78.0}, 
             zoom:5,
@@ -282,7 +269,35 @@
         // Also poll REST API for SOS signals (fallback for when WS and Firestore are down)
         fetchSOSSignals();
         setInterval(fetchSOSSignals, 15000);
-      });
+    };
+
+    function loadGoogleMaps(){
+      if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY || LG_CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_GOOGLE_MAPS_API_KEY'){
+        alert('Please set LG_CONFIG.GOOGLE_MAPS_API_KEY in assets/js/config.js');
+        return;
+      }
+      const key = LG_CONFIG.GOOGLE_MAPS_API_KEY;
+      if(window.google && window.google.maps && window.google.maps.visualization) return window.rescueMapInitGlobal();
+
+      // Prevent multiple script injections
+      if (document.querySelector('script[src*="maps.googleapis.com"]')) {
+          const checkReady = setInterval(() => {
+              if (window.google && window.google.maps && window.google.maps.visualization) {
+                  clearInterval(checkReady);
+                  window.rescueMapInitGlobal();
+              }
+          }, 100);
+          return;
+      }
+
+      const script = document.createElement('script');
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=visualization&callback=rescueMapInitGlobal';
+      script.async = true; script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    function init(){
+      loadGoogleMaps();
 
       // Generate rain drops
       const rainContainer = document.getElementById('rain');
