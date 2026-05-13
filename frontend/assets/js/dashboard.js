@@ -129,7 +129,15 @@
       function showSafeRoutes(lat, lng) {
           renderers.forEach(r => r.setMap(null)); renderers.length = 0;
           const dests = LG_CONFIG.SAFE_DESTINATIONS || [];
+          if(dests.length === 0) return;
+
           const origin = new google.maps.LatLng(lat, lng);
+          let shortestTime = Infinity;
+          let nearestNode = null;
+
+          const card = document.getElementById('navInfoCard');
+          const nameEl = document.getElementById('nearestPointName');
+          const etaEl = document.getElementById('navEta');
 
           dests.forEach((d, i) => {
               directionsService.route({
@@ -138,9 +146,30 @@
                   travelMode: 'DRIVING'
               }, (result, status) => {
                   if (status == 'OK') {
+                      const duration = result.routes[0].legs[0].duration.value; // seconds
+                      
+                      // Highlight the fastest route
+                      const isBest = duration < shortestTime;
+                      if(isBest) {
+                          shortestTime = duration;
+                          nearestNode = d;
+                          
+                          // Update UI Card
+                          if(card) card.style.display = 'block';
+                          if(nameEl) nameEl.textContent = d.name;
+                          if(etaEl) etaEl.textContent = result.routes[0].legs[0].duration.text;
+                      }
+
                       const renderer = new google.maps.DirectionsRenderer({
-                          map: map, directions: result, suppressMarkers: false,
-                          polylineOptions: { strokeColor: i === 0 ? '#4ade80' : '#94a3b8', strokeWeight: 5, strokeOpacity: 0.7 }
+                          map: map, 
+                          directions: result, 
+                          suppressMarkers: false,
+                          polylineOptions: { 
+                              strokeColor: isBest ? '#4ade80' : 'rgba(148, 163, 184, 0.4)', 
+                              strokeWeight: isBest ? 6 : 4, 
+                              strokeOpacity: isBest ? 0.9 : 0.5,
+                              zIndex: isBest ? 100 : 1
+                          }
                       });
                       renderers.push(renderer);
                   }
