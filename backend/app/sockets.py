@@ -27,11 +27,23 @@ def websocket(ws):
         ws.send(json.dumps({'type':'welcome', 'id': client_id}))
         
         # Send any existing active SOS signals to the newly connected client
-        for sos_id, sos_data in active_sos.items():
+        if firebase_initialized and db:
             try:
-                ws.send(json.dumps(sos_data))
-            except Exception:
-                pass
+                active_docs = db.collection('helpRequests').where('status', '==', 'active').stream()
+                for doc in active_docs:
+                    data = doc.to_dict()
+                    data['id'] = doc.id
+                    data['type'] = 'location'
+                    ws.send(json.dumps(data))
+            except Exception as e:
+                print(f"Error syncing WS with Firestore: {e}")
+        else:
+            # Fallback for memory-only mode
+            for sos_id, sos_data in active_sos.items():
+                try:
+                    ws.send(json.dumps(sos_data))
+                except Exception:
+                    pass
         
         while True:
             data = ws.receive()

@@ -150,7 +150,19 @@ def api_sos():
 
 @api.route('/api/sos', methods=['GET'])
 def api_get_sos():
-    """Get all active SOS signals"""
+    """Get all active SOS signals from database"""
+    if firebase_initialized and db:
+        try:
+            docs = db.collection('helpRequests').where('status', '==', 'active').stream()
+            signals = []
+            for d in docs:
+                item = d.to_dict()
+                item['id'] = d.id
+                signals.append(item)
+            return jsonify(signals)
+        except Exception as e:
+            return jsonify([])
+            
     from .sockets import active_sos
     return jsonify(list(active_sos.values()))
 
