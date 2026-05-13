@@ -224,37 +224,39 @@
                 status: 'active'
             };
             
-            // 1. Write to Firestore (primary — persists in database)
-            if(window.LG_DB) {
-                const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'sos_signals';
-                LG_DB.collection(colName).add({
-                    ...sosData,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }).then(() => {
-                    showAlertBox('SOS TRANSMITTED to database. Rescue teams notified.', true);
-                }).catch(e => {
-                    console.error('Firestore SOS write failed:', e);
-                    showAlertBox('SOS database write failed. Trying backup...', true);
-                });
-            }
-
-            // 2. Also broadcast via WebSocket for real-time delivery
-            if(socket && socket.readyState === WebSocket.OPEN){
-                socket.send(JSON.stringify({type:'location', lat, lng, isSOS: true, name: name}));
-            }
-            
-            // 3. REST API fallback
-            if(!window.LG_DB) {
+            // Helper to send via REST API fallback if Firestore fails
+            const sendViaAPI = () => {
                 const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
                 fetch(backendUrl + '/api/sos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ lat, lng, name })
                 }).then(r => r.json()).then(data => {
-                    if(data.ok) showAlertBox('SOS TRANSMITTED. Rescue teams notified.', true);
+                    if(data.ok) showAlertBox('SOS TRANSMITTED via backup. Rescue notified.', true);
                 }).catch(() => {
                     showAlertBox('SOS failed — no connection. Please call emergency services.', true);
                 });
+            };
+
+            // 1. Write to Firestore (primary — persists in database)
+            if(window.LG_DB) {
+                const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'helpRequests';
+                LG_DB.collection(colName).add({
+                    ...sosData,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => {
+                    showAlertBox('SOS TRANSMITTED. Rescue teams notified.', true);
+                }).catch(e => {
+                    console.error('Firestore SOS write failed:', e);
+                    sendViaAPI(); // Fallback to server if Firestore write is blocked
+                });
+            } else {
+                sendViaAPI(); // Fallback if Firestore isn't initialized
+            }
+
+            // 2. Also broadcast via WebSocket for real-time delivery
+            if(socket && socket.readyState === WebSocket.OPEN){
+                socket.send(JSON.stringify({type:'location', lat, lng, isSOS: true, name: name}));
             }
         }, err => {
             btn.disabled = false;
