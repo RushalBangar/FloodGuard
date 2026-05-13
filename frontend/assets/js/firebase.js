@@ -17,7 +17,6 @@
 
     const urls = [
       'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js',
-      'https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js',
       'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js',
       'https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js'
     ];
@@ -28,7 +27,6 @@
       try{
         firebase.initializeApp(LG_CONFIG.FIREBASE_CONFIG);
         window.LG_FIREBASE = firebase;
-        window.LG_AUTH = firebase.auth();
         window.LG_DB = firebase.firestore();
         
         // Push Notifications

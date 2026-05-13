@@ -79,7 +79,7 @@
           if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY) return;
           if(window.google && window.google.maps) return cb();
           const script = document.createElement('script');
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${LG_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places`;
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${LG_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places&loading=async`;
           script.async = true; script.defer = true; script.onload = cb;
           document.head.appendChild(script);
       }
