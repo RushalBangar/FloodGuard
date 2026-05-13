@@ -73,8 +73,10 @@ self.addEventListener('fetch', event => {
       fetch(request)
         .then(response => {
           // Cache the latest version of the page
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+          if (request.url.startsWith('http')) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+          }
           return response;
         })
         .catch(() => {
@@ -92,8 +94,10 @@ self.addEventListener('fetch', event => {
     event.respondWith(
       caches.match(request).then(cached => {
         const fetchPromise = fetch(request).then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+          if (request.url.startsWith('http')) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, clone));
+          }
           return response;
         }).catch(() => cached);
 
