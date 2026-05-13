@@ -243,10 +243,6 @@
         // Listen for SOS signals in Firestore
         if (window.LG_DB) {
             console.log("Listening for Firestore SOS signals...");
-            const helpCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'sos_signals';
-        // Listen for SOS signals in Firestore
-        if (window.LG_DB) {
-            console.log("Listening for Firestore SOS signals...");
             const helpCol = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.HELP_COLLECTION) ? LG_CONFIG.HELP_COLLECTION : 'helpRequests';
             
             // Only listen for 'active' SOS signals
