@@ -70,6 +70,87 @@
           return 'safe';
       }
 
+      // --- DASHBOARD MAP LOGIC ---
+      let map, directionsService;
+      let userMarker = null;
+      const renderers = [];
+
+      function loadGoogleMaps(cb){
+          if(typeof LG_CONFIG === 'undefined' || !LG_CONFIG.GOOGLE_MAPS_API_KEY) return;
+          if(window.google && window.google.maps) return cb();
+          const script = document.createElement('script');
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${LG_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places`;
+          script.async = true; script.defer = true; script.onload = cb;
+          document.head.appendChild(script);
+      }
+
+      function initMap() {
+          const mapEl = document.getElementById('dashboardMap');
+          if(!mapEl) return;
+
+          directionsService = new google.maps.DirectionsService();
+          map = new google.maps.Map(mapEl, {
+              center: {lat: 20.0, lng: 78.0},
+              zoom: 5,
+              disableDefaultUI: true,
+              zoomControl: true,
+              styles: [
+                { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
+                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
+              ]
+          });
+
+          startTracking();
+
+          document.getElementById('locateOnDashboard').addEventListener('click', () => {
+              navigator.geolocation.getCurrentPosition(pos => {
+                  showSafeRoutes(pos.coords.latitude, pos.coords.longitude);
+              });
+          });
+      }
+
+      function startTracking() {
+          if(!navigator.geolocation) return;
+          navigator.geolocation.watchPosition(pos => {
+              const p = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+              if(userMarker) userMarker.setPosition(p);
+              else {
+                  userMarker = new google.maps.Marker({
+                      position: p,
+                      map: map,
+                      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#00d2ff', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+                  });
+                  map.setCenter(p);
+                  map.setZoom(13);
+              }
+          }, null, {enableHighAccuracy:true});
+      }
+
+      function showSafeRoutes(lat, lng) {
+          renderers.forEach(r => r.setMap(null)); renderers.length = 0;
+          const dests = LG_CONFIG.SAFE_DESTINATIONS || [];
+          const origin = new google.maps.LatLng(lat, lng);
+
+          dests.forEach((d, i) => {
+              directionsService.route({
+                  origin: origin,
+                  destination: new google.maps.LatLng(d.lat, d.lng),
+                  travelMode: 'DRIVING'
+              }, (result, status) => {
+                  if (status == 'OK') {
+                      const renderer = new google.maps.DirectionsRenderer({
+                          map: map, directions: result, suppressMarkers: false,
+                          polylineOptions: { strokeColor: i === 0 ? '#4ade80' : '#94a3b8', strokeWeight: 5, strokeOpacity: 0.7 }
+                      });
+                      renderers.push(renderer);
+                  }
+              });
+          });
+      }
+
+      // Initialize
+      loadGoogleMaps(initMap);
+
       window.addEventListener('lg:firebase-ready', (ev) => {
           if (!ev.detail || !ev.detail.available || !window.LG_DB) return;
 

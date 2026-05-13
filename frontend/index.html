@@ -233,6 +233,17 @@
       </div>
     </section>
 
+    <!-- ===== LIVE EVACUATION MAP ===== -->
+    <section class="dashboard-section" id="mapSection">
+      <div class="section-label"><span class="pulse-dot accent"></span> <span data-i18n="label_evacuation_map">Live Evacuation Map</span></div>
+      <div class="card" style="padding: 0; overflow: hidden; border-radius: 24px;">
+        <div class="map-overlay-controls" style="position: absolute; top: 1rem; left: 1rem; z-index: 10;">
+            <button id="locateOnDashboard" class="hero-btn primary-btn" style="padding: 0.6rem 1.2rem; font-size: 0.8rem;" data-i18n="btn_locate">RECALCULATE SAFE ROUTES</button>
+        </div>
+        <div id="dashboardMap" style="height: 500px; width: 100%;"></div>
+      </div>
+    </section>
+
     <!-- ===== STATS COUNTER ===== -->
     <section class="stats-section" id="statsSection">
       <div class="stats-grid">
