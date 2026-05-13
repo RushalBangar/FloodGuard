@@ -81,13 +81,47 @@
 
   <header class="site-header">
     <div class="header-brand">
-      <div class="ai-logo" id="mainLogo">
-        <div class="ai-logo-inner">
-          <div class="ai-logo-ring ring-1"></div>
-          <div class="ai-logo-ring ring-2"></div>
-          <div class="ai-logo-ring ring-3"></div>
-        </div>
-        <span class="ai-logo-symbol">LG</span>
+      <div class="ai-logo" id="mainLogo" title="Life Guard AI">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Life Guard Logo">
+          <defs>
+            <linearGradient id="lgGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="hsl(190,100%,60%)" stop-opacity="1"/>
+              <stop offset="100%" stop-color="hsl(190,100%,50%)" stop-opacity="0.2"/>
+            </linearGradient>
+            <linearGradient id="lgGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="hsl(260,80%,75%)" stop-opacity="1"/>
+              <stop offset="100%" stop-color="hsl(260,80%,65%)" stop-opacity="0.2"/>
+            </linearGradient>
+            <linearGradient id="lgGrad3" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="hsl(215,65%,70%)" stop-opacity="1"/>
+              <stop offset="100%" stop-color="hsl(215,65%,55%)" stop-opacity="0.2"/>
+            </linearGradient>
+            <radialGradient id="lgCoreGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="hsl(190,100%,50%)" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="transparent" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="lgGlow">
+              <feGaussianBlur stdDeviation="1.5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <!-- Subtle track rings -->
+          <circle class="lg-track" cx="24" cy="24" r="20"/>
+          <circle class="lg-track" cx="24" cy="24" r="14"/>
+          <circle class="lg-track" cx="24" cy="24" r="8"/>
+          <!-- Ambient core glow -->
+          <circle cx="24" cy="24" r="11" fill="url(#lgCoreGrad)" class="lg-core-glow"/>
+          <!-- Orbital arcs -->
+          <circle class="lg-arc-outer" cx="24" cy="24" r="20"/>
+          <circle class="lg-arc-mid"   cx="24" cy="24" r="14"/>
+          <circle class="lg-arc-inner" cx="24" cy="24" r="8"/>
+          <!-- Orbiting particle dots -->
+          <circle class="lg-dot"   cx="24" cy="4"  r="1.8" filter="url(#lgGlow)"/>
+          <circle class="lg-dot-2" cx="24" cy="10" r="1.4" filter="url(#lgGlow)"/>
+          <!-- Shield core icon -->
+          <path class="lg-core-icon" d="M24 17.5 L29 19.5 L29 24.5 Q29 27.5 24 30 Q19 27.5 19 24.5 L19 19.5 Z" filter="url(#lgGlow)"/>
+          <path class="lg-core-icon" d="M22 23.5 L23.5 25 L26.5 22" filter="url(#lgGlow)"/>
+        </svg>
       </div>
       <span class="logo-text">Life Guard</span>
     </div>

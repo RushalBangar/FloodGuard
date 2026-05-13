@@ -201,83 +201,171 @@ body.page-ready {
     gap: 1.2rem;
 }
 
-/* --- Animated AI Logo (Meta Style) --- */
+/* ============================================
+   PREMIUM ANIMATED AI LOGO — Guardian Orb
+   ============================================ */
 .ai-logo {
     position: relative;
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    filter: drop-shadow(0 0 15px var(--primary-glow));
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    cursor: pointer;
 }
 
-.ai-logo-inner {
-    position: relative;
+.ai-logo svg {
     width: 100%;
     height: 100%;
+    overflow: visible;
 }
 
-.ai-logo-ring {
+/* Outer orbit arc — Cyan */
+.lg-arc-outer {
+    fill: none;
+    stroke: url(#lgGrad1);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 65 100;
+    animation: orbit-cw 3s cubic-bezier(0.4,0,0.6,1) infinite;
+    transform-origin: 24px 24px;
+    filter: drop-shadow(0 0 4px hsl(190,100%,60%));
+}
+
+/* Middle orbit arc — Purple */
+.lg-arc-mid {
+    fill: none;
+    stroke: url(#lgGrad2);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 50 90;
+    animation: orbit-ccw 4s cubic-bezier(0.4,0,0.6,1) infinite;
+    transform-origin: 24px 24px;
+    filter: drop-shadow(0 0 4px hsl(260,80%,70%));
+}
+
+/* Inner orbit arc — Blue */
+.lg-arc-inner {
+    fill: none;
+    stroke: url(#lgGrad3);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-dasharray: 35 75;
+    animation: orbit-cw 2.5s cubic-bezier(0.4,0,0.6,1) infinite;
+    transform-origin: 24px 24px;
+    filter: drop-shadow(0 0 3px hsl(215,65%,65%));
+}
+
+/* Core background glow orb */
+.lg-core-glow {
+    fill: radial-gradient(circle, rgba(0,210,255,0.25) 0%, transparent 70%);
+    animation: core-pulse 3s ease-in-out infinite;
+    transform-origin: 24px 24px;
+}
+
+/* Core shield icon */
+.lg-core-icon {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    opacity: 0.95;
+    animation: icon-breathe 3s ease-in-out infinite;
+    transform-origin: 24px 24px;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.7));
+}
+
+/* Shimmer particle dots */
+.lg-dot {
+    fill: #00d2ff;
+    animation: dot-orbit 6s linear infinite;
+    transform-origin: 24px 24px;
+}
+.lg-dot-2 {
+    fill: hsl(260,80%,75%);
+    animation: dot-orbit-rev 8s linear infinite;
+    transform-origin: 24px 24px;
+}
+
+/* Track circles (subtle) */
+.lg-track {
+    fill: none;
+    stroke: rgba(255,255,255,0.04);
+    stroke-width: 1;
+}
+
+/* === Keyframes === */
+@keyframes orbit-cw {
+    0%   { stroke-dashoffset: 0;    transform: rotate(0deg); }
+    50%  { stroke-dashoffset: -80;  transform: rotate(180deg); }
+    100% { stroke-dashoffset: -165; transform: rotate(360deg); }
+}
+
+@keyframes orbit-ccw {
+    0%   { stroke-dashoffset: 0;    transform: rotate(0deg); }
+    50%  { stroke-dashoffset: 70;   transform: rotate(-180deg); }
+    100% { stroke-dashoffset: 140;  transform: rotate(-360deg); }
+}
+
+@keyframes core-pulse {
+    0%, 100% { r: 8;   opacity: 0.6; }
+    50%       { r: 10;  opacity: 1;   }
+}
+
+@keyframes icon-breathe {
+    0%, 100% { transform: scale(1);    opacity: 0.9; }
+    50%       { transform: scale(1.08); opacity: 1;   }
+}
+
+@keyframes dot-orbit {
+    from { transform: rotate(0deg) translateX(20px) rotate(0deg); }
+    to   { transform: rotate(360deg) translateX(20px) rotate(-360deg); }
+}
+
+@keyframes dot-orbit-rev {
+    from { transform: rotate(0deg) translateX(14px) rotate(0deg); }
+    to   { transform: rotate(-360deg) translateX(14px) rotate(360deg); }
+}
+
+/* Hover — speed up + boost glow */
+.ai-logo:hover .lg-arc-outer { animation-duration: 1.2s; filter: drop-shadow(0 0 8px hsl(190,100%,70%)); }
+.ai-logo:hover .lg-arc-mid   { animation-duration: 1.8s; filter: drop-shadow(0 0 8px hsl(260,80%,80%)); }
+.ai-logo:hover .lg-arc-inner { animation-duration: 1s;   filter: drop-shadow(0 0 6px hsl(215,65%,75%)); }
+.ai-logo:hover .lg-core-icon { filter: drop-shadow(0 0 10px rgba(255,255,255,0.95)); }
+
+/* Outer container ambient glow */
+.ai-logo::after {
+    content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
-    mix-blend-mode: screen;
-    filter: blur(1px);
-    animation: morph 8s ease-in-out infinite, rotate 15s linear infinite;
+    inset: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, hsla(190,100%,50%,0.18) 0%, transparent 70%);
+    animation: ambient-pulse 4s ease-in-out infinite;
+    pointer-events: none;
+    z-index: -1;
 }
 
-.ring-1 {
-    background: linear-gradient(45deg, var(--primary), transparent);
-    animation-duration: 7s, 12s;
-    opacity: 0.8;
+@keyframes ambient-pulse {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50%       { opacity: 1;   transform: scale(1.15); }
 }
 
-.ring-2 {
-    background: linear-gradient(-45deg, var(--accent), transparent);
-    animation-duration: 10s, 20s;
-    animation-direction: reverse;
-    opacity: 0.6;
-}
-
-.ring-3 {
-    background: linear-gradient(135deg, var(--secondary), transparent);
-    animation-duration: 6s, 15s;
-    opacity: 0.5;
-}
-
-.ai-logo-symbol {
-    position: absolute;
-    font-size: 0.7rem;
-    font-weight: 900;
-    color: white;
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
-    z-index: 2;
-    letter-spacing: -1px;
-}
-
-@keyframes morph {
-    0%, 100% { border-radius: 40% 60% 70% 30% / 40% 40% 60% 50%; }
-    33% { border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%; }
-    66% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 40%; }
-}
-
-@keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
+/* === Logo Text === */
 .logo-text {
-    font-size: 1.6rem;
+    font-size: 1.45rem;
     font-weight: 800;
     letter-spacing: -0.5px;
-    background: linear-gradient(to right, #fff, var(--primary), var(--secondary));
+    background: linear-gradient(100deg, #ffffff 0%, hsl(190,100%,70%) 50%, hsl(215,65%,65%) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
+    position: relative;
+}
+
+/* Reduced-motion fallback */
+@media (prefers-reduced-motion: reduce) {
+    .lg-arc-outer, .lg-arc-mid, .lg-arc-inner,
+    .lg-dot, .lg-dot-2, .ai-logo::after,
+    .lg-core-glow, .lg-core-icon { animation: none; }
 }
 
 .nav {
