@@ -73,6 +73,7 @@
       // --- DASHBOARD MAP LOGIC ---
       let map, directionsService;
       let userMarker = null;
+      let isEvacuating = false; 
       const renderers = [];
 
       function loadGoogleMaps(cb){
@@ -103,8 +104,12 @@
           startTracking();
 
           document.getElementById('locateOnDashboard').addEventListener('click', () => {
+              isEvacuating = true;
               navigator.geolocation.getCurrentPosition(pos => {
-                  showSafeRoutes(pos.coords.latitude, pos.coords.longitude);
+                  const p = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+                  map.setCenter(p);
+                  map.setZoom(15);
+                  showSafeRoutes(p.lat, p.lng);
               });
           });
       }
@@ -112,18 +117,32 @@
       function startTracking() {
           if(!navigator.geolocation) return;
           navigator.geolocation.watchPosition(pos => {
-              const p = {lat: pos.coords.latitude, lng: pos.coords.longitude};
+              const lat = pos.coords.latitude;
+              const lng = pos.coords.longitude;
+              const p = {lat, lng};
+
               if(userMarker) userMarker.setPosition(p);
               else {
                   userMarker = new google.maps.Marker({
                       position: p,
                       map: map,
-                      icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#00d2ff', fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 }
+                      icon: { 
+                          path: google.maps.SymbolPath.CIRCLE, 
+                          scale: 10, 
+                          fillColor: '#00d2ff', 
+                          fillOpacity: 1, 
+                          strokeColor: '#fff', 
+                          strokeWeight: 3 
+                      }
                   });
                   map.setCenter(p);
-                  map.setZoom(13);
+                  map.setZoom(14);
               }
-          }, null, {enableHighAccuracy:true});
+
+              if (isEvacuating) {
+                  showSafeRoutes(lat, lng);
+              }
+          }, null, {enableHighAccuracy:true, maximumAge: 2000});
       }
 
       function showSafeRoutes(lat, lng) {
