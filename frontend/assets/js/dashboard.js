@@ -86,11 +86,7 @@
               center: {lat: 20.0, lng: 78.0},
               zoom: 5,
               disableDefaultUI: true,
-              zoomControl: true,
-              styles: [
-                { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
-                { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
-              ]
+              zoomControl: true
           });
 
           startTracking();
