@@ -82,6 +82,7 @@
 
           directionsService = new google.maps.DirectionsService();
           map = new google.maps.Map(mapEl, {
+              mapId: "DEMO_MAP_ID",
               center: {lat: 20.0, lng: 78.0},
               zoom: 5,
               disableDefaultUI: true,
@@ -121,7 +122,7 @@
           }
 
           const script = document.createElement('script');
-          script.src = `https://maps.googleapis.com/maps/api/js?key=${LG_CONFIG.GOOGLE_MAPS_API_KEY}&libraries=places&callback=dashboardInitMap`;
+          script.src = `https://maps.googleapis.com/maps/api/js?key=${LG_CONFIG.GOOGLE_MAPS_API_KEY}&loading=async&libraries=places,marker&callback=dashboardInitMap`;
           script.async = true; script.defer = true;
           document.head.appendChild(script);
       }
@@ -133,19 +134,20 @@
               const lng = pos.coords.longitude;
               const p = {lat, lng};
 
-              if(userMarker) userMarker.setPosition(p);
+              if(userMarker) userMarker.position = p;
               else {
-                  userMarker = new google.maps.Marker({
+                  const pin = document.createElement('div');
+                  pin.style.width = '20px';
+                  pin.style.height = '20px';
+                  pin.style.backgroundColor = '#00d2ff';
+                  pin.style.border = '3px solid #fff';
+                  pin.style.borderRadius = '50%';
+                  pin.style.boxShadow = '0 0 10px rgba(0,210,255,0.5)';
+
+                  userMarker = new google.maps.marker.AdvancedMarkerElement({
                       position: p,
                       map: map,
-                      icon: { 
-                          path: google.maps.SymbolPath.CIRCLE, 
-                          scale: 10, 
-                          fillColor: '#00d2ff', 
-                          fillOpacity: 1, 
-                          strokeColor: '#fff', 
-                          strokeWeight: 3 
-                      }
+                      content: pin
                   });
                   map.setCenter(p);
                   map.setZoom(14);
