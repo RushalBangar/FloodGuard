@@ -45,8 +45,6 @@ const LG_CONFIG = {
   ALERTS_COLLECTION: 'alerts',
   LOCATION_COLLECTION: 'locations',
 
-  // Optional safe destinations used by the map navigation (name, lat, lng)
-  SAFE_DESTINATIONS: [
-    {name: 'Municipal Safe Point', lat: 20.0, lng: 78.0}
-  ]
+  // Set to empty array to allow dynamic safe point generation near the user
+  SAFE_DESTINATIONS: []
 };

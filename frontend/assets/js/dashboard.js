@@ -157,8 +157,10 @@
 
       function showSafeRoutes(lat, lng) {
           renderers.forEach(r => r.setMap(null)); renderers.length = 0;
-          const dests = LG_CONFIG.SAFE_DESTINATIONS || [];
-          if(dests.length === 0) return;
+          let dests = LG_CONFIG.SAFE_DESTINATIONS;
+          if(!dests || dests.length === 0) {
+              dests = [{name: 'Nearest High Ground', lat: lat + 0.015, lng: lng + 0.015}];
+          }
 
           const origin = new google.maps.LatLng(lat, lng);
           let shortestTime = Infinity;

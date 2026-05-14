@@ -303,7 +303,10 @@
         
         updateUserPosition(lat, lng);
  
-        const dests = LG_CONFIG.SAFE_DESTINATIONS || [{name:'Safe Point A', lat:lat+0.02, lng:lng+0.02}];
+        let dests = LG_CONFIG.SAFE_DESTINATIONS;
+        if (!dests || dests.length === 0) {
+            dests = [{name:'Safe Point A', lat:lat+0.015, lng:lng+0.015}];
+        }
         const origin = new google.maps.LatLng(lat, lng);
  
         dests.forEach((d, i) => {
