@@ -85,7 +85,7 @@
       let i = 0;
       function typeChar() {
         if (i < text.length) {
-          heroTitle.textContent += text[i];
+          heroTitle.textContent = text.substring(0, i + 1);
           i++;
           setTimeout(typeChar, 80);
         }
