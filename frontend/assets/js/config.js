@@ -21,7 +21,7 @@ const LG_CONFIG = {
   })(),
 
   // Replace with your Google Maps API key (restrict it to your domain in Google Cloud Console)
-  GOOGLE_MAPS_API_KEY: 'AIzaSyA8DL6iCvkgVNCdKknc5G_qsQiAaiC6kwE',
+  GOOGLE_MAPS_API_KEY: 'AIzaSyAU6ywe7O07cMbE27jJVf9S-ar56whWr_U',
 
   // Firebase client-side config for real-time Firestore access
   FIREBASE_CONFIG: {
