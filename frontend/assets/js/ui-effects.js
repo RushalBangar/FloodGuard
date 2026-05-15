@@ -38,13 +38,9 @@
     btt.setAttribute('aria-label', 'Back to top');
     document.body.appendChild(btt);
 
-    const header = document.querySelector('.site-header');
-    if (header) {
-        const bttObserver = new IntersectionObserver((entries) => {
-            btt.classList.toggle('visible', !entries[0].isIntersecting);
-        }, { threshold: 0 });
-        bttObserver.observe(header);
-    }
+    window.addEventListener('scroll', () => {
+      btt.classList.toggle('visible', window.scrollY > 400);
+    }, { passive: true });
 
     btt.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -85,7 +81,7 @@
       let i = 0;
       function typeChar() {
         if (i < text.length) {
-          heroTitle.textContent = text.substring(0, i + 1);
+          heroTitle.textContent += text[i];
           i++;
           setTimeout(typeChar, 80);
         }
@@ -101,25 +97,17 @@
         document.body.appendChild(cursor);
       }
       
-      let cx = 0, cy = 0, tx = 0, ty = 0, isIdle = false, idleTimer;
-      cursor.style.willChange = 'left, top';
-      
-      document.addEventListener('mousemove', e => { 
-        tx = e.clientX; ty = e.clientY; 
-        if (isIdle) { isIdle = false; requestAnimationFrame(updateCursor); }
-        clearTimeout(idleTimer);
-        idleTimer = setTimeout(() => { isIdle = true; }, 2000);
-      });
+      let cx = 0, cy = 0, tx = 0, ty = 0;
+      document.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
       
       function updateCursor() {
-        if (isIdle) return;
         cx += (tx - cx) * 0.15;
         cy += (ty - cy) * 0.15;
         cursor.style.left = `${cx}px`;
         cursor.style.top = `${cy}px`;
         requestAnimationFrame(updateCursor);
       }
-      requestAnimationFrame(updateCursor);
+      updateCursor();
 
       // Hover effect for cursor
       document.querySelectorAll('a, button, .card, .mini-module').forEach(el => {
@@ -130,22 +118,16 @@
 
     // ====== 6.5. MAGNETIC BUTTONS ======
     document.querySelectorAll('.primary-btn, button:not(.lang-btn), .nav a').forEach(btn => {
-        let rafId = null;
         btn.addEventListener('mousemove', (e) => {
-            if (rafId) return;
-            rafId = requestAnimationFrame(() => {
-                const rect = btn.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
-                rafId = null;
-            });
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
+            
+            btn.style.transform = `translate(${x * 0.3}px, ${y * 0.3}px)`;
         });
         
         btn.addEventListener('mouseleave', () => {
-            if (rafId) cancelAnimationFrame(rafId);
             btn.style.transform = 'translate(0, 0)';
-            rafId = null;
         });
     });
 

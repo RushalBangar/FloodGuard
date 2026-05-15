@@ -21,7 +21,7 @@
   <meta property="og:site_name" content="Life Guard AI" />
   <meta property="og:title" content="Life Guard — AI-Powered Intelligent Disaster Management" />
   <meta property="og:description" content="Integrated IoT & AI Based Disaster Management System. Real-time monitoring and automated emergency response for Floods, Earthquakes, and Wildfires." />
-  <meta property="og:image" content="https://lifeguard26.vercel.app/assets/img/og-preview.png?v=1" />
+  <meta property="og:image" content="https://lifeguard26.vercel.app/assets/img/og-preview.png" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Life Guard AI Disaster Management Dashboard Preview" />
@@ -31,7 +31,7 @@
   <meta name="twitter:url" content="https://lifeguard26.vercel.app/" />
   <meta name="twitter:title" content="Life Guard — AI-Powered Intelligent Disaster Management" />
   <meta name="twitter:description" content="Integrated IoT & AI Based Disaster Management System. Real-time monitoring and automated emergency response." />
-  <meta name="twitter:image" content="https://lifeguard26.vercel.app/assets/img/og-preview.png?v=1" />
+  <meta name="twitter:image" content="https://lifeguard26.vercel.app/assets/img/og-preview.png" />
 
   <!-- Favicon & PWA -->
   <link rel="icon" type="image/png" href="/assets/img/logo.png?v=2" />
@@ -40,9 +40,6 @@
   <link rel="canonical" href="https://lifeguard26.vercel.app/" />
 
   <!-- Fonts & CSS -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
 
   <!-- Structured Data (JSON-LD) -->
@@ -71,8 +68,8 @@
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "Life Guard AI",
-    "url": "https://lifeguard26.vercel.app/",
-    "logo": "https://lifeguard26.vercel.app/assets/img/logo.png",
+    "url": "https://lifeguard-ai.web.app/",
+    "logo": "https://lifeguard-ai.web.app/assets/img/logo.png",
     "sameAs": [
       "https://github.com/RushalBangar/LifeGuard"
     ]
@@ -146,7 +143,7 @@
         <button class="lang-btn" onclick="setLang('hi')">HI</button>
         <button class="lang-btn" onclick="setLang('mr')">MR</button>
     </div>
-    <button class="menu-toggle" id="menuToggle" aria-label="Toggle Navigation Menu" aria-expanded="false">
+    <button class="menu-toggle" id="menuToggle">
       <span></span>
       <span></span>
       <span></span>
@@ -170,7 +167,7 @@
 
     <!-- ===== LIVE TELEMETRY BENTO GRID ===== -->
     <section class="dashboard-section" id="telemetrySection">
-      <h2 class="section-label"><span class="pulse-dot"></span> <span data-i18n="label_live_telemetry">Live Telemetry</span></h2>
+      <div class="section-label"><span class="pulse-dot"></span> <span data-i18n="label_live_telemetry">Live Telemetry</span></div>
 
       <div class="bento-grid">
         <!-- Main Risk Gauge -->
@@ -238,7 +235,7 @@
 
     <!-- ===== LIVE EVACUATION MAP ===== -->
     <section class="dashboard-section" id="mapSection">
-      <h2 class="section-label"><span class="pulse-dot accent"></span> <span data-i18n="label_evacuation_map">Live Evacuation Map</span></h2>
+      <div class="section-label"><span class="pulse-dot accent"></span> <span data-i18n="label_evacuation_map">Live Evacuation Map</span></div>
       <div class="card" style="padding: 0; overflow: hidden; border-radius: 24px;">
         <div class="map-overlay-controls" style="position: absolute; top: 1rem; left: 1rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none;">
             <button id="locateOnDashboard" class="hero-btn primary-btn" style="padding: 0.6rem 1.2rem; font-size: 0.8rem; pointer-events: auto;" data-i18n="btn_locate">RECALCULATE SAFE ROUTES</button>
@@ -279,7 +276,7 @@
     <!-- ===== HOW IT WORKS ===== -->
     <section class="info-section" id="howSection">
       <div class="section-header">
-        <h2 class="section-label center"><span class="pulse-dot accent"></span> <span data-i18n="label_how_it_works">How It Works</span></h2>
+        <div class="section-label center"><span class="pulse-dot accent"></span> <span data-i18n="label_how_it_works">How It Works</span></div>
         <h2 data-i18n="section_how_title">Intelligent Disaster Management</h2>
         <p data-i18n="section_how_subtitle">How Life Guard protects communities through AI & IoT</p>
       </div>
@@ -311,7 +308,7 @@
     <!-- ===== FEATURES BENTO ===== -->
     <section class="info-section" id="featuresSection">
       <div class="section-header">
-        <h2 class="section-label center"><span class="pulse-dot"></span> <span data-i18n="label_platform_caps">Platform Capabilities</span></h2>
+        <div class="section-label center"><span class="pulse-dot"></span> <span data-i18n="label_platform_caps">Platform Capabilities</span></div>
         <h2 data-i18n="label_why_lifeguard">Why Life Guard?</h2>
       </div>
 
@@ -345,7 +342,7 @@
     <div class="footer-container">
       <div class="footer-brand">
         <div class="footer-logo-wrap">
-          <img src="assets/img/logo.png" alt="Life Guard Logo" class="footer-logo" width="48" height="48" loading="lazy">
+          <img src="assets/img/logo.png" alt="Life Guard Logo" class="footer-logo">
           <h2>Life Guard</h2>
         </div>
         <p data-i18n="footer_newsletter_desc">A mission-critical disaster management platform leveraging the power of AI and IoT to save lives and protect infrastructure during emergency events.</p>
@@ -392,11 +389,11 @@
     </div>
   </footer>
 
-  <script src="assets/js/config.js" defer></script>
-  <script src="assets/js/i18n.js" defer></script>
-  <script src="assets/js/bg-effects.js" defer></script>
-  <script src="assets/js/firebase.js" defer></script>
-  <script src="assets/js/dashboard.js" defer></script>
-  <script src="assets/js/ui-effects.js" defer></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/bg-effects.js"></script>
+  <script src="assets/js/firebase.js"></script>
+  <script src="assets/js/dashboard.js"></script>
+  <script src="assets/js/ui-effects.js"></script>
 </body>
 </html>
