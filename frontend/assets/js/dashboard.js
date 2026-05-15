@@ -155,17 +155,64 @@
           }, null, {enableHighAccuracy:true, maximumAge: 2000});
       }
 
-      function showSafeRoutes(lat, lng) {
-          renderers.forEach(r => r.setMap(null)); renderers.length = 0;
-          let dests = LG_CONFIG.SAFE_DESTINATIONS;
-          if(!dests || dests.length === 0) {
-              dests = [{name: 'Nearest High Ground', lat: lat + 0.015, lng: lng + 0.015}];
-          }
+      function getActiveDisaster() {
+          const { flood, quake, fire } = riskScores;
+          const max = Math.max(flood, quake, fire);
+          if (max < 15) return 'none'; // No significant threat
+          if (max === flood) return 'flood';
+          if (max === quake) return 'quake';
+          return 'fire';
+      }
 
+      function getSafeSearchCriteria(type) {
+          switch(type) {
+              case 'quake': return { keyword: 'open ground park stadium', type: 'park' };
+              case 'flood': return { keyword: 'hill high ground mountain elevated', type: 'point_of_interest' };
+              case 'fire':  return { keyword: 'lake river pond water body', type: 'natural_feature' };
+              default:      return { keyword: 'safe zone community center', type: 'establishment' };
+          }
+      }
+
+      function showSafeRoutes(lat, lng) {
+          renderers.forEach(r => r.setMap(null)); 
+          renderers.length = 0;
+
+          const disasterType = getActiveDisaster();
+          const criteria = getSafeSearchCriteria(disasterType);
+          const service = new google.maps.places.PlacesService(map);
+          
+          service.nearbySearch({
+              location: {lat, lng},
+              radius: 10000, // 10km
+              ...criteria
+          }, (results, status) => {
+              let dests = [];
+              if (status === google.maps.places.PlacesServiceStatus.OK && results.length > 0) {
+                  // Take top 3 results
+                  dests = results.slice(0, 3).map(p => ({
+                      name: p.name,
+                      lat: p.geometry.location.lat(),
+                      lng: p.geometry.location.lng()
+                  }));
+              } else {
+                  // Fallback to hardcoded or dynamic offset if no places found
+                  dests = LG_CONFIG.SAFE_DESTINATIONS;
+                  if(!dests || dests.length === 0) {
+                      const suffix = disasterType === 'none' ? 'Safe Zone' : 
+                                   disasterType === 'flood' ? 'High Ground' : 
+                                   disasterType === 'quake' ? 'Open Area' : 'Water Source';
+                      dests = [{name: `Nearest ${suffix} (Estimated)`, lat: lat + 0.015, lng: lng + 0.015}];
+                  }
+              }
+
+              processRouting(lat, lng, dests);
+          });
+      }
+
+      function processRouting(lat, lng, dests) {
           const origin = new google.maps.LatLng(lat, lng);
           let shortestTime = Infinity;
-          let nearestNode = null;
-
+          
           const card = document.getElementById('navInfoCard');
           const nameEl = document.getElementById('nearestPointName');
           const etaEl = document.getElementById('navEta');
@@ -174,18 +221,14 @@
               directionsService.route({
                   origin: origin,
                   destination: new google.maps.LatLng(d.lat, d.lng),
-                  travelMode: 'DRIVING'
+                  travelMode: 'WALKING' // Changed to walking for disaster scenarios
               }, (result, status) => {
                   if (status == 'OK') {
-                      const duration = result.routes[0].legs[0].duration.value; // seconds
-                      
-                      // Highlight the fastest route
+                      const duration = result.routes[0].legs[0].duration.value;
                       const isBest = duration < shortestTime;
+
                       if(isBest) {
                           shortestTime = duration;
-                          nearestNode = d;
-                          
-                          // Update UI Card
                           if(card) card.style.display = 'block';
                           if(nameEl) nameEl.textContent = d.name;
                           if(etaEl) etaEl.textContent = result.routes[0].legs[0].duration.text;
