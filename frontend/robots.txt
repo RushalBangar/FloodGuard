@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://lifeguard-ai.web.app/sitemap.xml
+Sitemap: https://lifeguard26.vercel.app/sitemap.xml
