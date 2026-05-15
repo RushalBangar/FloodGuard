@@ -34,7 +34,7 @@
                 <button id="resetSim" class="hero-btn ghost-btn" style="width:100%; margin-top:1rem;">Reset Sensors</button>
             </div>
         </div>
-        <button id="openSimulator" class="simulator-fab" title="Open Simulator">⚙️</button>
+        <button id="openSimulator" class="simulator-fab" title="Open Simulator" style="display:none;">⚙️</button>
     `;
 
     // Inject styles directly or assume they exist in style.css
@@ -64,8 +64,14 @@
     const closeBtn = document.getElementById('closeSimulator');
     const resetBtn = document.getElementById('resetSim');
 
-    fab.onclick = () => panel.classList.toggle('active');
     closeBtn.onclick = () => panel.classList.remove('active');
+
+    // Key shortcut Alt + S to toggle simulator
+    window.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key.toLowerCase() === 's') {
+            panel.classList.toggle('active');
+        }
+    });
 
     // Logic to override dashboard data
     const controls = {
