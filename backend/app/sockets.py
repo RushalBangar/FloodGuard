@@ -86,30 +86,42 @@ def websocket(ws):
                     active_sos[client_id] = msg
                     
             elif obj.get('type') == 'sensor_data':
-                from .predictor import calculate_flood_risk
-                water_level = float(obj.get('water_level', 0))
-                rainfall = float(obj.get('rainfall', 0))
-                humidity = float(obj.get('humidity', 50))
-                temperature = float(obj.get('temperature', 25))
+                from .predictor import calculate_flood_risk, calculate_quake_risk, calculate_fire_risk
                 
-                result = calculate_flood_risk(water_level, rainfall, humidity, temperature)
-                # Attach original data for broadcasting to other clients
-                result['type'] = 'prediction'
-                result['raw_data'] = {
-                    'water_level': water_level,
-                    'rainfall': rainfall,
-                    'humidity': humidity,
-                    'temperature': temperature
-                }
-                
-                # Send prediction back to the sender
-                ws.send(json.dumps(result))
-                # Also broadcast to all other clients (dashboard)
+                # Identify which disaster data is being sent
+                disaster_type = obj.get('disaster', 'flood') # default to flood
+                result = {'type': 'prediction', 'status': 'Normal', 'risk_percentage': 0}
+
+                if disaster_type == 'flood':
+                    result.update(calculate_flood_risk(
+                        float(obj.get('water_level', 0)),
+                        float(obj.get('rainfall', 0)),
+                        float(obj.get('humidity', 50)),
+                        float(obj.get('temperature', 25))
+                    ))
+                elif disaster_type == 'quake':
+                    result.update(calculate_quake_risk(
+                        float(obj.get('vib_x', 0)),
+                        float(obj.get('vib_y', 0)),
+                        float(obj.get('vib_z', 0)),
+                        obj.get('shock_alert', False)
+                    ))
+                elif disaster_type == 'fire':
+                    result.update(calculate_fire_risk(
+                        float(obj.get('gas_ppm', 0)),
+                        float(obj.get('temperature', 25)),
+                        float(obj.get('humidity', 50)),
+                        obj.get('flame_detected', False)
+                    ))
+
+                # Broadcast result to all clients
+                result['disaster'] = disaster_type
+                result['raw_data'] = obj
                 broadcast(result)
 
                 # Trigger push notification if in Danger
-                if result.get('status') == 'Danger':
-                    send_push_notification("CRITICAL FLOOD ALERT", f"Risk level at {result['risk_percentage']}%. {result['recommendation']}")
+                if result.get('status') in ['Danger', 'Structural Threat', 'High Fire Risk']:
+                    send_push_notification(f"CRITICAL {disaster_type.upper()} ALERT", f"Risk level at {result['risk_percentage']}%. Take immediate action.")
 
             elif obj.get('type') == 'resolve':
                 sos_id = obj.get('id')

@@ -13,7 +13,12 @@
   // Adaptive particle count
   const PARTICLE_COUNT = window.innerWidth < 768 ? 40 : 80;
   const CONNECTION_DIST = 140;
-  const BASE_COLOR = { r: 0, g: 210, b: 255 }; // Primary cyan
+  let targetColor = { r: 0, g: 210, b: 255 };
+  let currentColor = { r: 0, g: 210, b: 255 };
+
+  window.addEventListener('lg:risk-color', (e) => {
+    if (e.detail && e.detail.color) targetColor = e.detail.color;
+  });
 
   function resize() {
     w = canvas.width = window.innerWidth;
@@ -67,13 +72,13 @@
     draw() {
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},${this.alpha})`;
+      ctx.fillStyle = `rgba(${Math.round(currentColor.r)},${Math.round(currentColor.g)},${Math.round(currentColor.b)},${this.alpha})`;
       ctx.fill();
 
       // Glow
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},${this.alpha * 0.1})`;
+      ctx.fillStyle = `rgba(${Math.round(currentColor.r)},${Math.round(currentColor.g)},${Math.round(currentColor.b)},${this.alpha * 0.1})`;
       ctx.fill();
     }
   }
@@ -91,7 +96,7 @@
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
           ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.strokeStyle = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},${alpha})`;
+          ctx.strokeStyle = `rgba(${Math.round(currentColor.r)},${Math.round(currentColor.g)},${Math.round(currentColor.b)},${alpha})`;
           ctx.lineWidth = 0.5;
           ctx.stroke();
         }
@@ -109,7 +114,7 @@
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.x, mouse.y);
-          ctx.strokeStyle = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},${alpha})`;
+          ctx.strokeStyle = `rgba(${Math.round(currentColor.r)},${Math.round(currentColor.g)},${Math.round(currentColor.b)},${alpha})`;
           ctx.lineWidth = 0.8;
           ctx.stroke();
         }
@@ -118,8 +123,11 @@
   }
 
   function animate() {
-    // Semi-transparent clear for motion blur effect (if alpha was true)
-    // But we use alpha:false for performance, so full clear
+    // Interpolate color smoothly
+    currentColor.r += (targetColor.r - currentColor.r) * 0.05;
+    currentColor.g += (targetColor.g - currentColor.g) * 0.05;
+    currentColor.b += (targetColor.b - currentColor.b) * 0.05;
+
     ctx.fillStyle = '#0f172a'; // Matches --bg-dark
     ctx.fillRect(0, 0, w, h);
     

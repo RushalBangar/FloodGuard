@@ -51,14 +51,17 @@
                       circle.style.stroke = 'var(--danger)';
                       if(statusEl) statusEl.textContent = 'Critical Alert';
                       if(bgAnim) bgAnim.classList.add('emergency-red');
+                      window.dispatchEvent(new CustomEvent('lg:risk-color', { detail: { color: { r: 239, g: 68, b: 68 } } })); // Danger Red
                   } else if (maxRisk > 20) {
                       circle.style.stroke = 'var(--warning)';
                       if(statusEl) statusEl.textContent = 'Elevated Risk';
                       if(bgAnim) bgAnim.classList.remove('emergency-red');
+                      window.dispatchEvent(new CustomEvent('lg:risk-color', { detail: { color: { r: 245, g: 158, b: 11 } } })); // Warning Amber
                   } else {
                       circle.style.stroke = 'var(--primary)';
                       if(statusEl) statusEl.textContent = 'System Standby';
                       if(bgAnim) bgAnim.classList.remove('emergency-red');
+                      window.dispatchEvent(new CustomEvent('lg:risk-color', { detail: { color: { r: 0, g: 210, b: 255 } } })); // Primary Cyan
                   }
               }
           }
