@@ -11,8 +11,9 @@
   let w, h, particles = [], mouse = { x: null, y: null, radius: 150 };
   
   // Adaptive particle count
-  const PARTICLE_COUNT = window.innerWidth < 768 ? 40 : 80;
+  const PARTICLE_COUNT = window.innerWidth < 768 ? 30 : 60;
   const CONNECTION_DIST = 140;
+  const CONNECTION_DIST_SQ = CONNECTION_DIST * CONNECTION_DIST;
   const BASE_COLOR = { r: 0, g: 210, b: 255 }; // Primary cyan
 
   function resize() {
@@ -69,12 +70,6 @@
       ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},${this.alpha})`;
       ctx.fill();
-
-      // Glow
-      ctx.beginPath();
-      ctx.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${BASE_COLOR.r},${BASE_COLOR.g},${BASE_COLOR.b},${this.alpha * 0.1})`;
-      ctx.fill();
     }
   }
 
@@ -85,8 +80,10 @@
       for (let j = i + 1; j < particles.length; j++) {
         const dx = particles[i].x - particles[j].x;
         const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < CONNECTION_DIST) {
+        const distSq = dx * dx + dy * dy;
+        
+        if (distSq < CONNECTION_DIST_SQ) {
+          const dist = Math.sqrt(distSq);
           const alpha = (1 - dist / CONNECTION_DIST) * 0.15;
           ctx.beginPath();
           ctx.moveTo(particles[i].x, particles[i].y);
