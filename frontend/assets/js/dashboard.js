@@ -305,6 +305,28 @@
                   updateDashboard();
               }
           });
+
+          // Listen for simulation data
+          window.addEventListener('lg:sim-data', (e) => {
+              const data = e.detail;
+              riskScores.flood = Math.round(data.water_level * 100);
+              riskScores.quake = Math.round(data.vib_z * 10);
+              riskScores.fire = Math.round((data.gas_ppm / 2000) * 100);
+              
+              updateDashboard();
+
+              // Update extra labels if they exist (from other scripts)
+              const labels = {
+                  'waterLevelVal': (data.water_level * 100).toFixed(0) + '%',
+                  'rainVal': data.rainfall + 'mm/h',
+                  'tremorVal': data.vib_z.toFixed(1) + 'g',
+                  'gasVal': data.gas_ppm + 'ppm'
+              };
+              for(let id in labels) {
+                  const el = document.getElementById(id);
+                  if(el) el.textContent = labels[id];
+              }
+          });
       });
   });
 })();
