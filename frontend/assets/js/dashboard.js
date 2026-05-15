@@ -166,10 +166,10 @@
 
       function getSafeSearchCriteria(type) {
           switch(type) {
-              case 'quake': return { keyword: 'open ground park stadium', type: 'park' };
-              case 'flood': return { keyword: 'hill high ground mountain elevated', type: 'point_of_interest' };
-              case 'fire':  return { keyword: 'lake river pond water body', type: 'natural_feature' };
-              default:      return { keyword: 'safe zone community center', type: 'establishment' };
+              case 'quake': return { type: 'park' }; // Best for open grounds
+              case 'flood': return { keyword: 'hill', type: 'natural_feature' }; // Elevated natural areas
+              case 'fire':  return { keyword: 'lake', type: 'natural_feature' }; // Water bodies
+              default:      return { keyword: 'safe zone', type: 'point_of_interest' };
           }
       }
 
@@ -211,42 +211,64 @@
 
       function processRouting(lat, lng, dests) {
           const origin = new google.maps.LatLng(lat, lng);
-          let shortestTime = Infinity;
           
           const card = document.getElementById('navInfoCard');
           const nameEl = document.getElementById('nearestPointName');
           const etaEl = document.getElementById('navEta');
 
-          dests.forEach((d, i) => {
-              directionsService.route({
-                  origin: origin,
-                  destination: new google.maps.LatLng(d.lat, d.lng),
-                  travelMode: 'WALKING' // Changed to walking for disaster scenarios
-              }, (result, status) => {
-                  if (status == 'OK') {
-                      const duration = result.routes[0].legs[0].duration.value;
-                      const isBest = duration < shortestTime;
-
-                      if(isBest) {
-                          shortestTime = duration;
-                          if(card) card.style.display = 'block';
-                          if(nameEl) nameEl.textContent = d.name;
-                          if(etaEl) etaEl.textContent = result.routes[0].legs[0].duration.text;
+          // Collect all route promises
+          const routePromises = dests.map(d => {
+              return new Promise((resolve) => {
+                  directionsService.route({
+                      origin: origin,
+                      destination: new google.maps.LatLng(d.lat, d.lng),
+                      travelMode: 'WALKING'
+                  }, (result, status) => {
+                      if (status === 'OK') {
+                          resolve({ result, dest: d, duration: result.routes[0].legs[0].duration.value });
+                      } else {
+                          resolve(null); // Route failed (e.g., unroutable point)
                       }
+                  });
+              });
+          });
 
-                      const renderer = new google.maps.DirectionsRenderer({
-                          map: map, 
-                          directions: result, 
-                          suppressMarkers: false,
-                          polylineOptions: { 
-                              strokeColor: isBest ? '#4ade80' : 'rgba(148, 163, 184, 0.4)', 
-                              strokeWeight: isBest ? 6 : 4, 
-                              strokeOpacity: isBest ? 0.9 : 0.5,
-                              zIndex: isBest ? 100 : 1
-                          }
-                      });
-                      renderers.push(renderer);
-                  }
+          // Wait for all routes to be calculated
+          Promise.all(routePromises).then(routes => {
+              // Filter out failed routes
+              const validRoutes = routes.filter(r => r !== null);
+              
+              if (validRoutes.length === 0) {
+                  if(nameEl) nameEl.textContent = "No viable routes found";
+                  if(etaEl) etaEl.textContent = "---";
+                  if(card) card.style.display = 'block';
+                  return;
+              }
+
+              // Find the absolute fastest route
+              validRoutes.sort((a, b) => a.duration - b.duration);
+              const bestRoute = validRoutes[0];
+
+              // Update UI Card with the best route
+              if(card) card.style.display = 'block';
+              if(nameEl) nameEl.textContent = bestRoute.dest.name;
+              if(etaEl) etaEl.textContent = bestRoute.result.routes[0].legs[0].duration.text;
+
+              // Draw all routes
+              validRoutes.forEach(r => {
+                  const isBest = (r === bestRoute);
+                  const renderer = new google.maps.DirectionsRenderer({
+                      map: map, 
+                      directions: r.result, 
+                      suppressMarkers: false,
+                      polylineOptions: { 
+                          strokeColor: isBest ? '#4ade80' : 'rgba(148, 163, 184, 0.4)', 
+                          strokeWeight: isBest ? 6 : 4, 
+                          strokeOpacity: isBest ? 0.9 : 0.5,
+                          zIndex: isBest ? 100 : 1
+                      }
+                  });
+                  renderers.push(renderer);
               });
           });
       }
