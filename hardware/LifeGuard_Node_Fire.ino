@@ -125,7 +125,7 @@ void sendSensorData() {
   int gasRaw = analogRead(MQ135_PIN);
   float gasPPM = map(gasRaw, 0, 4095, 0, 2000); 
   bool flame = digitalRead(FLAME_PIN) == LOW; 
-  bool gasAlert = gasPPM > 700; // Increased threshold for stability during warmup
+  bool gasAlert = gasRaw > 3000; // Only trigger local alarm if raw value is very high
 
   // --- Alert Logic (Always runs, independent of DHT status) ---
   if (flame || gasAlert) {
@@ -177,10 +177,11 @@ void onMessageCallback(WebsocketsMessage message) {
   StaticJsonDocument<300> doc;
   deserializeJson(doc, message.data());
   String type = doc["type"];
+  String status = doc["status"];
   
-  if (type == "prediction" && doc["status"] == "Danger") {
+  if (type == "prediction" && (status == "High Fire Risk" || status == "Danger")) {
     digitalWrite(LED_PIN, HIGH);
-    tone(BUZZER_PIN, 2000, 2000);
+    tone(BUZZER_PIN, 2000, 2000); // 2 second burst
   }
 }
 
