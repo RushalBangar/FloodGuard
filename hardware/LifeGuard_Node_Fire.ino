@@ -122,10 +122,10 @@ void connectWiFi() {
 void sendSensorData() {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
-  int gasRaw = analogRead(MQ135_PIN);
+  int gasRaw = (digitalRead(MQ135_PIN) == LOW) ? 4000 : 0; // Digital MQ-135: LOW means smoke detected
   float gasPPM = map(gasRaw, 0, 4095, 0, 2000); 
   bool flame = digitalRead(FLAME_PIN) == LOW; 
-  bool gasAlert = gasRaw > 3500; 
+  bool gasAlert = (gasRaw > 3500); 
 
   Serial.print("[DATA] Gas Raw: "); Serial.print(gasRaw);
   Serial.print(" | Flame: "); Serial.print(flame ? "FIRE!" : "None");
