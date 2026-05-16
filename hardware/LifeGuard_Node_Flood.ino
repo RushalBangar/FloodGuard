@@ -36,6 +36,7 @@ WebsocketsClient client;
 unsigned long lastUpdate = 0;
 
 void setup() {
+  delay(2000);
   Serial.begin(115200);
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);

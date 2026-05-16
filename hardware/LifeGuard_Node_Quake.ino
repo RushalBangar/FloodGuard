@@ -33,6 +33,7 @@ unsigned long lastUpdate = 0;
 const int UPDATE_INTERVAL = 2000; 
 
 void setup() {
+  delay(2000);
   Serial.begin(115200);
   pinMode(VIBRATION_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);

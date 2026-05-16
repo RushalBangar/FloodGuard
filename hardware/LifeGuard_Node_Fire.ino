@@ -37,6 +37,7 @@ unsigned long lastUpdate = 0;
 const int UPDATE_INTERVAL = 5000;
 
 void setup() {
+  delay(2000);
   Serial.begin(115200);
   pinMode(MQ135_PIN, INPUT);
   pinMode(FLAME_PIN, INPUT);
