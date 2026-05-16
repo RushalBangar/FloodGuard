@@ -9,14 +9,15 @@
     const riskCircle = document.getElementById('riskCircle');
     const riskStatusEl = document.getElementById('riskStatus');
     const riskRecEl = document.getElementById('riskRecommendation');
-    const sensorChartCtx = document.getElementById('sensorChart').getContext('2d');
+    const sensorChartEl = document.getElementById('sensorChart');
+    const sensorChartCtx = sensorChartEl ? sensorChartEl.getContext('2d') : null;
     
     const WS_URL = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.WS_URL) ? LG_CONFIG.WS_URL : ((location.protocol === 'https:') ? 'wss://' : 'ws://') + location.host;
     let socket = null;
     let watchId = null;
     
-    // Initialize Chart
-    const sensorChart = new Chart(sensorChartCtx, {
+    // Initialize Chart safely
+    const sensorChart = sensorChartCtx ? new Chart(sensorChartCtx, {
         type: 'line',
         data: {
             labels: [],
@@ -38,21 +39,31 @@
             },
             plugins: { legend: { display: false } }
         }
-    });
+    }) : null;
+
+    function safeSetText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
+
+    function safeAddListener(id, event, fn) {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(event, fn);
+    }
 
     function updateRiskUI(riskData) {
-        riskValEl.textContent = `${riskData.risk_percentage}%`;
-        riskStatusEl.textContent = riskData.status;
-        riskRecEl.textContent = riskData.recommendation;
+        if (riskValEl) riskValEl.textContent = `${riskData.risk_percentage}%`;
+        if (riskStatusEl) riskStatusEl.textContent = riskData.status;
+        if (riskRecEl) riskRecEl.textContent = riskData.recommendation;
         
         let color = '#4ade80'; // Normal
         if (riskData.status === 'Advisory') color = '#fbc02d';
         if (riskData.status === 'Danger') color = '#ff4b2b';
         
-        riskCircle.style.borderColor = color;
-        riskValEl.style.color = color;
-        riskStatusEl.style.color = color;
-        riskStatusEl.className = `status ${riskData.status.toLowerCase()}`;
+        if (riskCircle) riskCircle.style.borderColor = color;
+        if (riskValEl) riskValEl.style.color = color;
+        if (riskStatusEl) riskStatusEl.style.color = color;
+        if (riskStatusEl) riskStatusEl.className = `status ${riskData.status.toLowerCase()}`;
 
         // Weather Background Control
         const bg = document.getElementById('bgAnim');
@@ -82,8 +93,8 @@
             const resp = await fetch(backendUrl + '/api/weather');
             const data = await resp.json();
             if (data.main) {
-                document.getElementById('weatherDesc').textContent = `Local: ${data.weather[0].description} | Wind: ${data.wind.speed} m/s`;
-                document.getElementById('rainVal').textContent = (data.rain ? (data.rain['1h'] || 0) : 0) + ' mm/h';
+                safeSetText('weatherDesc', `Local: ${data.weather[0].description} | Wind: ${data.wind.speed} m/s`);
+                safeSetText('rainVal', (data.rain ? (data.rain['1h'] || 0) : 0) + ' mm/h');
                 return data;
             }
         } catch (e) { }
@@ -127,10 +138,10 @@
 
     function handleSimulation(data) {
         if(data.water_level !== undefined) {
-            document.getElementById('waterVal').textContent = (data.water_level * 100).toFixed(1) + ' %';
+            safeSetText('waterVal', (data.water_level * 100).toFixed(1) + ' %');
             updateChart(data.water_level);
         }
-        if(data.rainfall !== undefined) document.getElementById('rainVal').textContent = data.rainfall + ' mm/h';
+        if(data.rainfall !== undefined) safeSetText('rainVal', data.rainfall + ' mm/h');
         
         // Cache for offline mode
         if (window.cacheSensorData) {
@@ -147,6 +158,7 @@
     }
 
     function updateChart(val) {
+        if (!sensorChart || !sensorChartCtx) return;
         const now = new Date().toLocaleTimeString();
         sensorChart.data.labels.push(now);
         sensorChart.data.datasets[0].data.push(val * 100);
@@ -158,10 +170,11 @@
     }
 
     function showAlertBox(msg, isUrgent = false){
-      const box = document.getElementById('alertBox');
+      const box = document.getElementById('alertBox') || document.getElementById('alerts');
       if(box){
         const item = document.createElement('div');
         item.className = 'alert-item' + (isUrgent ? ' urgent' : '');
+        if (box.id === 'alerts') item.className = 'alert-entry'; // Match dashboard style
         item.textContent = msg;
         box.prepend(item);
       }
@@ -171,13 +184,10 @@
     fetchWeather();
     setInterval(fetchWeather, 60000);
 
-    const testAlertBtn = document.getElementById('test-alert');
-    if (testAlertBtn) {
-      testAlertBtn.addEventListener('click', ()=>{
+    safeAddListener('test-alert', 'click', ()=>{
         const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
         fetch(backendUrl + '/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'System Alert: Flood risk assessment in progress.'})});
-      });
-    }
+    });
 
     const startSharingBtn = document.getElementById('start-sharing');
     const stopSharingBtn = document.getElementById('stop-sharing');
@@ -212,21 +222,21 @@
       });
     }
 
-    if (stopSharingBtn) {
-      stopSharingBtn.addEventListener('click', ()=>{
+    safeAddListener('stop-sharing', 'click', ()=>{
         if(watchId !== null) navigator.geolocation.clearWatch(watchId);
         if (startSharingBtn) startSharingBtn.hidden = false;
-        stopSharingBtn.hidden = true;
-      });
-    }
+        if (stopSharingBtn) stopSharingBtn.hidden = true;
+    });
 
-    document.getElementById('helpBtn').addEventListener('click', (ev)=>{
+    safeAddListener('helpBtn', 'click', (ev)=>{
         const btn = ev.currentTarget;
         const originalText = btn.textContent;
         btn.disabled = true;
         btn.textContent = 'LOCATING...';
 
-        const name = document.getElementById('helpName').value || 'Anonymous';
+        const nameEl = document.getElementById('helpName');
+        const name = (nameEl ? nameEl.value : '') || 'Anonymous';
+        
         navigator.geolocation.getCurrentPosition(pos=>{
             btn.disabled = false;
             btn.textContent = originalText;
@@ -306,10 +316,10 @@
           const doc = snap.docs[0].data();
           const w = doc.water_level || 0;
           const r = doc.rainfall || 0;
-          document.getElementById('tempVal').textContent = (doc.temperature || 25).toFixed(1) + ' °C';
-          document.getElementById('humVal').textContent = (doc.humidity || 50).toFixed(1) + ' %';
-          document.getElementById('waterVal').textContent = (w * 100).toFixed(1) + ' %';
-          document.getElementById('rainVal').textContent = r + ' mm/h';
+          safeSetText('tempVal', (doc.temperature || 25).toFixed(1) + ' °C');
+          safeSetText('humVal', (doc.humidity || 50).toFixed(1) + ' %');
+          safeSetText('waterVal', (w * 100).toFixed(1) + ' %');
+          safeSetText('rainVal', r + ' mm/h');
           updateChart(w);
 
           // Use AI Risk Score from database if available, otherwise fetch prediction
