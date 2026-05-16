@@ -75,8 +75,22 @@ void sendSensorData() {
   int gasRaw = analogRead(MQ135_PIN);
   float gasPPM = map(gasRaw, 0, 4095, 0, 2000); 
   bool flame = digitalRead(FLAME_PIN) == LOW; 
+  bool gasAlert = gasPPM > 700; // Increased threshold for stability during warmup
 
-  if (isnan(h) || isnan(t)) return;
+  // --- Alert Logic (Always runs, independent of DHT status) ---
+  if (flame || gasAlert) {
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 1500); 
+  } else {
+    digitalWrite(LED_PIN, LOW);
+    noTone(BUZZER_PIN);
+  }
+
+  // --- Data Reporting ---
+  if (isnan(h) || isnan(t)) {
+    Serial.println("Failed to read from DHT sensor!");
+    return;
+  }
 
   StaticJsonDocument<300> doc;
   doc["type"] = "sensor_data";
@@ -89,14 +103,6 @@ void sendSensorData() {
   String json;
   serializeJson(doc, json);
   client.send(json);
-  
-  if (flame || gasPPM > 500) {
-    digitalWrite(LED_PIN, HIGH);
-    tone(BUZZER_PIN, 1500); 
-  } else {
-    digitalWrite(LED_PIN, LOW);
-    noTone(BUZZER_PIN);
-  }
 }
 
 void onMessageCallback(WebsocketsMessage message) {

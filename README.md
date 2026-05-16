@@ -82,7 +82,7 @@ The project utilizes a 3-node modular architecture, each optimized for specific 
 - **Framework**: Python Flask.
 - **Communication**: Flask-Sockets for bi-directional real-time data flow.
 - **Database**: Firebase Admin SDK (Firestore).
-- **Deployment**: Configured for Render/Docker.
+- **Deployment**: Configured for Render.
 
 ---
 
