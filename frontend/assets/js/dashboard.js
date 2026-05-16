@@ -319,13 +319,26 @@
               const labels = {
                   'waterLevelVal': (data.water_level * 100).toFixed(0) + '%',
                   'rainVal': data.rainfall + 'mm/h',
-                  'tremorVal': data.vib_z.toFixed(1) + 'g',
-                  'gasVal': data.gas_ppm + 'ppm'
+                  'tremorVal': (data.vib_z || 0).toFixed(1) + 'g',
+                  'vibXVal': (data.vib_x || 0).toFixed(2),
+                  'vibYVal': (data.vib_y || 0).toFixed(2),
+                  'vibZVal': (data.vib_z || 0).toFixed(2),
+                  'shockVal': data.shock_alert ? 'YES' : 'NO',
+                  'gasVal': (data.gas_ppm || 0).toFixed(1) + ' ppm',
+                  'tempVal': (data.temperature || 0).toFixed(1) + ' °C',
+                  'humVal': (data.humidity || 0).toFixed(1) + ' %',
+                  'flameVal': data.flame_detected ? 'YES' : 'NO'
               };
               for(let id in labels) {
                   const el = document.getElementById(id);
-                  if(el) el.textContent = labels[id];
+                  if(el) {
+                      el.textContent = labels[id];
+                      if (id === 'flameVal' || id === 'shockVal') {
+                        el.style.color = (labels[id] === 'YES') ? '#ff4b2b' : '#4ade80';
+                      }
+                  }
               }
+
           });
       });
   });
