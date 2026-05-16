@@ -12,13 +12,16 @@
 #include <ArduinoWebsockets.h>
 #include <ArduinoJson.h>
 #include <Wire.h>
+#include <ArduinoJson.h>
+#include <HTTPClient.h>
 
 using namespace websockets;
 
 // --- Configuration ---
 const char* WIFI_SSID = "Tiger";
 const char* WIFI_PASSWORD = "rushi123";
-const char* WS_URL = "wss://floodguard-8sfc.onrender.com:443/ws"; 
+const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
+const char* API_URL = "https://floodguard-8sfc.onrender.com/api/sensor-data";
 
 // --- Pin Definitions ---
 #define VIBRATION_PIN 27 // SW420 Digital Out
@@ -142,7 +145,24 @@ void sendSensorData() {
 
   String json;
   serializeJson(doc, json);
-  client.send(json);
+
+  // --- SEND VIA HTTP API (Guaranteed Delivery) ---
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(API_URL);
+    http.addHeader("Content-Type", "application/json");
+    
+    int httpResponseCode = http.POST(json);
+    
+    if (httpResponseCode > 0) {
+      Serial.print("[HTTP] Data sent, response: ");
+      Serial.println(httpResponseCode);
+    } else {
+      Serial.print("[HTTP] Error sending data: ");
+      Serial.println(http.errorToString(httpResponseCode).c_str());
+    }
+    http.end();
+  }
   
   Serial.print("Accel X: "); Serial.print(ax);
   Serial.print(" Y: "); Serial.print(ay);

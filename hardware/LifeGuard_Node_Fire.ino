@@ -14,6 +14,7 @@
 #include <ArduinoWebsockets.h>
 #include <ArduinoJson.h>
 #include <DHT.h>
+#include <HTTPClient.h>
 
 using namespace websockets;
 
@@ -21,6 +22,7 @@ using namespace websockets;
 const char* WIFI_SSID = "Tiger";
 const char* WIFI_PASSWORD = "rushi123";
 const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
+const char* API_URL = "https://floodguard-8sfc.onrender.com/api/sensor-data";
 
 // --- Pin Definitions ---
 #define DHT_PIN 4
@@ -70,17 +72,30 @@ void setup() {
   client.onMessage(onMessageCallback);
   Serial.println("[BOOT] WebSocket Configured.");
   
-  Serial.println("[BOOT] Connecting to Server (SECURE)...");
-  client.setInsecure(); // Still use insecure to bypass cert validation
+  client.setInsecure();
+  
+  // Add Browser-like headers to fool the server
   client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
+  client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
+  Serial.println("[BOOT] WebSocket Configured with Browser Headers.");
+  
+  // Resolve IP Address to check DNS
+  IPAddress serverIP;
+  if (WiFi.hostByName("floodguard-8sfc.onrender.com", serverIP)) {
+    Serial.print("[BOOT] Server IP Found: ");
+    Serial.println(serverIP);
+  } else {
+    Serial.println("[BOOT] DNS FAILED! ESP32 cannot find the server address.");
+  }
+  
+  Serial.println("[BOOT] Connecting to Server (Final Attempt)...");
   bool connected = client.connect(WS_URL);
   if (connected) {
     Serial.println("[BOOT] SUCCESS! Connected to LifeGuard Server.");
   } else {
-    Serial.println("[BOOT] CONNECTION FAILED! Check Render Dashboard Logs.");
+    Serial.println("[BOOT] STILL FAILED. Your ISP or Router might be blocking WebSockets.");
   }
 }
-
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
@@ -88,6 +103,7 @@ void loop() {
   else { 
     client.setInsecure();
     client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
+    client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
     client.connect(WS_URL); 
     delay(10000); 
   }
@@ -137,7 +153,24 @@ void sendSensorData() {
 
   String json;
   serializeJson(doc, json);
-  client.send(json);
+
+  // --- SEND VIA HTTP API (Guaranteed Delivery) ---
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(API_URL);
+    http.addHeader("Content-Type", "application/json");
+    
+    int httpResponseCode = http.POST(json);
+    
+    if (httpResponseCode > 0) {
+      Serial.print("[HTTP] Data sent, response: ");
+      Serial.println(httpResponseCode);
+    } else {
+      Serial.print("[HTTP] Error sending data: ");
+      Serial.println(http.errorToString(httpResponseCode).c_str());
+    }
+    http.end();
+  }
 }
 
 void onMessageCallback(WebsocketsMessage message) {

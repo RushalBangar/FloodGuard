@@ -25,7 +25,9 @@ def create_app():
     # Import and register components
     from . import firebase_config, sockets
     from .routes import api
+    from .api import api_bp
     app.register_blueprint(api)
+    app.register_blueprint(api_bp, url_prefix='/api')
     
     # Start AI listeners
     from .ai_listener import start_background_thread
