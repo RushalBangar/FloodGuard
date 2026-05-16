@@ -26,6 +26,8 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 // --- Pin Definitions ---
 #define VIBRATION_PIN 27 // SW420 Digital Out
 #define BUZZER_PIN 19
+#define I2C_SDA 21
+#define I2C_SCL 22
 
 // --- Global Objects ---
 WebsocketsClient client;
@@ -37,6 +39,9 @@ void setup() {
   Serial.begin(115200);
   pinMode(VIBRATION_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
+  
+  // Initialize I2C with defined pins
+  Wire.begin(I2C_SDA, I2C_SCL);
   
   if (!mpu.begin()) {
     Serial.println("Failed to find MPU6050 chip");
