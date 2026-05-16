@@ -98,13 +98,20 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
-  if (client.available()) client.poll();
-  else { 
-    client.setInsecure();
-    client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
-    client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
-    client.connect(WS_URL); 
-    delay(10000); 
+  
+  if (client.available()) {
+    client.poll();
+  } else { 
+    // Non-blocking reconnection every 10 seconds
+    static unsigned long lastWsRetry = 0;
+    if (millis() - lastWsRetry >= 10000) {
+      Serial.println("[WS] Attempting Reconnect (Non-blocking)...");
+      client.setInsecure();
+      client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
+      client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
+      client.connect(WS_URL); 
+      lastWsRetry = millis();
+    }
   }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
@@ -126,7 +133,9 @@ float getWaterLevel() {
   digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
   digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
-  long duration = pulseIn(ECHO_PIN, HIGH);
+  
+  // Added 30ms timeout to prevent blocking (covers ~5 meters)
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000); 
   
   float distance = duration * speedInCmPerMicro / 2;
   float level = (MAX_DISTANCE - distance) / MAX_DISTANCE;
