@@ -24,9 +24,9 @@ def on_quake_snapshot(col_snapshot, changes, read_time):
             doc = change.document
             data = doc.to_dict()
             if 'ai_risk_score' not in data:
-                x = float(data.get('vibration_x', 0))
-                y = float(data.get('vibration_y', 0))
-                z = float(data.get('vibration_z', 0))
+                x = float(data.get('vib_x', 0))
+                y = float(data.get('vib_y', 0))
+                z = float(data.get('vib_z', 0))
                 shock = bool(data.get('shock_alert', False))
                 result = calculate_quake_risk(x, y, z, shock)
                 try:
@@ -40,7 +40,8 @@ def on_fire_snapshot(col_snapshot, changes, read_time):
             doc = change.document
             data = doc.to_dict()
             if 'ai_risk_score' not in data:
-                gas = float(data.get('gas_ppm', 0))
+                # Check for both raw and ppm keys for backwards compatibility
+                gas = float(data.get('gas_raw', data.get('gas_ppm', 0)))
                 t = float(data.get('temperature', 25))
                 h = float(data.get('humidity', 50))
                 flame = bool(data.get('flame_detected', False))
