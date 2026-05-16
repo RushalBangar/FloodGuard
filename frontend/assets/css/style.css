@@ -1401,3 +1401,104 @@ body.page-ready .page-transition-overlay {
     #toastContainer { left: 1rem; right: 1rem; bottom: 1rem; }
     .toast { min-width: auto; }
 }
+
+/* --- Premium PWA Prompt --- */
+.pwa-prompt {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    max-width: 420px;
+    background: var(--bg-card);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6), 
+                inset 0 0 0 1px var(--glass-inner-glow),
+                0 0 40px hsla(var(--primary-h), 100%, 50%, 0.1);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    z-index: 2000;
+    display: flex;
+    gap: 1.2rem;
+    align-items: flex-start;
+    transform: translateY(150%);
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+    will-change: transform;
+}
+
+.pwa-prompt.visible {
+    transform: translateY(0);
+}
+
+.pwa-icon {
+    font-size: 2.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px var(--primary-glow));
+    line-height: 1;
+}
+
+.pwa-content {
+    flex: 1;
+}
+
+.pwa-content h4 {
+    margin-bottom: 0.4rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    background: none;
+    -webkit-text-fill-color: #fff;
+}
+
+.pwa-content p {
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin-bottom: 1.2rem;
+}
+
+.pwa-actions {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.pwa-install-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+}
+
+.pwa-later-btn {
+    background: none;
+    border: none;
+    box-shadow: none;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    padding: 0;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.pwa-later-btn:hover {
+    color: var(--primary);
+    transform: none;
+}
+
+@media (max-width: 600px) {
+    .pwa-prompt {
+        bottom: 1rem;
+        left: 1rem;
+        right: 1rem;
+        max-width: none;
+        padding: 1.2rem;
+        gap: 1rem;
+    }
+    .pwa-icon { font-size: 2rem; }
+    .pwa-actions { gap: 1rem; justify-content: space-between; }
+}
+

@@ -322,39 +322,85 @@
       } catch(e) {}
     };
 
-    // ====== 15. PWA INSTALL PROMPT ======
+    // ====== 15. PWA INSTALL PROMPT (PREMIUM) ======
     let deferredPrompt;
-    const installBtn = document.getElementById('installApp');
+    const navInstall = document.getElementById('navInstall');
     
+    // Check if user dismissed it in this session
+    const isDismissed = sessionStorage.getItem('pwa_prompt_dismissed');
+
+    function injectPWAPrompt() {
+      if (document.querySelector('.pwa-prompt')) return document.querySelector('.pwa-prompt');
+      
+      const prompt = document.createElement('div');
+      prompt.className = 'pwa-prompt';
+      prompt.innerHTML = `
+        <div class="pwa-icon">📲</div>
+        <div class="pwa-content">
+          <h4>Install LifeGuard</h4>
+          <p>Get instant alerts, offline map access, and faster response times in emergencies.</p>
+          <div class="pwa-actions">
+            <button class="hero-btn primary-btn pwa-install-btn">Install Now</button>
+            <button class="pwa-later-btn">Maybe Later</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(prompt);
+      
+      // Event Listeners
+      prompt.querySelector('.pwa-install-btn').addEventListener('click', triggerInstall);
+      prompt.querySelector('.pwa-later-btn').addEventListener('click', () => {
+        prompt.classList.remove('visible');
+        sessionStorage.setItem('pwa_prompt_dismissed', 'true');
+      });
+      
+      return prompt;
+    }
+
+    async function triggerInstall() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log(`[PWA] User response: ${outcome}`);
+      deferredPrompt = null;
+      hideUI();
+    }
+
+    function hideUI() {
+      const prompt = document.querySelector('.pwa-prompt');
+      if (prompt) prompt.classList.remove('visible');
+      if (navInstall) navInstall.style.display = 'none';
+    }
+
     window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
-      // Stash the event so it can be triggered later.
       deferredPrompt = e;
-      // Update UI notify the user they can install the PWA
-      if(installBtn) installBtn.style.display = 'block';
+      
+      // Show nav link
+      if (navInstall) navInstall.style.display = 'block';
+      
+      // Show bottom prompt if not dismissed and not already installed
+      if (!isDismissed) {
+        setTimeout(() => {
+          const prompt = injectPWAPrompt();
+          prompt.classList.add('visible');
+        }, 3000); // Delay slightly for premium feel
+      }
     });
 
-    if(installBtn) {
-      installBtn.addEventListener('click', async () => {
-        if(!deferredPrompt) return;
-        // Show the install prompt
-        deferredPrompt.prompt();
-        // Wait for the user to respond to the prompt
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`[PWA] User response to the install prompt: ${outcome}`);
-        // We've used the prompt, and can't use it again, throw it away
-        deferredPrompt = null;
-        installBtn.style.display = 'none';
+    if (navInstall) {
+      navInstall.addEventListener('click', (e) => {
+        e.preventDefault();
+        triggerInstall();
       });
     }
 
     window.addEventListener('appinstalled', () => {
-      // Clear the deferredPrompt so it can be garbage collected
       deferredPrompt = null;
-      if(installBtn) installBtn.style.display = 'none';
-      console.log('[PWA] LifeGuard was installed.');
-      if(window.showToast) window.showToast('LifeGuard installed successfully!', 'success');
+      hideUI();
+      console.log('[PWA] LifeGuard installed.');
+      if (window.showToast) window.showToast('LifeGuard installed successfully!', 'success');
     });
+
   });
 })();
