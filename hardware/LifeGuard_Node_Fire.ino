@@ -125,9 +125,13 @@ void sendSensorData() {
   int gasRaw = analogRead(MQ135_PIN);
   float gasPPM = map(gasRaw, 0, 4095, 0, 2000); 
   bool flame = digitalRead(FLAME_PIN) == LOW; 
-  bool gasAlert = gasRaw > 3000; // Only trigger local alarm if raw value is very high
+  bool gasAlert = gasRaw > 3500; 
 
-  // --- Alert Logic (Always runs, independent of DHT status) ---
+  Serial.print("[DATA] Gas Raw: "); Serial.print(gasRaw);
+  Serial.print(" | Flame: "); Serial.print(flame ? "FIRE!" : "None");
+  Serial.print(" | Alert: "); Serial.println(gasAlert ? "YES" : "NO");
+
+  // --- Alert Logic ---
   if (flame || gasAlert) {
     digitalWrite(LED_PIN, HIGH);
     tone(BUZZER_PIN, 1500); 

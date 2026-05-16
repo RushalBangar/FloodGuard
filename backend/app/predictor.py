@@ -56,29 +56,34 @@ def calculate_quake_risk(vib_x, vib_y, vib_z, shock_alert):
         "acceleration_g": round(excess_g, 3)
     }
 
-def calculate_fire_risk(gas_raw, temperature, humidity, flame_detected):
+def calculate_fire_risk(gas_val, temperature, humidity, flame_detected):
     """
     Logarithmic Smoke Calculation.
-    MQ sensors are exponential.
+    Accepts gas_val as raw (0-4095) or ppm (0-2000).
     """
-    # Normalize gas (0-4095 to 0.0-1.0)
-    ratio = gas_raw / 4095.0
+    # If the value is very high (>2000), it's likely raw ADC data (0-4095)
+    # If the value is low (<2000), it's either raw or already mapped. 
+    # We treat everything as raw if it comes from the ESP32.
+    ratio = min(gas_val / 4095.0, 1.0)
     
-    # Logarithmic curve approximation for MQ sensors
-    # PPM increases exponentially as ratio increases
+    # Improved Logarithmic curve
+    # At ratio 0.2 (raw ~800), smoke_factor is small (~1.7)
+    # At ratio 0.5 (raw ~2000), smoke_factor is moderate (~17)
+    # At ratio 0.8 (raw ~3200), smoke_factor is high (~57)
     smoke_factor = math.pow(ratio, 2.5) * 100 
     
-    # Heat factor (Standard fire triangle logic)
-    # High temp (>45C) + Low humidity (<30%) = Extreme Ignition Risk
-    heat_factor = (temperature / 60.0) * 20 + ((100 - humidity) / 100.0) * 10
+    # Heat factor (Normal temp is 25-35C, Normal humidity is 40-60%)
+    # Only contributes significantly if temp > 40 or humidity < 20
+    temp_score = max(0, (temperature - 30) / 30.0) * 20
+    hum_score = max(0, (40 - humidity) / 40.0) * 10
     
-    risk_percentage = smoke_factor + heat_factor
+    risk_percentage = smoke_factor + temp_score + hum_score
     if flame_detected: risk_percentage += 80
     
     risk_percentage = min(risk_percentage, 100.0)
     
     if risk_percentage < 25: status = "Normal"
-    elif risk_percentage < 70: status = "Elevated Smoke"
+    elif risk_percentage < 60: status = "Elevated Smoke"
     else: status = "High Fire Risk"
         
     return {

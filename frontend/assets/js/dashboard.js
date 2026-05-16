@@ -288,7 +288,8 @@
               'vibYVal': data.vib_y !== undefined ? (data.vib_y).toFixed(2) : null,
               'vibZVal': data.vib_z !== undefined ? (data.vib_z).toFixed(2) : null,
               'shockVal': data.shock_alert !== undefined ? (data.shock_alert ? 'YES' : 'NO') : null,
-              'gasVal': data.gas_ppm !== undefined ? (data.gas_ppm).toFixed(1) + ' ppm' : null,
+              'gasVal': (data.gas_ppm !== undefined) ? (data.gas_ppm).toFixed(1) + ' ppm' : 
+                        (data.gas_raw !== undefined) ? (data.gas_raw / 4095.0 * 2000).toFixed(0) + ' ppm' : null,
               'tempVal': data.temperature !== undefined ? (data.temperature).toFixed(1) + ' °C' : null,
               'humVal': data.humidity !== undefined ? (data.humidity).toFixed(1) + ' %' : null,
               'flameVal': data.flame_detected !== undefined ? (data.flame_detected ? 'YES' : 'NO') : null
