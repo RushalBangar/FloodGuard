@@ -12,7 +12,6 @@
 #include <WiFi.h>
 #include <ArduinoWebsockets.h>
 #include <ArduinoJson.h>
-#include <ArduinoJson.h>
 #include <HTTPClient.h>
 
 using namespace websockets;
@@ -71,10 +70,14 @@ void setup() {
   
   client.onMessage(onMessageCallback);
   client.setInsecure();
+  
+  // Browser headers to ensure compatibility
   client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
+  client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ESP32-LifeGuard");
+  
   Serial.println("[BOOT] WebSocket client configured.");
   
-  Serial.println("[BOOT] Connecting to Server (SECURE)...");
+  Serial.println("[BOOT] Connecting to Server...");
   bool connected = client.connect(WS_URL);
   if (connected) {
     Serial.println("[BOOT] Setup complete! Connected to LifeGuard Server.");
@@ -88,9 +91,12 @@ void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
   if (client.available()) client.poll();
   else { 
+    Serial.println("[WS] Reconnecting...");
     client.setInsecure(); 
-    client.connect("echo.websocket.org", 443, "/"); 
-    delay(10000); 
+    client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
+    client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ESP32-LifeGuard");
+    client.connect(WS_URL); 
+    delay(5000); 
   }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
@@ -146,6 +152,7 @@ void sendSensorData() {
     HTTPClient http;
     http.begin(API_URL);
     http.addHeader("Content-Type", "application/json");
+    http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ESP32-LifeGuard");
     
     int httpResponseCode = http.POST(json);
     
