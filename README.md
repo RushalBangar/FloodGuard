@@ -1,65 +1,142 @@
-# LifeGuard
-AI-Driven Flood Prediction & Alert System
+# 🛡️ LifeGuard: Multi-Disaster Management System
 
-LifeGuard is a comprehensive solution for flood monitoring and emergency response, featuring real-time sensor integration, AI-driven alerts, and a rescue dashboard with live location sharing.
+**LifeGuard** is a next-generation, IoT-powered disaster management platform designed to provide real-time monitoring, early warning alerts, and intelligent rescue coordination for multiple disaster scenarios: **Floods, Earthquakes, and Wildfires.**
 
-## Project Structure
-
-- **`backend/`**: Pure Python Flask server handling WebSockets and Firebase integration.
-- **`frontend/`**: Vanilla HTML/CSS/JS frontend organized with a clean asset structure.
-- **`database/`**: Documentation of the Firestore schema.
-- **`scripts/`**: Utility scripts for build and configuration.
+Integrating custom-built hardware nodes with a high-performance web dashboard, LifeGuard ensures that first responders and citizens have life-saving information at their fingertips—even in low-connectivity environments.
 
 ---
 
-## Local Development
+## 🚀 Key Features
 
-### 1. Backend Setup
+- **Modular Sensor Ecosystem**: Dedicated ESP32 nodes for specialized disaster detection.
+- **Real-Time Visualization**: A premium, interactive dashboard with live data streaming via WebSockets.
+- **AI-Driven Alerts**: Intelligent status predictions based on multi-sensor data fusion.
+- **Advanced Rescue Intelligence**: Google Maps integration (Advanced Markers) with live GPS tracking and route recalculation.
+- **PWA Excellence**: Fully responsive, offline-ready application with push notifications and service worker caching.
+- **Local Alerting**: Hardware-level buzzers and LEDs for immediate on-site warnings.
+
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TD
+    subgraph "Hardware Layer (ESP32 Nodes)"
+        N1[Flood Node] --> |WS/JSON| BK
+        N2[Quake Node] --> |WS/JSON| BK
+        N3[Fire Node] --> |WS/JSON| BK
+    end
+
+    subgraph "Backend Layer (Python/Firebase)"
+        BK[Flask Server] <--> |Real-time Sync| DB[(Firestore)]
+        BK <--> |WebSocket| FE[Dashboard]
+    end
+
+    subgraph "Frontend Layer (PWA)"
+        FE --> |Maps API| RE[Rescue Mode]
+        FE --> |Service Worker| OF[Offline Mode]
+        FE --> |Push API| AL[Alerts]
+    end
+```
+
+---
+
+## 🔌 Hardware Specifications
+
+The project utilizes a 3-node modular architecture, each optimized for specific environmental threats.
+
+### 1. Flood & Rainfall Node (`node_flood_01`)
+*   **MCU**: ESP32
+*   **Sensors**:
+    *   **HC-SR04**: Ultrasonic sensor for high-precision water level monitoring.
+    *   **Rain Sensor**: Analog sensing for real-time precipitation intensity.
+*   **Alerts**: 1000Hz Buzzer + Red Alert LED.
+
+### 2. Earthquake & Vibration Node (`node_quake_01`)
+*   **MCU**: ESP32
+*   **Sensors**:
+    *   **MPU6050**: 3-axis accelerometer for seismic activity detection (Raw I2C).
+    *   **SW420**: High-sensitivity vibration/shock sensor.
+*   **Alerts**: 2000Hz Pulsed Buzzer + Structural Integrity LED.
+
+### 3. Wildfire & Air Quality Node (`node_fire_01`)
+*   **MCU**: ESP32
+*   **Sensors**:
+    *   **MQ-135**: Gas/Smoke/CO2 sensor for air quality and smoke detection.
+    *   **DHT11**: Temperature and Humidity monitoring for wildfire risk assessment.
+    *   **Flame Sensor**: Infrared detection for active fire proximity.
+*   **Alerts**: 1500Hz Continuous Buzzer + Fire Warning LED.
+
+---
+
+## 💻 Software Tech Stack
+
+### Frontend
+- **Core**: Vanilla HTML5, JavaScript (ES6+), CSS3 (Custom Design System).
+- **Mapping**: Google Maps JavaScript API (Advanced Markers, Directions API).
+- **State Management**: Firebase Firestore (Real-time).
+- **PWA**: Workbox-powered Service Workers, Manifest v3.
+- **Aesthetics**: Canvas-based particle systems, Glassmorphism, and smooth CSS transitions.
+
+### Backend
+- **Framework**: Python Flask.
+- **Communication**: Flask-Sockets for bi-directional real-time data flow.
+- **Database**: Firebase Admin SDK (Firestore).
+- **Deployment**: Configured for Render/Docker.
+
+---
+
+## 🛠️ Local Development
+
+### 1. Prerequisites
+- Python 3.9+
+- Node.js (for frontend scripts)
+- Arduino IDE (for hardware deployment)
+- Firebase Project with Firestore enabled.
+
+### 2. Backend Setup
 ```bash
 cd backend
 python -m venv .venv
-# Windows
-.\.venv\Scripts\Activate
-# Linux/macOS
-source .venv/bin/activate
-
+source .venv/bin/activate  # Windows: .\.venv\Scripts\Activate
 pip install -r requirements.txt
-```
-
-### 2. Firebase Configuration
-Download your `serviceAccountKey.json` from the Firebase Console and place it in the `backend/` root directory.
-
-### 3. Run the Server
-```bash
+# Add serviceAccountKey.json to the /backend folder
 python main.py
 ```
-The server will start at `http://localhost:5000`.
+
+### 3. Frontend Setup
+```bash
+cd frontend
+# Install dependencies for configuration scripts
+npm install
+# Generate environment-specific config
+node ../scripts/gen-config.js
+```
 
 ---
 
-## Deployment
+## 🌐 Deployment
 
-### 1. Backend (Render)
-We use a `render.yaml` blueprint for automated deployment.
-1. Create a new **Blueprint** on [Render](https://render.com).
-2. Connect your GitHub repository.
-3. Add the following **Environment Variables** in the Render dashboard:
-   - `SERVICE_ACCOUNT_JSON`: The full content of your `serviceAccountKey.json`.
-   - `GOOGLE_MAPS_API_KEY`: Your Google Maps API key.
-4. Render will automatically build and deploy the service.
+### Backend (Render)
+1. Deploy using the provided `render.yaml` blueprint.
+2. Set `SERVICE_ACCOUNT_JSON` and `GOOGLE_MAPS_API_KEY` as environment variables.
 
-### 2. Frontend (Vercel)
-1. Import your repository into [Vercel](https://vercel.com).
-2. Set the **Root Directory** to `frontend`.
-3. Configure the **Build Command** to: `node ../scripts/gen-config.js` (if using dynamic config).
-4. Add **Environment Variables**:
-   - `GOOGLE_MAPS_API_KEY`: Your Google Maps API key.
-   - `WS_URL`: The URL of your Render backend (e.g., `wss://your-app.onrender.com/ws`).
-5. Vercel will deploy your static site and proxy API calls to Render.
+### Frontend (Vercel)
+1. Import the `frontend` directory.
+2. Set the build command to `node ../scripts/gen-config.js && exit 0`.
+3. Configure `WS_URL` and `GOOGLE_MAPS_API_KEY` in Vercel settings.
 
 ---
 
-## Security & Best Practices
-- **Environment Variables**: Never commit `serviceAccountKey.json` or API keys. Use the secret managers provided by Vercel and Render.
-- **CORS**: Ensure your Render backend allows requests from your Vercel domain.
-- **TLS**: Both Vercel and Render provide automatic HTTPS, which is required for secure WebSocket (`wss://`) and geolocation sharing.
+## 🛡️ Security & Best Practices
+- **Secret Management**: All API keys and Firebase credentials are managed via environment variables.
+- **Low Latency**: WebSockets are used for critical sensor alerts to minimize response time.
+- **Resilience**: Service workers ensure the dashboard remains accessible during network failures.
+
+---
+
+## 📜 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+*Created with ❤️ by the LifeGuard Team.*
