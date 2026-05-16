@@ -45,6 +45,13 @@ void setup() {
   digitalWrite(LED_PIN, HIGH);
   // Initialize I2C with defined pins and wait for stabilization
   Wire.begin(I2C_SDA, I2C_SCL);
+  delay(200);
+
+  // Forced Manual Wake-up (Bypass library init issues)
+  Wire.beginTransmission(0x68);
+  Wire.write(0x6B); // PWR_MGMT_1 register
+  Wire.write(0x00); // Wake up!
+  Wire.endTransmission();
   delay(100);
   
   if (!mpu.begin(0x68)) {
@@ -54,6 +61,7 @@ void setup() {
   
   Serial.println("MPU6050 Found!");
   connectWiFi();
+
 
   digitalWrite(LED_PIN, LOW);
   
