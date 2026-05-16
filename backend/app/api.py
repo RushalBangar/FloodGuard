@@ -5,7 +5,7 @@ from .firebase_config import db, firebase_initialized
 from .notifier import send_push_notification
 from .predictor import calculate_flood_risk, calculate_quake_risk, calculate_fire_risk
 
-api_bp = Blueprint('api', __name__)
+api_bp = Blueprint('sensor_api', __name__)
 
 @api_bp.route('/sensor-data', methods=['POST'])
 def receive_sensor_data():
