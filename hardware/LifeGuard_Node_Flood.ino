@@ -18,7 +18,7 @@ using namespace websockets;
 // --- Configuration ---
 const char* WIFI_SSID = "Tiger";
 const char* WIFI_PASSWORD = "rushi123";
-const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws"; 
+const char* WS_URL = "wss://floodguard-8sfc.onrender.com:443/ws";
 
 // --- Pin Definitions ---
 #define TRIG_PIN 5
@@ -57,6 +57,7 @@ void setup() {
   
   client.onMessage(onMessageCallback);
   client.setInsecure();
+  client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
   Serial.println("[BOOT] WebSocket client configured.");
   
   Serial.println("[BOOT] Connecting to Server...");
@@ -72,7 +73,12 @@ void setup() {
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
   if (client.available()) client.poll();
-  else { client.setInsecure(); client.connect(WS_URL); delay(2000); }
+  else { 
+    client.setInsecure(); 
+    client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
+    client.connect(WS_URL); 
+    delay(5000); 
+  }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
     sendSensorData();
