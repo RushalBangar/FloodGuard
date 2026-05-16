@@ -39,19 +39,29 @@ const int UPDATE_INTERVAL = 5000;
 void setup() {
   delay(2000);
   Serial.begin(115200);
+  Serial.println("\n[BOOT] Fire Node Starting...");
+  
   pinMode(MQ135_PIN, INPUT);
   pinMode(FLAME_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  Serial.println("[BOOT] Pins Initialized.");
   
-  digitalWrite(LED_PIN, HIGH);
   dht.begin();
+  digitalWrite(LED_PIN, HIGH);
+  
+  Serial.println("[BOOT] Connecting to WiFi...");
   connectWiFi();
+  Serial.println("[BOOT] WiFi Connected!");
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
-  client.setInsecure(); // Allow connection to WSS
+  client.setInsecure();
+  Serial.println("[BOOT] WebSocket Configured.");
+  
+  Serial.println("[BOOT] Connecting to Server...");
   client.connect(WS_URL);
+  Serial.println("[BOOT] Setup Complete!");
 }
 
 

@@ -35,13 +35,17 @@ const int UPDATE_INTERVAL = 2000;
 void setup() {
   delay(2000);
   Serial.begin(115200);
+  Serial.println("\n[BOOT] Quake Node Starting...");
+  
   pinMode(VIBRATION_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  Serial.println("[BOOT] Pins Initialized.");
   
-  digitalWrite(LED_PIN, HIGH); // On during setup
+  digitalWrite(LED_PIN, HIGH);
   
   // Initialize I2C
+  Serial.println("[BOOT] Initializing I2C...");
   Wire.begin(I2C_SDA, I2C_SCL);
   delay(500);
 
@@ -50,15 +54,20 @@ void setup() {
   Wire.write(0x6B); // PWR_MGMT_1 register
   Wire.write(0x00); // Wake up!
   Wire.endTransmission();
+  Serial.println("[BOOT] MPU6050 Woken.");
   
-  Serial.println("Quake Node Initialized (Raw I2C Mode)");
-  
+  Serial.println("[BOOT] Connecting to WiFi...");
   connectWiFi();
+  Serial.println("[BOOT] WiFi Connected!");
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
-  client.setInsecure(); // Allow connection to WSS
+  client.setInsecure();
+  Serial.println("[BOOT] WebSocket Configured.");
+  
+  Serial.println("[BOOT] Connecting to Server...");
   client.connect(WS_URL);
+  Serial.println("[BOOT] Setup Complete!");
 }
 
 void loop() {
