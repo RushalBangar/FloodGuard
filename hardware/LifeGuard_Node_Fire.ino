@@ -18,8 +18,8 @@
 using namespace websockets;
 
 // --- Configuration ---
-const char* WIFI_SSID = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID = "Tiger";
+const char* WIFI_PASSWORD = "rushi123";
 const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws"; 
 
 // --- Pin Definitions ---
