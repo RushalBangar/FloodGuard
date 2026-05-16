@@ -40,17 +40,16 @@ unsigned long lastUpdate = 0;
 void setup() {
   delay(2000);
   Serial.begin(115200);
-  Serial.println("\n[BOOT] Setup starting...");
+  Serial.println("\n[BOOT] Flood Node Starting...");
   
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
   pinMode(RAIN_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
-  Serial.println("[BOOT] Pins initialized.");
+  Serial.println("[BOOT] Pins Initialized.");
   
   digitalWrite(LED_PIN, HIGH);
-  Serial.println("[BOOT] LED On.");
   
   Serial.println("[BOOT] Connecting to WiFi...");
   connectWiFi();
@@ -66,37 +65,46 @@ void setup() {
     now = time(nullptr);
   }
   Serial.println("\n[BOOT] Time Synced!");
+  
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
+  Serial.println("[BOOT] WebSocket Configured.");
+  
   client.setInsecure();
   
-  // Browser headers to ensure compatibility
+  // Add Browser-like headers to fool the server
   client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
-  client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ESP32-LifeGuard");
+  client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
+  Serial.println("[BOOT] WebSocket Configured with Browser Headers.");
   
-  Serial.println("[BOOT] WebSocket client configured.");
+  // Resolve IP Address to check DNS
+  IPAddress serverIP;
+  if (WiFi.hostByName("floodguard-8sfc.onrender.com", serverIP)) {
+    Serial.print("[BOOT] Server IP Found: ");
+    Serial.println(serverIP);
+  } else {
+    Serial.println("[BOOT] DNS FAILED! ESP32 cannot find the server address.");
+  }
   
-  Serial.println("[BOOT] Connecting to Server...");
+  Serial.println("[BOOT] Connecting to Server (Final Attempt)...");
   bool connected = client.connect(WS_URL);
   if (connected) {
-    Serial.println("[BOOT] Setup complete! Connected to LifeGuard Server.");
+    Serial.println("[BOOT] SUCCESS! Connected to LifeGuard Server.");
   } else {
-    Serial.println("[BOOT] CONNECTION FAILED! Check Render Dashboard Logs.");
+    Serial.println("[BOOT] STILL FAILED. Your ISP or Router might be blocking WebSockets.");
   }
 }
-
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
   if (client.available()) client.poll();
   else { 
-    Serial.println("[WS] Reconnecting...");
-    client.setInsecure(); 
+    client.setInsecure();
     client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
-    client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ESP32-LifeGuard");
+    client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
     client.connect(WS_URL); 
-    delay(5000); 
+    delay(10000); 
   }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
@@ -106,15 +114,12 @@ void loop() {
 }
 
 void connectWiFi() {
-  Serial.print("Connecting to WiFi...");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) { delay(500); Serial.print("."); }
-  Serial.println("\nConnected!");
+  while (WiFi.status() != WL_CONNECTED) { delay(500); }
 }
 
 float getWaterLevel() {
-  // Speed of sound compensation: v = 331.3 + (0.606 * Temp)
-  // Assuming 25 degrees if no temp sensor is present on this node
+  // Speed of sound compensation
   float speedOfSound = 331.3 + (0.606 * 25.0); 
   float speedInCmPerMicro = speedOfSound / 10000.0;
 
@@ -137,6 +142,9 @@ void sendSensorData() {
   float waterLevel = getWaterLevel();
   float rainfall = getRainfall();
 
+  Serial.print("[DATA] Water Level: "); Serial.print(waterLevel * 100);
+  Serial.print("% | Rainfall: "); Serial.println(rainfall);
+
   StaticJsonDocument<200> doc;
   doc["type"] = "sensor_data";
   doc["node_id"] = "node_flood_01";
@@ -151,9 +159,9 @@ void sendSensorData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(API_URL);
-    http.setTimeout(10000); // 10 second timeout for slow Render responses
+    http.setTimeout(10000); // 10 second timeout
     http.addHeader("Content-Type", "application/json");
-    http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ESP32-LifeGuard");
+    http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
     
     int httpResponseCode = http.POST(json);
     
@@ -187,4 +195,3 @@ void onMessageCallback(WebsocketsMessage message) {
     tone(BUZZER_PIN, 1500, 2000);
   }
 }
-
