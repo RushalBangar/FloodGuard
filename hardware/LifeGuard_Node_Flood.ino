@@ -31,7 +31,7 @@ const char* API_URL = "https://floodguard-8sfc.onrender.com/api/sensor-data";
 
 // --- Constants ---
 const float MAX_DISTANCE = 200.0;
-const int UPDATE_INTERVAL = 5000; 
+const int UPDATE_INTERVAL = 3000; 
 
 // --- Global Objects ---
 WebsocketsClient client;
@@ -168,7 +168,7 @@ void sendSensorData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(API_URL);
-    http.setTimeout(5000); // 5 second timeout (server is now stable)
+    http.setTimeout(3000); // 3 second timeout
     http.addHeader("Content-Type", "application/json");
     http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
     
