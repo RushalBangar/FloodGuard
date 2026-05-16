@@ -29,8 +29,8 @@ def create_app():
     app.register_blueprint(api)
     app.register_blueprint(api_bp, url_prefix='/api')
     
-    # Start AI listeners
-    from .ai_listener import start_background_thread
-    start_background_thread()
+    # Start AI listeners (Optional: Disabled to save memory on Render Free Tier)
+    # from .ai_listener import start_background_thread
+    # start_background_thread()
     
     return app
