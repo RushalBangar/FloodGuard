@@ -33,9 +33,9 @@ def calculate_quake_risk(vib_x, vib_y, vib_z, shock_alert):
     16384 LSB/g is the standard sensitivity.
     """
     # Convert to G-force
-    gx = vib_x / 16384.0
-    gy = vib_y / 16384.0
-    gz = vib_z / 16384.0
+    gx = vib_x 
+    gy = vib_y 
+    gz = vib_z 
     
     # Resultant Acceleration (Vector Sum)
     # Normal gravity is 1.0g. We subtract 1.0 to get 'Excess Acceleration'

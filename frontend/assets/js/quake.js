@@ -77,9 +77,9 @@
                   const data = snap.docs[0].data();
                   
                   // Update DOM
-                  document.getElementById('vibXVal').textContent = (data.vibration_x || 0).toFixed(2);
-                  document.getElementById('vibYVal').textContent = (data.vibration_y || 0).toFixed(2);
-                  document.getElementById('vibZVal').textContent = (data.vibration_z || 0).toFixed(2);
+                  document.getElementById('vibXVal').textContent = (data.vib_x || 0).toFixed(2);
+                  document.getElementById('vibYVal').textContent = (data.vib_y || 0).toFixed(2);
+                  document.getElementById('vibZVal').textContent = (data.vib_z || 0).toFixed(2);
                   
                   const shockVal = data.shock_alert ? 'YES' : 'NO';
                   const shockEl = document.getElementById('shockVal');
@@ -87,7 +87,7 @@
                   shockEl.style.color = data.shock_alert ? '#ff4b2b' : '#4ade80';
 
                   updateRiskUI(data.ai_risk_score || 0);
-                  updateChart(data.vibration_x || 0);
+                  updateChart(data.vib_x || 0);
               }
           });
       });
