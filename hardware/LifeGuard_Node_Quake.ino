@@ -2,18 +2,15 @@
  * LifeGuard ESP32 Node 2: Earthquake & Structural Vibration Monitoring
  * 
  * Sensors:
- * - MPU6050 (I2C) -> 3-Axis Acceleration & Gyro
+ * - MPU6050 (Raw I2C) -> 3-Axis Acceleration
  * - SW420 (Digital) -> Vibration/Shock Detection
  * 
- * Node Description:
- * Detects seismic activity and structural tremors.
+ * Version: 2.0 (Library-Free for maximum compatibility)
  */
 
 #include <WiFi.h>
 #include <ArduinoWebsockets.h>
 #include <ArduinoJson.h>
-#include <Adafruit_MPU6050.h>
-#include <Adafruit_Sensor.h>
 #include <Wire.h>
 
 using namespace websockets;
@@ -32,7 +29,6 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 
 // --- Global Objects ---
 WebsocketsClient client;
-Adafruit_MPU6050 mpu;
 unsigned long lastUpdate = 0;
 const int UPDATE_INTERVAL = 2000; 
 
@@ -42,38 +38,36 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
   
-  digitalWrite(LED_PIN, HIGH);
-  // Initialize I2C with defined pins and wait for stabilization
+  digitalWrite(LED_PIN, HIGH); // On during setup
+  
+  // Initialize I2C
   Wire.begin(I2C_SDA, I2C_SCL);
-  delay(200);
+  delay(500);
 
-  // Forced Manual Wake-up (Bypass library init issues)
+  // Manual Wake-up for MPU6050
   Wire.beginTransmission(0x68);
   Wire.write(0x6B); // PWR_MGMT_1 register
   Wire.write(0x00); // Wake up!
   Wire.endTransmission();
-  delay(100);
   
-  if (!mpu.begin(0x68)) {
-    Serial.println("Failed to find MPU6050 chip at 0x68");
-    while (1) { delay(10); }
-  }
+  Serial.println("Quake Node Initialized (Raw I2C Mode)");
   
-  Serial.println("MPU6050 Found!");
   connectWiFi();
-
-
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
   client.connect(WS_URL);
 }
 
-
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
-  if (client.available()) client.poll();
-  else { client.connect(WS_URL); delay(2000); }
+  
+  if (client.available()) {
+    client.poll();
+  } else {
+    client.connect(WS_URL);
+    delay(2000);
+  }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
     sendSensorData();
@@ -82,29 +76,52 @@ void loop() {
 }
 
 void connectWiFi() {
+  Serial.print("Connecting to WiFi...");
   WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) { delay(500); }
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nConnected!");
 }
 
 void sendSensorData() {
-  sensors_event_t a, g, temp;
-  mpu.getEvent(&a, &g, &temp);
+  // Read 6 bytes of acceleration data starting from register 0x3B
+  Wire.beginTransmission(0x68);
+  Wire.write(0x3B); 
+  Wire.endTransmission(false);
+  Wire.requestFrom(0x68, 6, true);
+
+  // Combine high and low bytes
+  int16_t rawX = Wire.read() << 8 | Wire.read();
+  int16_t rawY = Wire.read() << 8 | Wire.read();
+  int16_t rawZ = Wire.read() << 8 | Wire.read();
+
+  // Convert to G-force (LSB sensitivity at +/- 2g is 16384 LSB/g)
+  float ax = (float)rawX / 16384.0;
+  float ay = (float)rawY / 16384.0;
+  float az = (float)rawZ / 16384.0;
 
   bool shock = digitalRead(VIBRATION_PIN) == HIGH;
 
   StaticJsonDocument<300> doc;
   doc["type"] = "sensor_data";
   doc["node_id"] = "node_quake_01";
-  doc["vib_x"] = a.acceleration.x;
-  doc["vib_y"] = a.acceleration.y;
-  doc["vib_z"] = a.acceleration.z;
+  doc["vib_x"] = ax;
+  doc["vib_y"] = ay;
+  doc["vib_z"] = az;
   doc["shock_alert"] = shock;
 
   String json;
   serializeJson(doc, json);
   client.send(json);
   
-  if (shock || abs(a.acceleration.x) > 15 || abs(a.acceleration.y) > 15) {
+  Serial.print("Accel X: "); Serial.print(ax);
+  Serial.print(" Y: "); Serial.print(ay);
+  Serial.print(" Z: "); Serial.println(az);
+
+  // Alert Logic (High G-force or vibration)
+  if (shock || abs(ax) > 1.5 || abs(ay) > 1.5) {
     digitalWrite(LED_PIN, HIGH);
     tone(BUZZER_PIN, 2000, 500);
   } else {
@@ -122,4 +139,3 @@ void onMessageCallback(WebsocketsMessage message) {
     tone(BUZZER_PIN, 2500, 2000);
   }
 }
-
