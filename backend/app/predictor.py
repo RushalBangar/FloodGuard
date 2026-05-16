@@ -70,15 +70,20 @@ def calculate_quake_risk(vib_x, vib_y, vib_z, shock_alert):
     }
 
 def calculate_fire_risk(gas_ppm, temperature, humidity, flame_detected):
-    # Mock AI calculation for fire
-    risk_score = (gas_ppm / 1000.0) * 40 + (temperature / 50.0) * 30 + ((100 - humidity) / 100.0) * 10
+    # Adjusted for ESP32 12-bit ADC (0-4095)
+    # Subtracting a baseline of 300 to ignore normal air fluctuations
+    normalized_gas = max(0, (gas_ppm - 300) / 3700.0)
+    
+    risk_score = (normalized_gas * 60) + (temperature / 60.0) * 20 + ((100 - humidity) / 100.0) * 10
+    
     if flame_detected:
-        risk_score += 60
+        risk_score += 80 # Heavy priority on actual fire
+        
     risk_percentage = min(risk_score, 100.0)
     
-    if risk_percentage < 30:
+    if risk_percentage < 35:
         status = "Normal"
-    elif risk_percentage < 70:
+    elif risk_percentage < 75:
         status = "Elevated Smoke"
     else:
         status = "High Fire Risk"
