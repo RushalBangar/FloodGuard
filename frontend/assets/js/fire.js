@@ -76,8 +76,11 @@
               if(!snap.empty) {
                   const data = snap.docs[0].data();
                   
+                  // Handle gas display (ppm or raw)
+                  let displayPPM = (data.gas_ppm !== undefined) ? data.gas_ppm : (data.gas_raw / 4095.0 * 2000);
+                  
                   // Update DOM
-                  document.getElementById('gasVal').textContent = (data.gas_ppm || 0).toFixed(1) + ' PPM';
+                  document.getElementById('gasVal').textContent = displayPPM.toFixed(1) + ' PPM';
                   document.getElementById('tempVal').textContent = (data.temperature || 25).toFixed(1) + ' °C';
                   document.getElementById('humVal').textContent = (data.humidity || 50).toFixed(1) + ' %';
                   
@@ -87,7 +90,7 @@
                   flameEl.style.color = data.flame_detected ? '#ff4b2b' : '#4ade80';
 
                   updateRiskUI(data.ai_risk_score || 0);
-                  updateChart(data.gas_ppm || 0);
+                  updateChart(displayPPM);
               }
           });
       });
