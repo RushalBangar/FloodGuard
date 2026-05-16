@@ -37,12 +37,50 @@
           window.LG_MESSAGING = messaging;
           
           messaging.onMessage((payload) => {
-            console.log('Message received. ', payload);
-            if (typeof window.showAlert === 'function') {
-                window.showAlert(payload.notification.title + ": " + payload.notification.body, "urgent");
+            console.log('[FCM] Message received in foreground:', payload);
+            const { title, body } = payload.notification;
+            if (window.showToast) {
+              window.showToast(`${title}: ${body}`, 'danger', 6000);
             }
           });
+
+          // Global function to request permission and register token
+          window.requestNotificationPermission = async function() {
+            try {
+              const permission = await Notification.requestPermission();
+              if (permission === 'granted') {
+                console.log('[FCM] Notification permission granted.');
+                
+                const token = await messaging.getToken({
+                  vapidKey: (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.VAPID_KEY !== 'YOUR_PUBLIC_VAPID_KEY') ? LG_CONFIG.VAPID_KEY : undefined
+                });
+
+                if (token) {
+                  console.log('[FCM] Token generated:', token);
+                  // Save token to Firestore for targeting
+                  await window.LG_DB.collection('push_tokens').doc(token).set({
+                    token: token,
+                    platform: 'web',
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+                    userAgent: navigator.userAgent
+                  });
+                  if (window.showToast) window.showToast('Emergency alerts enabled successfully!', 'success');
+                  return true;
+                } else {
+                  console.warn('[FCM] No registration token available.');
+                }
+              } else {
+                console.warn('[FCM] Unable to get permission to notify.');
+                if (window.showToast) window.showToast('Notification permission denied.', 'warning');
+              }
+            } catch (err) {
+              console.error('[FCM] Error during permission request:', err);
+              if (window.showToast) window.showToast('Failed to enable alerts. Check console.', 'danger');
+            }
+            return false;
+          };
         }
+
 
         console.log('Firebase initialized (client)');
         window.dispatchEvent(new CustomEvent('lg:firebase-ready', {detail:{available:true}}));

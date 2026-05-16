@@ -4,7 +4,23 @@
  * and graceful degradation during emergencies.
  */
 
+// Import Firebase SDKs for background messaging
+importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/9.22.2/firebase-messaging-compat.js');
+
+// Initialize Firebase in the Service Worker
+// (Hardcoded config to ensure background messaging works independently)
+firebase.initializeApp({
+  apiKey: "AIzaSyBtWqoJgOOB9yGJzmPI1WR3dbIkNjB3UtE",
+  projectId: "floodguard-a024c",
+  messagingSenderId: "913368784119",
+  appId: "1:913368784119:web:9b7d93b64986ff5d6407f2"
+});
+
+const messaging = firebase.messaging();
+
 const CACHE_NAME = 'lifeguard-v2';
+
 const OFFLINE_URL = '/offline.html';
 
 // Assets to pre-cache on install
@@ -133,25 +149,28 @@ async function syncQueuedSOS() {
   });
 }
 
-// ─── PUSH NOTIFICATIONS (for future use) ───
-self.addEventListener('push', event => {
-  const data = event.data ? event.data.json() : {};
-  const options = {
-    body: data.body || 'Emergency alert from Life Guard',
+// ─── PUSH NOTIFICATIONS (FCM) ───
+messaging.onBackgroundMessage((payload) => {
+  console.log('[SW] Background message received:', payload);
+  
+  const notificationTitle = payload.notification.title || '🚨 LifeGuard Alert';
+  const notificationOptions = {
+    body: payload.notification.body || 'Emergency alert received.',
     icon: '/assets/img/logo.png',
     badge: '/assets/img/logo.png',
     vibrate: [200, 100, 200, 100, 200],
     tag: 'lifeguard-alert',
+    data: payload.data, // Preserve custom data
     requireInteraction: true,
     actions: [
       { action: 'open', title: 'Open Dashboard' },
       { action: 'dismiss', title: 'Dismiss' }
     ]
   };
-  event.waitUntil(
-    self.registration.showNotification(data.title || '🚨 Life Guard Alert', options)
-  );
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
 });
+
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();

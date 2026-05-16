@@ -35,6 +35,10 @@ const LG_CONFIG = {
     measurementId: "G-RHRH43R0W4"
   },
 
+  // FCM Public VAPID Key (Get this from Firebase Console > Project Settings > Cloud Messaging)
+  VAPID_KEY: "BL2SyAJ0NSopBdpta91gLEWZKo62xPIp_T6ycETRM-wM3bRiXlebYCFG7xvxho-HxXpPrmx3tERjvuTCu-uv3lc",
+
+
   // Thresholds (tweak to match your sensor units)
   WATER_LEVEL_THRESHOLD: 0.7, // example: fraction or metres depending on your device
   TEMPERATURE_THRESHOLD: null,

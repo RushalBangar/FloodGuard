@@ -129,12 +129,18 @@
     </section>
 
     <div class="rescue-layout">
-        <div class="rescue-sidebar">
+            <div id="alertConfig" style="margin-top: 1rem; padding: 1rem; background: rgba(0, 210, 255, 0.05); border: 1px solid var(--glass-border); border-radius: 16px; margin-bottom: 2rem;">
+                <h4 style="font-size: 0.8rem; margin-bottom: 0.5rem; color: var(--primary);">Real-Time Notifications</h4>
+                <p style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.8rem;">Enable browser alerts to receive SOS signals even when this tab is closed.</p>
+                <button id="enablePushBtn" class="hero-btn primary-btn" style="width: 100%; padding: 0.6rem; font-size: 0.8rem;">ENABLE ALERTS</button>
+            </div>
+
             <h3 style="margin-bottom:1.5rem;" data-i18n="sidebar_sos_title">Active SOS Signals</h3>
             <div id="sosList">
                 <p style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>
             </div>
         </div>
+
         <div class="rescue-main">
             <div id="map"></div>
         </div>
@@ -302,7 +308,32 @@
     function init(){
       loadGoogleMaps();
 
+      // Enable Push Alerts
+      const pushBtn = document.getElementById('enablePushBtn');
+      if (pushBtn) {
+          pushBtn.addEventListener('click', async () => {
+              if (window.requestNotificationPermission) {
+                  const success = await window.requestNotificationPermission();
+                  if (success) {
+                      pushBtn.textContent = 'ALERTS ENABLED';
+                      pushBtn.classList.remove('primary-btn');
+                      pushBtn.classList.add('ghost-btn');
+                      pushBtn.disabled = true;
+                  }
+              }
+          });
+          
+          // Check if already granted
+          if (Notification.permission === 'granted') {
+              pushBtn.textContent = 'ALERTS ACTIVE';
+              pushBtn.classList.remove('primary-btn');
+              pushBtn.classList.add('ghost-btn');
+              pushBtn.disabled = true;
+          }
+      }
+
       // Generate rain drops
+
       const rainContainer = document.getElementById('rain');
       for (let i = 0; i < 50; i++) {
           const drop = document.createElement('div');
