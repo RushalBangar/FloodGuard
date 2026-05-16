@@ -307,37 +307,44 @@
       }
 
       window.addEventListener('lg:firebase-ready', (ev) => {
-          if (!ev.detail || !ev.detail.available || !window.LG_DB) return;
+          console.log('[Firebase] Ready state:', ev.detail.available);
+          if (!ev.detail || !ev.detail.available || !window.LG_DB) {
+            console.warn('[Firebase] Database not available for real-time updates.');
+            return;
+          }
 
           // Listen to Flood Data
           LG_DB.collection('flood_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
                   const data = snap.docs[0].data();
+                  console.log('[Firebase] New Flood Data:', data);
                   riskScores.flood = data.ai_risk_score || 0;
                   updateDashboard();
                   updateDetailedLabels(data);
               }
-          });
+          }, err => console.error('[Firebase] Flood stream error:', err));
 
           // Listen to Quake Data
           LG_DB.collection('quake_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
                   const data = snap.docs[0].data();
+                  console.log('[Firebase] New Quake Data:', data);
                   riskScores.quake = data.ai_risk_score || 0;
                   updateDashboard();
                   updateDetailedLabels(data);
               }
-          });
+          }, err => console.error('[Firebase] Quake stream error:', err));
 
           // Listen to Fire Data
           LG_DB.collection('fire_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
                   const data = snap.docs[0].data();
+                  console.log('[Firebase] New Fire Data:', data);
                   riskScores.fire = data.ai_risk_score || 0;
                   updateDashboard();
                   updateDetailedLabels(data);
               }
-          });
+          }, err => console.error('[Firebase] Fire stream error:', err));
 
           // Listen for simulation data (Keep for testing)
           window.addEventListener('lg:sim-data', (e) => {
