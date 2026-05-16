@@ -216,6 +216,7 @@
         map = new google.maps.Map(document.getElementById('map'), { 
             center: {lat:20.0, lng:78.0}, 
             zoom:5,
+            mapId: "DEMO_MAP_ID",
             disableDefaultUI: true,
             zoomControl: true,
             gestureHandling: 'greedy',
@@ -300,7 +301,7 @@
       }
 
       const script = document.createElement('script');
-      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=visualization&callback=rescueMapInitGlobal';
+      script.src = 'https://maps.googleapis.com/maps/api/js?key=' + key + '&libraries=visualization,marker&callback=rescueMapInitGlobal';
       script.async = true; script.defer = true;
       document.head.appendChild(script);
     }
@@ -397,14 +398,22 @@
         const isSOS = data.isSOS || false;
         const pos = {lat, lng};
 
-        if(markers[id]) markers[id].setPosition(pos);
+        if(markers[id]) markers[id].position = pos;
         else {
-            markers[id] = new google.maps.Marker({
+            const pin = document.createElement('div');
+            pin.style.width = '14px';
+            pin.style.height = '14px';
+            pin.style.borderRadius = '50%';
+            pin.style.backgroundColor = isSOS ? 'var(--danger)' : 'var(--primary)';
+            pin.style.border = '2px solid white';
+            pin.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+            if(isSOS) pin.classList.add('sos-ping');
+
+            markers[id] = new google.maps.marker.AdvancedMarkerElement({
                 position: pos, 
                 map, 
                 title: data.name || 'User',
-                animation: isSOS ? google.maps.Animation.BOUNCE : null,
-                icon: isSOS ? 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' : 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                content: pin
             });
         }
 

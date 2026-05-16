@@ -16,7 +16,8 @@ def create_app():
         app = Flask(__name__)
     
     # Allow cross-origin requests from the Vercel frontend
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, supports_credentials=True)
+
     
     # Initialize extensions
     sock.init_app(app)
