@@ -23,6 +23,7 @@ def broadcast(obj):
 def websocket(ws):
     client_id = uuid.uuid4().hex[:8]
     clients.add(ws)
+    print(f"[WS] Device connected! Client ID: {client_id}")
     try:
         ws.send(json.dumps({'type':'welcome', 'id': client_id}))
         
