@@ -24,8 +24,8 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 #define TRIG_PIN 5
 #define ECHO_PIN 18
 #define RAIN_PIN 34
-#define BUZZER_PIN 19
-#define LED_PIN 2
+#define BUZZER_PIN 13
+#define LED_PIN 14
 
 // --- Constants ---
 const float MAX_DISTANCE = 200.0;
@@ -38,19 +38,30 @@ unsigned long lastUpdate = 0;
 void setup() {
   delay(2000);
   Serial.begin(115200);
+  Serial.println("\n[BOOT] Setup starting...");
+  
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
   pinMode(RAIN_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
+  Serial.println("[BOOT] Pins initialized.");
   
-  digitalWrite(LED_PIN, HIGH); // On during setup
+  digitalWrite(LED_PIN, HIGH);
+  Serial.println("[BOOT] LED On.");
+  
+  Serial.println("[BOOT] Connecting to WiFi...");
   connectWiFi();
+  Serial.println("[BOOT] WiFi Connected!");
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
-  client.setInsecure(); // Allow connection to WSS
+  client.setInsecure();
+  Serial.println("[BOOT] WebSocket client configured.");
+  
+  Serial.println("[BOOT] Connecting to Server...");
   client.connect(WS_URL);
+  Serial.println("[BOOT] Setup complete!");
 }
 
 

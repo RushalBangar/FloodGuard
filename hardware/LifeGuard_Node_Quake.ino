@@ -22,8 +22,8 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 
 // --- Pin Definitions ---
 #define VIBRATION_PIN 27 // SW420 Digital Out
-#define BUZZER_PIN 19
-#define LED_PIN 2
+#define BUZZER_PIN 13
+#define LED_PIN 14
 #define I2C_SDA 21
 #define I2C_SCL 22
 

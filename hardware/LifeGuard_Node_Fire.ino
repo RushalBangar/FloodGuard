@@ -27,8 +27,8 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 #define DHT_TYPE DHT11
 #define MQ135_PIN 35
 #define FLAME_PIN 32
-#define BUZZER_PIN 19
-#define LED_PIN 2
+#define BUZZER_PIN 13
+#define LED_PIN 14
 
 // --- Global Objects ---
 WebsocketsClient client;
