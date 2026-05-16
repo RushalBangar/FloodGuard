@@ -279,34 +279,67 @@
       // Initialize
       loadGoogleMaps();
 
+      function updateDetailedLabels(data) {
+          const labels = {
+              'waterLevelVal': data.water_level !== undefined ? (data.water_level * 100).toFixed(0) + '%' : null,
+              'rainVal': data.rainfall !== undefined ? data.rainfall + 'mm/h' : null,
+              'tremorVal': data.vib_z !== undefined ? (data.vib_z).toFixed(1) + 'g' : null,
+              'vibXVal': data.vib_x !== undefined ? (data.vib_x).toFixed(2) : null,
+              'vibYVal': data.vib_y !== undefined ? (data.vib_y).toFixed(2) : null,
+              'vibZVal': data.vib_z !== undefined ? (data.vib_z).toFixed(2) : null,
+              'shockVal': data.shock_alert !== undefined ? (data.shock_alert ? 'YES' : 'NO') : null,
+              'gasVal': data.gas_ppm !== undefined ? (data.gas_ppm).toFixed(1) + ' ppm' : null,
+              'tempVal': data.temperature !== undefined ? (data.temperature).toFixed(1) + ' °C' : null,
+              'humVal': data.humidity !== undefined ? (data.humidity).toFixed(1) + ' %' : null,
+              'flameVal': data.flame_detected !== undefined ? (data.flame_detected ? 'YES' : 'NO') : null
+          };
+
+          for(let id in labels) {
+              if (labels[id] === null) continue;
+              const el = document.getElementById(id);
+              if(el) {
+                  el.textContent = labels[id];
+                  if (id === 'flameVal' || id === 'shockVal') {
+                    el.style.color = (labels[id] === 'YES') ? '#ff4b2b' : '#4ade80';
+                  }
+              }
+          }
+      }
+
       window.addEventListener('lg:firebase-ready', (ev) => {
           if (!ev.detail || !ev.detail.available || !window.LG_DB) return;
 
           // Listen to Flood Data
           LG_DB.collection('flood_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
-                  riskScores.flood = snap.docs[0].data().ai_risk_score || 0;
+                  const data = snap.docs[0].data();
+                  riskScores.flood = data.ai_risk_score || 0;
                   updateDashboard();
+                  updateDetailedLabels(data);
               }
           });
 
           // Listen to Quake Data
           LG_DB.collection('quake_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
-                  riskScores.quake = snap.docs[0].data().ai_risk_score || 0;
+                  const data = snap.docs[0].data();
+                  riskScores.quake = data.ai_risk_score || 0;
                   updateDashboard();
+                  updateDetailedLabels(data);
               }
           });
 
           // Listen to Fire Data
           LG_DB.collection('fire_data').orderBy('timestamp', 'desc').limit(1).onSnapshot(snap => {
               if(!snap.empty) {
-                  riskScores.fire = snap.docs[0].data().ai_risk_score || 0;
+                  const data = snap.docs[0].data();
+                  riskScores.fire = data.ai_risk_score || 0;
                   updateDashboard();
+                  updateDetailedLabels(data);
               }
           });
 
-          // Listen for simulation data
+          // Listen for simulation data (Keep for testing)
           window.addEventListener('lg:sim-data', (e) => {
               const data = e.detail;
               riskScores.flood = Math.round(data.water_level * 100);
@@ -314,31 +347,7 @@
               riskScores.fire = Math.round((data.gas_ppm / 2000) * 100);
               
               updateDashboard();
-
-              // Update extra labels if they exist (from other scripts)
-              const labels = {
-                  'waterLevelVal': (data.water_level * 100).toFixed(0) + '%',
-                  'rainVal': data.rainfall + 'mm/h',
-                  'tremorVal': (data.vib_z || 0).toFixed(1) + 'g',
-                  'vibXVal': (data.vib_x || 0).toFixed(2),
-                  'vibYVal': (data.vib_y || 0).toFixed(2),
-                  'vibZVal': (data.vib_z || 0).toFixed(2),
-                  'shockVal': data.shock_alert ? 'YES' : 'NO',
-                  'gasVal': (data.gas_ppm || 0).toFixed(1) + ' ppm',
-                  'tempVal': (data.temperature || 0).toFixed(1) + ' °C',
-                  'humVal': (data.humidity || 0).toFixed(1) + ' %',
-                  'flameVal': data.flame_detected ? 'YES' : 'NO'
-              };
-              for(let id in labels) {
-                  const el = document.getElementById(id);
-                  if(el) {
-                      el.textContent = labels[id];
-                      if (id === 'flameVal' || id === 'shockVal') {
-                        el.style.color = (labels[id] === 'YES') ? '#ff4b2b' : '#4ade80';
-                      }
-                  }
-              }
-
+              updateDetailedLabels(data);
           });
       });
   });
