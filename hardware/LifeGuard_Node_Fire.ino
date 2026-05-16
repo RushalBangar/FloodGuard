@@ -28,6 +28,7 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 #define MQ135_PIN 35
 #define FLAME_PIN 32
 #define BUZZER_PIN 19
+#define LED_PIN 2
 
 // --- Global Objects ---
 WebsocketsClient client;
@@ -40,11 +41,17 @@ void setup() {
   pinMode(MQ135_PIN, INPUT);
   pinMode(FLAME_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   
+  digitalWrite(LED_PIN, HIGH);
   dht.begin();
   connectWiFi();
+  digitalWrite(LED_PIN, LOW);
+  
+  client.onMessage(onMessageCallback);
   client.connect(WS_URL);
 }
+
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
@@ -66,8 +73,8 @@ void sendSensorData() {
   float h = dht.readHumidity();
   float t = dht.readTemperature();
   int gasRaw = analogRead(MQ135_PIN);
-  float gasPPM = map(gasRaw, 0, 4095, 0, 2000); // Simplified mapping
-  bool flame = digitalRead(FLAME_PIN) == LOW; // Usually LOW when flame detected
+  float gasPPM = map(gasRaw, 0, 4095, 0, 2000); 
+  bool flame = digitalRead(FLAME_PIN) == LOW; 
 
   if (isnan(h) || isnan(t)) return;
 
@@ -84,8 +91,22 @@ void sendSensorData() {
   client.send(json);
   
   if (flame || gasPPM > 500) {
-    tone(BUZZER_PIN, 1500); // Local alert
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 1500); 
   } else {
+    digitalWrite(LED_PIN, LOW);
     noTone(BUZZER_PIN);
   }
 }
+
+void onMessageCallback(WebsocketsMessage message) {
+  StaticJsonDocument<300> doc;
+  deserializeJson(doc, message.data());
+  String type = doc["type"];
+  
+  if (type == "prediction" && doc["status"] == "Danger") {
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 2000, 2000);
+  }
+}
+

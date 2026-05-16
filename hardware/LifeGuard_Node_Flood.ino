@@ -25,6 +25,7 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 #define ECHO_PIN 18
 #define RAIN_PIN 34
 #define BUZZER_PIN 19
+#define LED_PIN 2
 
 // --- Constants ---
 const float MAX_DISTANCE = 200.0;
@@ -40,11 +41,16 @@ void setup() {
   pinMode(ECHO_PIN, INPUT);
   pinMode(RAIN_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   
+  digitalWrite(LED_PIN, HIGH); // On during setup
   connectWiFi();
+  digitalWrite(LED_PIN, LOW);
+  
   client.onMessage(onMessageCallback);
   client.connect(WS_URL);
 }
+
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
@@ -80,17 +86,37 @@ float getRainfall() {
 }
 
 void sendSensorData() {
+  float waterLevel = getWaterLevel();
+  float rainfall = getRainfall();
+
   StaticJsonDocument<200> doc;
   doc["type"] = "sensor_data";
   doc["node_id"] = "node_flood_01";
-  doc["water_level"] = getWaterLevel();
-  doc["rainfall"] = getRainfall();
+  doc["water_level"] = waterLevel;
+  doc["rainfall"] = rainfall;
 
   String json;
   serializeJson(doc, json);
   client.send(json);
+
+  // Local Alert Logic
+  if (waterLevel > 0.7 || rainfall > 30) {
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 1000);
+  } else {
+    digitalWrite(LED_PIN, LOW);
+    noTone(BUZZER_PIN);
+  }
 }
 
 void onMessageCallback(WebsocketsMessage message) {
-  // Handle alerts/commands from server
+  StaticJsonDocument<300> doc;
+  deserializeJson(doc, message.data());
+  String type = doc["type"];
+  
+  if (type == "prediction" && doc["status"] == "Danger") {
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 1500, 2000);
+  }
 }
+

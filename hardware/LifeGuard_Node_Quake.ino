@@ -26,6 +26,7 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 // --- Pin Definitions ---
 #define VIBRATION_PIN 27 // SW420 Digital Out
 #define BUZZER_PIN 19
+#define LED_PIN 2
 #define I2C_SDA 21
 #define I2C_SCL 22
 
@@ -33,13 +34,15 @@ const char* WS_URL = "wss://floodguard-8sfc.onrender.com/ws";
 WebsocketsClient client;
 Adafruit_MPU6050 mpu;
 unsigned long lastUpdate = 0;
-const int UPDATE_INTERVAL = 2000; // Faster updates for tremors
+const int UPDATE_INTERVAL = 2000; 
 
 void setup() {
   Serial.begin(115200);
   pinMode(VIBRATION_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(LED_PIN, OUTPUT);
   
+  digitalWrite(LED_PIN, HIGH);
   // Initialize I2C with defined pins
   Wire.begin(I2C_SDA, I2C_SCL);
   
@@ -49,8 +52,12 @@ void setup() {
   }
   
   connectWiFi();
+  digitalWrite(LED_PIN, LOW);
+  
+  client.onMessage(onMessageCallback);
   client.connect(WS_URL);
 }
+
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
@@ -86,7 +93,22 @@ void sendSensorData() {
   serializeJson(doc, json);
   client.send(json);
   
-  if (shock) {
-    tone(BUZZER_PIN, 2000, 200); // Local warning
+  if (shock || abs(a.acceleration.x) > 15 || abs(a.acceleration.y) > 15) {
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 2000, 500);
+  } else {
+    digitalWrite(LED_PIN, LOW);
   }
 }
+
+void onMessageCallback(WebsocketsMessage message) {
+  StaticJsonDocument<300> doc;
+  deserializeJson(doc, message.data());
+  String type = doc["type"];
+  
+  if (type == "prediction" && doc["status"] == "Danger") {
+    digitalWrite(LED_PIN, HIGH);
+    tone(BUZZER_PIN, 2500, 2000);
+  }
+}
+
