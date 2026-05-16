@@ -180,34 +180,45 @@
     }
 
     const startSharingBtn = document.getElementById('start-sharing');
+    const stopSharingBtn = document.getElementById('stop-sharing');
+
     if (startSharingBtn) {
       startSharingBtn.addEventListener('click', ()=>{
         if(!navigator.geolocation) return alert('Geolocation not supported');
+        
         watchId = navigator.geolocation.watchPosition(pos=>{
           const lat = pos.coords.latitude, lng = pos.coords.longitude;
-          if(socket && socket.readyState === WebSocket.OPEN){ socket.send(JSON.stringify({type:'location', lat, lng})); }
-        });
+          
+          // 1. Broadcast via WebSocket
+          if(socket && socket.readyState === WebSocket.OPEN){ 
+            socket.send(JSON.stringify({type:'location', lat, lng})); 
+          }
+          
+          // 2. Write to Firestore
+          if(window.LG_DB) {
+              const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.LOCATION_COLLECTION) ? LG_CONFIG.LOCATION_COLLECTION : 'user_locations';
+              const uid = (socket && socket.id) ? socket.id : 'anon_' + Math.random().toString(36).substr(2, 9);
+              LG_DB.collection(colName).doc(uid).set({
+                  lat, lng,
+                  updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+              }, { merge: true });
+          }
+        }, (err) => {
+          console.error('Geolocation error:', err);
+        }, { enableHighAccuracy: true });
+
+        startSharingBtn.hidden = true;
+        if (stopSharingBtn) stopSharingBtn.hidden = false;
       });
     }
-        // 2. Write to Firestore
-        if(window.LG_DB) {
-            const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.LOCATION_COLLECTION) ? LG_CONFIG.LOCATION_COLLECTION : 'user_locations';
-            const uid = socket ? (socket.id || 'me') : 'anon_' + Math.random().toString(36).substr(2, 9);
-            LG_DB.collection(colName).doc(uid).set({
-                lat, lng,
-                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-            }, { merge: true });
-        }
-      }, null, { enableHighAccuracy: true });
-      document.getElementById('start-sharing').hidden = true;
-      document.getElementById('stop-sharing').hidden = false;
-    });
 
-    document.getElementById('stop-sharing').addEventListener('click', ()=>{
-      if(watchId !== null) navigator.geolocation.clearWatch(watchId);
-      document.getElementById('start-sharing').hidden = false;
-      document.getElementById('stop-sharing').hidden = true;
-    });
+    if (stopSharingBtn) {
+      stopSharingBtn.addEventListener('click', ()=>{
+        if(watchId !== null) navigator.geolocation.clearWatch(watchId);
+        if (startSharingBtn) startSharingBtn.hidden = false;
+        stopSharingBtn.hidden = true;
+      });
+    }
 
     document.getElementById('helpBtn').addEventListener('click', (ev)=>{
         const btn = ev.currentTarget;
