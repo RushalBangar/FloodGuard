@@ -171,18 +171,24 @@
     fetchWeather();
     setInterval(fetchWeather, 60000);
 
-    document.getElementById('test-alert').addEventListener('click', ()=>{
-      const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
-      fetch(backendUrl + '/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'System Alert: Flood risk assessment in progress.'})});
-    });
+    const testAlertBtn = document.getElementById('test-alert');
+    if (testAlertBtn) {
+      testAlertBtn.addEventListener('click', ()=>{
+        const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
+        fetch(backendUrl + '/api/alert', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'System Alert: Flood risk assessment in progress.'})});
+      });
+    }
 
-    document.getElementById('start-sharing').addEventListener('click', ()=>{
-      if(!navigator.geolocation) return alert('Geolocation not supported');
-      watchId = navigator.geolocation.watchPosition(pos=>{
-        const lat = pos.coords.latitude, lng = pos.coords.longitude;
-        // 1. Broadcast via WebSocket
-        if(socket && socket.readyState === WebSocket.OPEN){ socket.send(JSON.stringify({type:'location', lat, lng})); }
-        
+    const startSharingBtn = document.getElementById('start-sharing');
+    if (startSharingBtn) {
+      startSharingBtn.addEventListener('click', ()=>{
+        if(!navigator.geolocation) return alert('Geolocation not supported');
+        watchId = navigator.geolocation.watchPosition(pos=>{
+          const lat = pos.coords.latitude, lng = pos.coords.longitude;
+          if(socket && socket.readyState === WebSocket.OPEN){ socket.send(JSON.stringify({type:'location', lat, lng})); }
+        });
+      });
+    }
         // 2. Write to Firestore
         if(window.LG_DB) {
             const colName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.LOCATION_COLLECTION) ? LG_CONFIG.LOCATION_COLLECTION : 'user_locations';

@@ -168,7 +168,7 @@ void sendSensorData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(API_URL);
-    http.setTimeout(3000); // 3 second timeout
+    http.setTimeout(7000); // 7 second timeout (more reliable for Render)
     http.addHeader("Content-Type", "application/json");
     http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
     
