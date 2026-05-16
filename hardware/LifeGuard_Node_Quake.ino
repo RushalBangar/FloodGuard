@@ -43,15 +43,18 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   
   digitalWrite(LED_PIN, HIGH);
-  // Initialize I2C with defined pins
+  // Initialize I2C with defined pins and wait for stabilization
   Wire.begin(I2C_SDA, I2C_SCL);
+  delay(100);
   
-  if (!mpu.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
+  if (!mpu.begin(0x68)) {
+    Serial.println("Failed to find MPU6050 chip at 0x68");
     while (1) { delay(10); }
   }
   
+  Serial.println("MPU6050 Found!");
   connectWiFi();
+
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
