@@ -48,6 +48,7 @@ void setup() {
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
+  client.setInsecure(); // Allow connection to WSS
   client.connect(WS_URL);
 }
 
@@ -55,7 +56,7 @@ void setup() {
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
   if (client.available()) client.poll();
-  else { client.connect(WS_URL); delay(2000); }
+  else { client.setInsecure(); client.connect(WS_URL); delay(2000); }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
     sendSensorData();

@@ -86,10 +86,9 @@ def websocket(ws):
                     active_sos[client_id] = msg
                     
             elif obj.get('type') == 'sensor_data':
+                disaster_type = obj.get('disaster', 'flood')
+                print(f"[WS] Received {disaster_type.upper()} data from {obj.get('node_id')}")
                 from .predictor import calculate_flood_risk, calculate_quake_risk, calculate_fire_risk
-                
-                # Identify which disaster data is being sent
-                disaster_type = obj.get('disaster', 'flood') # default to flood
                 result = {'type': 'prediction', 'status': 'Normal', 'risk_percentage': 0}
 
                 if disaster_type == 'flood':

@@ -49,6 +49,7 @@ void setup() {
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
+  client.setInsecure(); // Allow connection to WSS
   client.connect(WS_URL);
 }
 
