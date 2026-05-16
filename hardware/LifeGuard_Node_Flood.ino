@@ -53,6 +53,17 @@ void setup() {
   Serial.println("[BOOT] Connecting to WiFi...");
   connectWiFi();
   Serial.println("[BOOT] WiFi Connected!");
+  
+  // Sync Time for SSL
+  Serial.println("[BOOT] Syncing Time...");
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  time_t now = time(nullptr);
+  while (now < 8 * 3600 * 2) {
+    delay(500);
+    Serial.print(".");
+    now = time(nullptr);
+  }
+  Serial.println("\n[BOOT] Time Synced!");
   digitalWrite(LED_PIN, LOW);
   
   client.onMessage(onMessageCallback);
@@ -60,13 +71,12 @@ void setup() {
   client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
   Serial.println("[BOOT] WebSocket client configured.");
   
-  Serial.println("[BOOT] Connecting to Server...");
-  // Using direct Host and Path for better compatibility
-  bool connected = client.connect("floodguard-8sfc.onrender.com", 443, "/ws");
+  Serial.println("[BOOT] Connecting to Server (SECURE)...");
+  bool connected = client.connect(WS_URL);
   if (connected) {
     Serial.println("[BOOT] Setup complete! Connected to LifeGuard Server.");
   } else {
-    Serial.println("[BOOT] CONNECTION FAILED! Check if the server is awake.");
+    Serial.println("[BOOT] CONNECTION FAILED! Check Render Dashboard Logs.");
   }
 }
 
@@ -76,9 +86,8 @@ void loop() {
   if (client.available()) client.poll();
   else { 
     client.setInsecure(); 
-    client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
-    client.connect("floodguard-8sfc.onrender.com", 443, "/ws"); 
-    delay(5000); 
+    client.connect("echo.websocket.org", 443, "/"); 
+    delay(10000); 
   }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
