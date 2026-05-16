@@ -117,7 +117,21 @@ def websocket(ws):
                 # Broadcast result to all clients
                 result['disaster'] = disaster_type
                 result['raw_data'] = obj
+                result['timestamp'] = time.time()
                 broadcast(result)
+
+                # Save to Firestore for the dashboard
+                if firebase_initialized and db:
+                    try:
+                        collection_name = f"{disaster_type}_data"
+                        db.collection(collection_name).add({
+                            **obj,
+                            'ai_risk_score': result['risk_percentage'],
+                            'status': result['status'],
+                            'timestamp': time.time()
+                        })
+                    except Exception as e:
+                        print(f"Firestore Save Error: {e}")
 
                 # Trigger push notification if in Danger
                 if result.get('status') in ['Danger', 'Structural Threat', 'High Fire Risk']:

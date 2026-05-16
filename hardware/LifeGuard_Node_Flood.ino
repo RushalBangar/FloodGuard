@@ -92,6 +92,7 @@ void sendSensorData() {
   StaticJsonDocument<200> doc;
   doc["type"] = "sensor_data";
   doc["node_id"] = "node_flood_01";
+  doc["disaster"] = "flood";
   doc["water_level"] = waterLevel;
   doc["rainfall"] = rainfall;
 

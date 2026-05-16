@@ -107,6 +107,7 @@ void sendSensorData() {
   StaticJsonDocument<300> doc;
   doc["type"] = "sensor_data";
   doc["node_id"] = "node_quake_01";
+  doc["disaster"] = "quake";
   doc["vib_x"] = ax;
   doc["vib_y"] = ay;
   doc["vib_z"] = az;
