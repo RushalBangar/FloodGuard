@@ -35,7 +35,7 @@ def receive_sensor_data():
             ))
         elif disaster_type == 'fire':
             result.update(calculate_fire_risk(
-                float(obj.get('gas_ppm', 0)),
+                float(obj.get('gas_raw', 0)),
                 float(obj.get('temperature', 25)),
                 float(obj.get('humidity', 50)),
                 obj.get('flame_detected', False)

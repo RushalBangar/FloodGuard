@@ -107,11 +107,17 @@ void connectWiFi() {
 }
 
 float getWaterLevel() {
+  // Speed of sound compensation: v = 331.3 + (0.606 * Temp)
+  // Assuming 25 degrees if no temp sensor is present on this node
+  float speedOfSound = 331.3 + (0.606 * 25.0); 
+  float speedInCmPerMicro = speedOfSound / 10000.0;
+
   digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
   digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
   long duration = pulseIn(ECHO_PIN, HIGH);
-  float distance = duration * 0.034 / 2;
+  
+  float distance = duration * speedInCmPerMicro / 2;
   float level = (MAX_DISTANCE - distance) / MAX_DISTANCE;
   return constrain(level, 0.0, 1.0);
 }

@@ -148,7 +148,7 @@ void sendSensorData() {
   doc["disaster"] = "fire";
   doc["temperature"] = t;
   doc["humidity"] = h;
-  doc["gas_ppm"] = gasPPM;
+  doc["gas_raw"] = gasRaw;
   doc["flame_detected"] = flame;
 
   String json;
