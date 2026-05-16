@@ -151,6 +151,7 @@ void sendSensorData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(API_URL);
+    http.setTimeout(10000); // 10 second timeout for slow Render responses
     http.addHeader("Content-Type", "application/json");
     http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) ESP32-LifeGuard");
     
