@@ -61,11 +61,12 @@ void setup() {
   Serial.println("[BOOT] WebSocket client configured.");
   
   Serial.println("[BOOT] Connecting to Server...");
-  bool connected = client.connect(WS_URL);
+  // Using direct Host and Path for better compatibility
+  bool connected = client.connect("floodguard-8sfc.onrender.com", 443, "/ws");
   if (connected) {
     Serial.println("[BOOT] Setup complete! Connected to LifeGuard Server.");
   } else {
-    Serial.println("[BOOT] CONNECTION FAILED! Please check the WS_URL and your Internet.");
+    Serial.println("[BOOT] CONNECTION FAILED! Check if the server is awake.");
   }
 }
 
@@ -76,7 +77,7 @@ void loop() {
   else { 
     client.setInsecure(); 
     client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
-    client.connect(WS_URL); 
+    client.connect("floodguard-8sfc.onrender.com", 443, "/ws"); 
     delay(5000); 
   }
 
