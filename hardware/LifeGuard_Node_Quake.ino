@@ -66,8 +66,12 @@ void setup() {
   Serial.println("[BOOT] WebSocket Configured.");
   
   Serial.println("[BOOT] Connecting to Server...");
-  client.connect(WS_URL);
-  Serial.println("[BOOT] Setup Complete!");
+  bool connected = client.connect(WS_URL);
+  if (connected) {
+    Serial.println("[BOOT] Setup Complete! Connected to LifeGuard Server.");
+  } else {
+    Serial.println("[BOOT] CONNECTION FAILED! Check Internet/Server URL.");
+  }
 }
 
 void loop() {
