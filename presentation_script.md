@@ -57,36 +57,58 @@
 
 ### 🎴 Slide 4: Real-Time Web Platform & UX Design
 *   **Slide Title**: `The LifeGuard PWA Dashboard`
-*   **Visuals**: Show screenshots of the live dashboard's Bento Grid layout: the atmospheric card, the active alerts panel, the live evacuation map, and the dynamic mini-module list.
+*   **Visuals**: Show screenshots of the live dashboard's Bento Grid layout: the atmospheric card, the full-width broadcasts command ticker at the bottom, the live evacuation map, and the dynamic mini-module list.
 *   **Presenter Action**: Emphasize that in emergencies, user experience must be premium, intuitive, and extremely fast.
 
 #### 🎙️ Spoken Script:
-> "During an emergency, a complicated UI is a failure. That is why our **LifeGuard Dashboard** is structured around a modern, sleek, glassmorphic Bento Grid. 
+> "During an emergency, a complicated UI is a failure. That is why our **LifeGuard Dashboard** is structured around a modern, sleek, glassmorphic Bento Grid designed with absolute mathematical symmetry. 
 > 
-> We integrated Google Maps Advanced Markers to pinpoint the user's exact GPS location and instantly trace up to three walking routes to the nearest safe zones—such as elevated areas during a flood, or open parks during a tremor. 
+> We engineered a custom 3-row layout that stacks our weather and modules cards perfectly alongside a dual-row AI risk gauge. At the bottom, rather than squishing warning messages into a narrow vertical column, we created a gorgeous **widescreen Command Ticker** that spans the entire width of the dashboard. This allows long early warnings to read comfortably like an industrial disaster console.
 > 
-> The platform is fully compiled as a **Progressive Web App (PWA)**, meaning users can install it on their phones, receive real-time push notification alerts, and access cached offline data in critical areas without internet connection."
+> We integrated Google Maps Advanced Markers to pinpoint the user's exact GPS location and instantly trace up to three walking routes to the nearest safe zones. The platform is fully compiled as a **Progressive Web App (PWA)**, meaning users can install it, receive real-time push notification alerts, and access cached offline maps in critical zones."
 
 ---
 
-### 🎴 Slide 5: The Masterpiece Features (v2.0 Enhancements)
-*   **Slide Title**: `Premium Enhancements: Real-Time Ambient Dashboards & Heartbeats`
-*   **Visuals**: Highlight three bullet points:
-    1.  *Seismic Body Shaking & Rising Ember Particles*: Visual rendering of threat status.
-    2.  *Cross-Node Telemetry Synchronization*: Multi-sensor data binding.
-    3.  *Dynamic Keep-Alive Heartbeat Evaluators*: Online/Standby hardware state.
+### 🎴 Slide 5: Resilient Alert Notification & Push System
+*   **Slide Title**: `Firebase Push Notifications & Resilient Alerts`
+*   **Visuals**: Diagram representing the alert pipeline:
+    *   *Client*: Device prompts $\rightarrow$ grants permission $\rightarrow$ registers to Firebase Cloud Messaging (FCM) topic `'alerts'`.
+    *   *Backend*: Detects danger state $\rightarrow$ calls `send_push_notification()` $\rightarrow$ FCM broadcasts instantly.
+    *   *Service Worker*: Background thread catches push payload $\rightarrow$ displays native warning popup even if browser is closed.
+    *   *SMS Fail-Safe*: Twilio SMS alert integration for direct offline text notifications.
+*   **Presenter Action**: Point out the importance of instant alert push delivery and the Twilio integration.
+
+#### 🎙️ Spoken Script:
+> "A warning dashboard is only useful if a user is looking at it when danger strikes. To solve this, we built a **Resilient Emergency Notification Pipeline**.
+> 
+> When a user lands on our PWA, they grant notification permission, and FCM registers a unique web token, subscribing them to a global `'alerts'` broadcast topic. 
+> 
+> The moment our Flask API detects an active danger state from the IoT telemetry, it triggers our backend notifier. Firebase Admin Messaging broadcasts this alert to the `'alerts'` topic. Within milliseconds, FCM pushes the message to every subscribed screen in the world. 
+> 
+> Because of our background **Service Workers**, these notifications show up as native operating system popups **even if the browser is closed or the phone is in standby**. For offline redundancy, we also integrated **Twilio API** to dispatch direct SMS alerts to emergency mobile phone numbers."
+
+---
+
+### 🎴 Slide 6: The Masterpiece Features (v3.0 Sovereign Enhancements)
+*   **Slide Title**: `Premium Enhancements: Real-Time Dynamic Bento & Autonomous Escalation`
+*   **Visuals**: Highlight four bullet points:
+    1.  *Dynamic IoT Micro-Climate Binding*: Direct DHT11 sensor feeds mapped to homepage weather with a live glowing marker.
+    2.  *Autonomous Threat Escalation Pipeline*: Backend AI automatically publishing critical alerts to Firestore when nodes cross threat levels.
+    3.  *Seismic Body Shaking & Rising Ember Particles*: Visual rendering of threat status.
+    4.  *Dynamic Keep-Alive Heartbeat Evaluators*: Online/Standby hardware state.
 *   **Presenter Action**: Speak with extra pride here—this section represents standard-setting professional engineering that separates this project from ordinary student prototypes.
 
 #### 🎙️ Spoken Script:
-> "In our latest **v2.0 release**, we wanted to bring the website alive and create a truly immersive environment. 
+> "In our latest **v3.0 Sovereign release**, we integrated our physical edge sensors and dashboard layout into a single, unified Early Warning System. 
 > 
-> *   **Ambient Effects**: When a risk increases, the entire web page reacts. A wildfire hazard triggers a warm ember particle system that floats upward to mimic smoke and rising ash. An earthquake hazard triggers a full-screen CSS shaking animation, physically quaking the dashboard view to grab immediate attention.
-> *   **Cross-Node Data Sync**: In physical deployments, some nodes lack specific sensors. We solved this by creating a real-time data sync pipeline where the Flood dashboard pulls live temperature and humidity metrics from the neighboring Fire Node's DHT11 sensor.
-> *   **Dynamic Heartbeats**: We implemented a keep-alive monitor. The webpage actively tracks the time elapsed since the last telemetry packet. If an ESP32 is powered on, its status badge immediately glows green **Online**. If it is turned off or loses Wi-Fi for more than 15 seconds, it dynamically shifts to orange **Standby**."
+> *   **Dynamic IoT Weather Binding**: Rather than displaying generic city forecasts, our homepage weather bento card binds directly to the physical DHT11 sensor of the Wildfire ESP32 Edge Node. It features a smart, dual-channel fallback that pulls external API weather on boot, and instantly swaps to your local micro-climate telemetry the millisecond the node connects.
+> *   **Autonomous Threat Escalation**: We automated the broadcast pipeline in the backend. When a physical node uploads telemetry that exceeds safety thresholds, our AI processor (`ai_listener.py`) automatically generates an early warning entry in the Firestore alerts collection.
+> *   **Seamless Ticker Sync & Deduplication**: This critical warning instantly streams to our new full-width Command Ticker, featuring custom client-side cache hashing to guarantee that duplicate database writes are deduplicated in under a millisecond.
+> *   **Ambient Shaking & Heartbeats**: The dashboard window physically shakes during seismic alerts, rises with amber ash particles during fires, and actively tracks ESP32 heartbeat logs to toggle glowing connection status badges in real-time."
 
 ---
 
-### 🎴 Slide 6: Resiliency, Hardware Hardening, and Reconnection
+### 🎴 Slide 7: Resiliency, Hardware Hardening, and Reconnection
 *   **Slide Title**: `Industrial-Grade Firmware Resilience`
 *   **Visuals**: Show a code snippet of non-blocking timer loops (`millis()`) vs the bad blocking `delay()` statements.
 *   **Presenter Action**: Explain that blocking code is dangerous in safety critical systems, showing your architectural depth.
@@ -101,7 +123,7 @@
 
 ---
 
-### 🎴 Slide 7: Live Demonstration (The Climax)
+### 🎴 Slide 8: Live Demonstration (The Climax)
 *   **Slide Title**: `Interactive Live Telemetry Demonstration`
 *   **Visuals**: Open the live website (`https://lifeguard26.vercel.app/`).
 *   **Presenter Action**: Trigger one of the physical sensors, or turn on the simulator on the screen!
@@ -116,7 +138,7 @@
 
 ---
 
-### 🎴 Slide 8: Future Scope & Conclusion
+### 🎴 Slide 9: Future Scope & Conclusion
 *   **Slide Title**: `Future Outlook & Impact`
 *   **Visuals**: Bullet points showing: Smart City Integration, LoRaWAN deployment for off-grid operations, and Automated Public Address Sirens.
 *   **Presenter Action**: Deliver a powerful, memorable closing statement.

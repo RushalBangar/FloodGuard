@@ -17,6 +17,20 @@ Integrating custom-built hardware nodes with a high-performance web dashboard, L
 
 ---
 
+## 🌟 Advanced Platform Enhancements (v3.0 Sovereign Release)
+
+- **Dynamic IoT Micro-Climate Telemetry Binding**:
+  - Homepage Atmospheric Data card binds directly to the physical DHT11 sensor on the Wildfire ESP32 Edge Node in real time.
+  - Features a dual-channel fallback system that pulls OpenWeather API forecast data on startup, transitioning instantly to live telemetry with a glowing `📡 Source: Live DHT11 Sensor` label the split-second the edge device boots.
+- **Symmetrical Bento Grid Redesign**:
+  - Re-engineered the desktop dashboard grid to fit a mathematically aligned 3-row layout, solving card stretching and layout voids.
+  - Stacks the compact Weather Card (Row 1) and Guard Modules (Row 2) flush alongside the dual-row Integrated AI Risk Gauge.
+- **Widescreen Command Ticker & Deduplication**:
+  - Restructured the narrow vertical broadcasts panel into a full-width horizontally readable command ticker (`grid-column: 1 / -1`) at the bottom of the grid, ensuring critical readouts are never column-squished.
+  - Implemented client-side `seenMessages` hashing cache within the Firestore listener to guarantee zero duplicate alert messages in the UI.
+- **Autonomous End-to-End Threat Escalation Pipeline**:
+  - The Python backend AI analyzer (`ai_listener.py`) automatically evaluates incoming telemetry and publishes live broadcast logs the instant any node crosses danger thresholds ($\ge 70\%$) or active triggers (flame/shock triggers), instantly rendering alerts globally in sub-second latency.
+
 ## 🌟 Advanced Platform Enhancements (v2.0)
 
 - **Interactive Multi-Node Ambient Dashboards**:
