@@ -233,12 +233,13 @@
           const el = entry.target;
           const target = parseInt(el.dataset.count);
           if (isNaN(target)) return;
+          const suffix = el.dataset.suffix || '';
           let current = 0;
           const step = Math.ceil(target / 40);
           const timer = setInterval(() => {
             current += step;
             if (current >= target) { current = target; clearInterval(timer); }
-            el.textContent = current;
+            el.textContent = current + suffix;
           }, 40);
           countObserver.unobserve(el);
         }
