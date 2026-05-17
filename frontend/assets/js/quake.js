@@ -36,13 +36,18 @@
           
           let status = 'Safe';
           let color = '#4ade80';
+          let rgbColor = { r: 74, g: 222, b: 128 }; // Green
           
           if (riskScore > 50) {
               status = 'Structural Threat';
               color = '#ff4b2b';
+              rgbColor = { r: 139, g: 92, b: 246 }; // Deep Violet
           } else if (riskScore > 20) {
               status = 'Moderate Tremor';
               color = '#fbc02d';
+              rgbColor = { r: 245, g: 158, b: 11 }; // Amber
+          } else {
+              rgbColor = { r: 0, g: 210, b: 255 }; // Clean Cyan
           }
           
           riskStatusEl.textContent = status;
@@ -50,6 +55,23 @@
           riskValEl.style.color = color;
           riskStatusEl.style.color = color;
           riskStatusEl.className = 'status ' + (riskScore > 50 ? 'danger' : riskScore > 20 ? 'warning' : 'safe');
+
+          // Control dynamic background animations
+          const bgAnim = document.getElementById('bgAnim');
+          if (bgAnim) {
+              bgAnim.classList.toggle('earthquake', riskScore > 20);
+              bgAnim.classList.toggle('active', riskScore > 50);
+          }
+
+          // Trigger physical full-screen tremors on the document body based on threat levels
+          const body = document.body;
+          if (body) {
+              body.classList.toggle('tremor-severe-active', riskScore > 50);
+              body.classList.toggle('tremor-mild-active', riskScore > 20 && riskScore <= 50);
+          }
+
+          // Dispatch color update to the particle network
+          window.dispatchEvent(new CustomEvent('lg:risk-color', { detail: { color: rgbColor } }));
       }
 
       function updateChart(vibX) {

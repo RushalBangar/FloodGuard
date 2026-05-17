@@ -57,9 +57,22 @@
         }
       }
 
-      // Damping
-      this.vx *= 0.99;
-      this.vy *= 0.99;
+      // Dynamic physics behavior based on page context environmental states
+      if (bgAnim && bgAnim.classList.contains('wildfire')) {
+        // Floating Ember sparks: upward bias with light drift
+        this.vy -= 0.008;
+        if (this.vy < -1.2) this.vy = -1.2;
+        this.vx += (Math.random() - 0.5) * 0.05;
+        if (Math.abs(this.vx) > 0.6) this.vx = Math.sign(this.vx) * 0.6;
+      } else if (bgAnim && bgAnim.classList.contains('earthquake')) {
+        // Seismic tremor vibration: high velocity shake
+        this.vx = (Math.random() - 0.5) * 2.2;
+        this.vy = (Math.random() - 0.5) * 2.2;
+      } else {
+        // Normal floating damping
+        this.vx *= 0.99;
+        this.vy *= 0.99;
+      }
 
       this.x += this.vx;
       this.y += this.vy;

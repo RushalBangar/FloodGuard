@@ -36,13 +36,18 @@
           
           let status = 'Safe';
           let color = '#4ade80';
+          let rgbColor = { r: 74, g: 222, b: 128 }; // Green
           
           if (riskScore > 50) {
               status = 'High Fire Risk';
               color = '#ff4b2b';
+              rgbColor = { r: 255, g: 75, b: 43 }; // Crimson/Orange
           } else if (riskScore > 20) {
               status = 'Elevated Smoke';
               color = '#fbc02d';
+              rgbColor = { r: 245, g: 158, b: 11 }; // Amber
+          } else {
+              rgbColor = { r: 0, g: 210, b: 255 }; // Clean Cyan
           }
           
           riskStatusEl.textContent = status;
@@ -50,6 +55,16 @@
           riskValEl.style.color = color;
           riskStatusEl.style.color = color;
           riskStatusEl.className = 'status ' + (riskScore > 50 ? 'danger' : riskScore > 20 ? 'warning' : 'safe');
+
+          // Control dynamic background animations
+          const bgAnim = document.getElementById('bgAnim');
+          if (bgAnim) {
+              bgAnim.classList.toggle('wildfire', riskScore > 20);
+              bgAnim.classList.toggle('active', riskScore > 50);
+          }
+
+          // Dispatch color update to the particle network
+          window.dispatchEvent(new CustomEvent('lg:risk-color', { detail: { color: rgbColor } }));
       }
 
       function updateChart(gasPPM) {

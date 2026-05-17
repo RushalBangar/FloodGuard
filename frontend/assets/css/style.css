@@ -150,7 +150,79 @@ body.page-ready {
     background: radial-gradient(circle at 50% 50%, hsl(0, 50%, 15%) 0%, var(--bg-dark) 100%);
 }
 
-/* Canvas particle network handles the background animation now */
+/* --- Premium Wildfire & Earthquake Background Overlays --- */
+.bg-animation.wildfire {
+    background: radial-gradient(circle at 50% 50%, hsl(12, 50%, 10%) 0%, var(--bg-dark) 100%) !important;
+    transition: background 1.5s ease;
+}
+.bg-animation.wildfire::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 80%, rgba(249, 115, 22, 0.18) 0%, transparent 60%);
+    animation: heat-glow 4s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+.bg-animation.wildfire.active::before {
+    opacity: 1;
+}
+
+@keyframes heat-glow {
+    0% { transform: scale(1); opacity: 0.5; }
+    100% { transform: scale(1.1); opacity: 1; }
+}
+
+.bg-animation.earthquake {
+    background: radial-gradient(circle at 50% 50%, hsl(262, 50%, 8%) 0%, var(--bg-dark) 100%) !important;
+    transition: background 1.5s ease;
+}
+.bg-animation.earthquake::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+    animation: seismic-glow 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+.bg-animation.earthquake.active::before {
+    opacity: 1;
+}
+
+@keyframes seismic-glow {
+    0% { transform: scale(0.9); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: scale(1.2); opacity: 0; }
+}
+
+/* Screen Shaking Tremor Animations */
+@keyframes tremor-mild {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-0.8px, 0.8px) rotate(-0.15deg); }
+    75% { transform: translate(0.8px, -0.8px) rotate(0.15deg); }
+}
+@keyframes tremor-severe {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    10% { transform: translate(-2px, 1.5px) rotate(-0.35deg); }
+    30% { transform: translate(1.5px, -1.5px) rotate(0.35deg); }
+    50% { transform: translate(-1.5px, 2px) rotate(0deg); }
+    70% { transform: translate(2px, 1.5px) rotate(0.35deg); }
+    90% { transform: translate(-1.5px, -1.5px) rotate(-0.35deg); }
+}
+
+.tremor-mild-active {
+    animation: tremor-mild 0.2s linear infinite;
+    will-change: transform;
+}
+.tremor-severe-active {
+    animation: tremor-severe 0.1s linear infinite;
+    will-change: transform;
+}
 
 .wave:nth-child(2) {
     bottom: 20px;
