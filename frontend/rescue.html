@@ -138,7 +138,7 @@
 
             <h3 style="margin-bottom:1.5rem;" data-i18n="sidebar_sos_title">Active SOS Signals</h3>
             <div id="sosList">
-                <p style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>
+                <p class="empty-state" style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>
             </div>
         </div>
 
@@ -451,13 +451,14 @@
         // Show empty state if none left
         const list = document.getElementById('sosList');
         if (list.children.length === 0) {
-            list.innerHTML = '<p style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>';
+            list.innerHTML = '<p class="empty-state" style="color:var(--text-dim); font-size:0.9rem; text-align:center;">Waiting for signals...</p>';
         }
     }
 
     function addSOSCard(data) {
         const list = document.getElementById('sosList');
-        if(list.querySelector('p')) list.innerHTML = '';
+        const empty = list.querySelector('.empty-state');
+        if (empty) empty.remove();
         
         const id = data.id || 'unknown';
         const card = document.createElement('div');
