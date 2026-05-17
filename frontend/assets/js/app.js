@@ -310,14 +310,16 @@
         });
       }
 
+      // Initialize ambient defaults
+      safeSetText('tempVal', '25.0 °C');
+      safeSetText('humVal', '50.0 %');
+
       const col = LG_DB.collection('flood_data').orderBy('timestamp','desc').limit(1);
       col.onSnapshot(async snap=>{
           if(snap.empty) return;
           const doc = snap.docs[0].data();
           const w = doc.water_level || 0;
           const r = doc.rainfall || 0;
-          safeSetText('tempVal', (doc.temperature || 25).toFixed(1) + ' °C');
-          safeSetText('humVal', (doc.humidity || 50).toFixed(1) + ' %');
           safeSetText('waterVal', (w * 100).toFixed(1) + ' %');
           safeSetText('rainVal', r + ' mm/h');
           updateChart(w);
@@ -330,6 +332,14 @@
                   recommendation: doc.ai_risk_score > 50 ? 'Evacuate immediately.' : 'Monitor levels.'
               });
           }
+      });
+
+      // Synchronize ambient temperature & humidity from fire_data (since the DHT11 is wired to the Fire Node)
+      LG_DB.collection('fire_data').orderBy('timestamp','desc').limit(1).onSnapshot(snap=>{
+          if(snap.empty) return;
+          const doc = snap.docs[0].data();
+          if(doc.temperature !== undefined) safeSetText('tempVal', doc.temperature.toFixed(1) + ' °C');
+          if(doc.humidity !== undefined) safeSetText('humVal', doc.humidity.toFixed(1) + ' %');
       });
 
       // Listen for persistent alerts in Firestore
