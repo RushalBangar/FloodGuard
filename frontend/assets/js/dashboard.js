@@ -7,6 +7,7 @@
       // We will listen to Firebase directly for the 3 collections: flood_data, quake_data, fire_data.
       let riskScores = { flood: 0, quake: 0, fire: 0 };
       let lastHeard = { flood: 0, quake: 0, fire: 0 };
+      let usingSensorWeather = false;
 
       function parseTimestamp(ts) {
           if (!ts) return Date.now();
@@ -318,8 +319,56 @@
           });
       }
 
+      // Atmospheric Card Formatter and Source Marker
+      function updateAtmosphericCard(temp, humidity, fromSensor = true) {
+          const weatherEl = document.getElementById('weather');
+          if(!weatherEl) return;
+
+          // Map dynamic condition icons based on micro-climate metrics
+          let weatherIcon = '☀️';
+          let desc = 'Clear Sky (Micro-Climate)';
+          
+          if (humidity > 80) {
+              weatherIcon = '🌧️';
+              desc = 'High Saturation / Rain Alert';
+          } else if (humidity > 65) {
+              weatherIcon = '☁️';
+              desc = 'Dense Cloud / Humid';
+          } else if (temp > 35) {
+              weatherIcon = '🔥';
+              desc = 'Extreme Dry Heat Warning';
+          } else if (temp < 15) {
+              weatherIcon = '❄️';
+              desc = 'Cool / Crisp Air';
+          } else if (humidity < 30) {
+              weatherIcon = '🌵';
+              desc = 'Arid / Low Moisture';
+          }
+
+          const sourceLabel = fromSensor ? '🛰️ Live DHT11 Sensor' : '☁️ City Forecast API';
+
+          weatherEl.classList.remove('weather-placeholder');
+          weatherEl.innerHTML = `
+              <div class="weather-container" style="display:flex; flex-direction:column; gap:0.5rem; justify-content:center; align-items:flex-start; height:100%;">
+                  <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                      <span style="font-size:2.2rem; font-weight:700; color:var(--primary); line-height:1.2;">${temp.toFixed(1)} °C</span>
+                      <span style="font-size:1.8rem; filter:drop-shadow(0 0 4px var(--primary-glow));">${weatherIcon}</span>
+                  </div>
+                  <div style="font-size:0.85rem; text-transform:capitalize; color:var(--text-dim); margin-bottom:0.5rem;">
+                      ${desc}
+                  </div>
+                  <div style="display:grid; grid-template-columns:1fr 1fr; width:100%; gap:0.5rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:0.5rem; font-size:0.75rem; color:var(--text-dim);">
+                      <div>💧 Humidity: <span style="color:var(--text); font-weight:600;">${humidity.toFixed(1)}%</span></div>
+                      <div>📡 Source: <span style="color:var(--primary); font-weight:600; font-size:0.7rem;">${sourceLabel}</span></div>
+                  </div>
+              </div>
+          `;
+      }
+
       // Atmospheric Weather Reporting Routine
       async function fetchWeather() {
+          if (usingSensorWeather) return; // Do not overwrite active hardware sensor readings
+          
           const weatherEl = document.getElementById('weather');
           if(!weatherEl) return;
           
@@ -340,38 +389,13 @@
               if(data && data.main && data.weather && data.weather[0]){
                   const temp = data.main.temp;
                   const humidity = data.main.humidity;
-                  const desc = data.weather[0].description;
-                  const wind = data.wind ? data.wind.speed : 0;
-                  
-                  // Dynamic meteorological icons
-                  let weatherIcon = '☀️';
-                  const condition = data.weather[0].main.toLowerCase();
-                  if(condition.includes('cloud')) weatherIcon = '☁️';
-                  else if(condition.includes('rain')) weatherIcon = '🌧️';
-                  else if(condition.includes('thunder')) weatherIcon = '⛈️';
-                  else if(condition.includes('snow')) weatherIcon = '❄️';
-                  else if(condition.includes('mist') || condition.includes('haze') || condition.includes('fog')) weatherIcon = '🌫️';
-
-                  weatherEl.classList.remove('weather-placeholder');
-                  weatherEl.innerHTML = `
-                      <div class="weather-container" style="display:flex; flex-direction:column; gap:0.5rem; justify-content:center; align-items:flex-start; height:100%;">
-                          <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
-                              <span style="font-size:2.2rem; font-weight:700; color:var(--primary); line-height:1.2;">${temp.toFixed(1)} °C</span>
-                              <span style="font-size:1.8rem; filter:drop-shadow(0 0 4px var(--primary-glow));">${weatherIcon}</span>
-                          </div>
-                          <div style="font-size:0.85rem; text-transform:capitalize; color:var(--text-dim); margin-bottom:0.5rem;">
-                              ${desc}
-                          </div>
-                          <div style="display:grid; grid-template-columns:1fr 1fr; width:100%; gap:0.5rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:0.5rem; font-size:0.75rem; color:var(--text-dim);">
-                              <div>💧 Humidity: <span style="color:var(--text); font-weight:600;">${humidity}%</span></div>
-                              <div>💨 Wind: <span style="color:var(--text); font-weight:600;">${wind} m/s</span></div>
-                          </div>
-                      </div>
-                  `;
+                  updateAtmosphericCard(temp, humidity, false);
               }
           } catch(e){
               console.warn('[Weather] Error fetching weather:', e);
-              weatherEl.innerHTML = '<p style="color:var(--text-dim); font-size:0.85rem; text-align:center;">Atmospheric link offline</p>';
+              if(!weatherEl.querySelector('.weather-container')) {
+                  weatherEl.innerHTML = '<p style="color:var(--text-dim); font-size:0.85rem; text-align:center;">Atmospheric link offline</p>';
+              }
           }
       }
 
@@ -457,6 +481,12 @@
 
                   updateDashboard();
                   updateDetailedLabels(data);
+
+                  // Update homepage Atmospheric Card dynamically with DHT11 readings
+                  if (data.temperature !== undefined && data.humidity !== undefined) {
+                      usingSensorWeather = true;
+                      updateAtmosphericCard(data.temperature, data.humidity, true);
+                  }
               }
           }, err => console.error('[Firebase] Fire stream error:', err));
 
@@ -469,6 +499,12 @@
               
               updateDashboard();
               updateDetailedLabels(data);
+
+              // Allow simulation sliders to live-update the homepage weather card
+              if (data.temperature !== undefined && data.humidity !== undefined) {
+                  usingSensorWeather = true;
+                  updateAtmosphericCard(data.temperature, data.humidity, true);
+              }
           });
       });
   });
