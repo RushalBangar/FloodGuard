@@ -8,6 +8,19 @@
       let riskScores = { flood: 0, quake: 0, fire: 0 };
       let lastHeard = { flood: 0, quake: 0, fire: 0 };
 
+      function parseTimestamp(ts) {
+          if (!ts) return Date.now();
+          if (typeof ts === 'number') {
+              // Python time.time() is in seconds. JS Date uses milliseconds.
+              return ts < 10000000000 ? ts * 1000 : ts;
+          }
+          if (ts.seconds !== undefined) {
+              return ts.seconds * 1000;
+          }
+          const parsed = new Date(ts).getTime();
+          return isNaN(parsed) ? Date.now() : parsed;
+      }
+
       function updateDashboard() {
           // Update the 3 module cards
           const fRisk = riskScores.flood;
@@ -350,12 +363,8 @@
                   console.log('[Firebase] New Flood Data:', data);
                   riskScores.flood = data.ai_risk_score || 0;
                   
-                  // Record latest heartbeat timestamp
-                  if (data.timestamp) {
-                      lastHeard.flood = data.timestamp.seconds ? data.timestamp.seconds * 1000 : new Date(data.timestamp).getTime();
-                  } else {
-                      lastHeard.flood = Date.now();
-                  }
+                  // Record latest heartbeat timestamp using helper
+                  lastHeard.flood = parseTimestamp(data.timestamp);
 
                   updateDashboard();
                   updateDetailedLabels(data);
@@ -369,12 +378,8 @@
                   console.log('[Firebase] New Quake Data:', data);
                   riskScores.quake = data.ai_risk_score || 0;
 
-                  // Record latest heartbeat timestamp
-                  if (data.timestamp) {
-                      lastHeard.quake = data.timestamp.seconds ? data.timestamp.seconds * 1000 : new Date(data.timestamp).getTime();
-                  } else {
-                      lastHeard.quake = Date.now();
-                  }
+                  // Record latest heartbeat timestamp using helper
+                  lastHeard.quake = parseTimestamp(data.timestamp);
 
                   updateDashboard();
                   updateDetailedLabels(data);
@@ -388,12 +393,8 @@
                   console.log('[Firebase] New Fire Data:', data);
                   riskScores.fire = data.ai_risk_score || 0;
 
-                  // Record latest heartbeat timestamp
-                  if (data.timestamp) {
-                      lastHeard.fire = data.timestamp.seconds ? data.timestamp.seconds * 1000 : new Date(data.timestamp).getTime();
-                  } else {
-                      lastHeard.fire = Date.now();
-                  }
+                  // Record latest heartbeat timestamp using helper
+                  lastHeard.fire = parseTimestamp(data.timestamp);
 
                   updateDashboard();
                   updateDetailedLabels(data);
