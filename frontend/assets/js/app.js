@@ -297,16 +297,28 @@
       
       // Request Notification Permission
       if (window.LG_MESSAGING) {
-        LG_MESSAGING.getToken({ vapidKey: LG_CONFIG.VAPID_KEY }).then((currentToken) => {
+        navigator.serviceWorker.ready.then((registration) => {
+          return LG_MESSAGING.getToken({ 
+            vapidKey: LG_CONFIG.VAPID_KEY,
+            serviceWorkerRegistration: registration
+          });
+        }).then((currentToken) => {
           if (currentToken) {
-            console.log('FCM Token:', currentToken);
-            // In a real app, you'd send this to your backend to associate with the user
+            console.log('[FCM] Token initialized:', currentToken);
             localStorage.setItem('fcm_token', currentToken);
+            
+            // Auto-sync token to Firestore collection
+            return window.LG_DB.collection('push_tokens').doc(currentToken).set({
+              token: currentToken,
+              platform: 'web',
+              lastUpdated: firebase.firestore.FieldValue.serverTimestamp(),
+              userAgent: navigator.userAgent
+            });
           } else {
-            console.log('No registration token available. Requesting permission...');
+            console.log('[FCM] No registration token available.');
           }
         }).catch((err) => {
-          console.log('An error occurred while retrieving token. ', err);
+          console.log('[FCM] An error occurred while retrieving token on startup:', err);
         });
       }
 

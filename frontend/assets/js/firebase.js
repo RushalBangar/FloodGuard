@@ -51,8 +51,12 @@
               if (permission === 'granted') {
                 console.log('[FCM] Notification permission granted.');
                 
+                // Retrieve the already registered Service Worker (sw.js)
+                const registration = await navigator.serviceWorker.ready;
+                
                 const token = await messaging.getToken({
-                  vapidKey: (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.VAPID_KEY !== 'YOUR_PUBLIC_VAPID_KEY') ? LG_CONFIG.VAPID_KEY : undefined
+                  vapidKey: (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.VAPID_KEY !== 'YOUR_PUBLIC_VAPID_KEY') ? LG_CONFIG.VAPID_KEY : undefined,
+                  serviceWorkerRegistration: registration
                 });
 
                 if (token) {
