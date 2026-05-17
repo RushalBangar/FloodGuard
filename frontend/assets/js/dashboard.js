@@ -318,8 +318,67 @@
           });
       }
 
+      // Atmospheric Weather Reporting Routine
+      async function fetchWeather() {
+          const weatherEl = document.getElementById('weather');
+          if(!weatherEl) return;
+          
+          const backendUrl = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.BACKEND_URL) ? LG_CONFIG.BACKEND_URL : '';
+          try {
+              let query = '';
+              try {
+                  const pos = await new Promise((resolve, reject) => {
+                      navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 });
+                  });
+                  query = `?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`;
+              } catch(ge) {
+                  // Fallback to default lat/lon set on server
+              }
+              
+              const resp = await fetch(backendUrl + '/api/weather' + query);
+              const data = await resp.json();
+              if(data && data.main && data.weather && data.weather[0]){
+                  const temp = data.main.temp;
+                  const humidity = data.main.humidity;
+                  const desc = data.weather[0].description;
+                  const wind = data.wind ? data.wind.speed : 0;
+                  
+                  // Dynamic meteorological icons
+                  let weatherIcon = '☀️';
+                  const condition = data.weather[0].main.toLowerCase();
+                  if(condition.includes('cloud')) weatherIcon = '☁️';
+                  else if(condition.includes('rain')) weatherIcon = '🌧️';
+                  else if(condition.includes('thunder')) weatherIcon = '⛈️';
+                  else if(condition.includes('snow')) weatherIcon = '❄️';
+                  else if(condition.includes('mist') || condition.includes('haze') || condition.includes('fog')) weatherIcon = '🌫️';
+
+                  weatherEl.classList.remove('weather-placeholder');
+                  weatherEl.innerHTML = `
+                      <div class="weather-container" style="display:flex; flex-direction:column; gap:0.5rem; justify-content:center; align-items:flex-start; height:100%;">
+                          <div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+                              <span style="font-size:2.2rem; font-weight:700; color:var(--primary); line-height:1.2;">${temp.toFixed(1)} °C</span>
+                              <span style="font-size:1.8rem; filter:drop-shadow(0 0 4px var(--primary-glow));">${weatherIcon}</span>
+                          </div>
+                          <div style="font-size:0.85rem; text-transform:capitalize; color:var(--text-dim); margin-bottom:0.5rem;">
+                              ${desc}
+                          </div>
+                          <div style="display:grid; grid-template-columns:1fr 1fr; width:100%; gap:0.5rem; border-top:1px solid rgba(255,255,255,0.05); padding-top:0.5rem; font-size:0.75rem; color:var(--text-dim);">
+                              <div>💧 Humidity: <span style="color:var(--text); font-weight:600;">${humidity}%</span></div>
+                              <div>💨 Wind: <span style="color:var(--text); font-weight:600;">${wind} m/s</span></div>
+                          </div>
+                      </div>
+                  `;
+              }
+          } catch(e){
+              console.warn('[Weather] Error fetching weather:', e);
+              weatherEl.innerHTML = '<p style="color:var(--text-dim); font-size:0.85rem; text-align:center;">Atmospheric link offline</p>';
+          }
+      }
+
       // Initialize
       loadGoogleMaps();
+      fetchWeather();
+      setInterval(fetchWeather, 60000);
 
       function updateDetailedLabels(data) {
           const labels = {
