@@ -17,6 +17,20 @@ Integrating custom-built hardware nodes with a high-performance web dashboard, L
 
 ---
 
+## 🌟 Advanced Platform Enhancements (v2.0)
+
+- **Interactive Multi-Node Ambient Dashboards**:
+  - **Wildfire Ember Particles**: Canvas particles morph into glowing orange-red ash and float upward as wildfire risks escalate.
+  - **QuakeShield Full-Screen Shaking**: Real-time high-frequency tremor keyframes shake the entire dashboard body when seismic warning values are reached.
+- **Multi-Sensor Cross-Node Telemetry Sync**:
+  - Automated cross-node sync pulls live ambient temperature and humidity from the active Fire Node (DHT11) directly onto the Flood dashboard, filling sensor gaps seamlessly.
+- **Live Heartbeat Node Status Evaluator**:
+  - Dynamic connection monitor tracks Firestore telemetry timestamps against the clock, instantly toggling modules between glowing **Online** and **Standby** modes as hardware connects/disconnects.
+- **Hardware-Level Resiliency**:
+  - Replaced all blocking delay statements inside ESP32 loops with non-blocking timer loops to safeguard on-site alarms and telemetry continuity.
+
+---
+
 ## 🏗️ System Architecture
 
 ```mermaid
