@@ -490,6 +490,66 @@
               }
           }, err => console.error('[Firebase] Fire stream error:', err));
 
+          // Listen to Emergency Broadcasts in Firestore
+          const alertColName = (typeof LG_CONFIG !== 'undefined' && LG_CONFIG.ALERTS_COLLECTION) ? LG_CONFIG.ALERTS_COLLECTION : 'alerts';
+          LG_DB.collection(alertColName).orderBy('timestamp', 'desc').limit(5).onSnapshot(snap => {
+              const alertsContainer = document.getElementById('alerts');
+              const alertCountBadge = document.getElementById('alertCount');
+              if (!alertsContainer) return;
+
+              if (snap.empty) {
+                  alertsContainer.innerHTML = `
+                      <div class="alert-entry nominal" style="display:flex; flex-direction:column; gap:0.3rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-left:3px solid #00d2ff; border-radius:6px; margin-bottom:0.5rem; opacity:0.6;">
+                          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-dim);">
+                              <span>📰 SYSTEM UPDATE (ARCHIVE)</span>
+                              <span>10:45 AM</span>
+                          </div>
+                          <div style="font-size:0.85rem; font-weight:600; color:var(--text-main);">Life Guard PWA Sync initialized successfully. All sensor nodes online.</div>
+                      </div>
+                      <div class="alert-entry nominal" style="display:flex; flex-direction:column; gap:0.3rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-left:3px solid #00d2ff; border-radius:6px; margin-bottom:0.5rem; opacity:0.6;">
+                          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-dim);">
+                              <span>📰 REGIONAL NOMINAL STATUS</span>
+                              <span>09:12 AM</span>
+                          </div>
+                          <div style="font-size:0.85rem; font-weight:600; color:var(--text-main);">No geological or hydrological anomalies detected in the municipality.</div>
+                      </div>
+                  `;
+                  if (alertCountBadge) alertCountBadge.textContent = '0';
+                  return;
+              }
+
+              let count = 0;
+              let html = '';
+              snap.docs.forEach(doc => {
+                  const data = doc.data();
+                  const isUrgent = data.type === 'alert' || data.isUrgent || (data.message && data.message.toLowerCase().includes('critical')) || (data.message && data.message.toLowerCase().includes('danger'));
+                  if (isUrgent) count++;
+                  
+                  const ts = data.timestamp;
+                  let timeStr = 'Just Now';
+                  if (ts) {
+                      const dt = (ts.seconds !== undefined) ? new Date(ts.seconds * 1000) : new Date(ts);
+                      timeStr = dt.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                  }
+                  
+                  const indicatorColor = isUrgent ? '#ff4b2b' : '#00d2ff';
+                  const titleLabel = isUrgent ? '⚠️ CRITICAL BROADCAST' : '📢 SYSTEM BROADCAST';
+                  
+                  html += `
+                      <div class="alert-entry" style="display:flex; flex-direction:column; gap:0.3rem; padding:0.8rem; background:rgba(255,255,255,0.02); border-left:3px solid ${indicatorColor}; border-radius:6px; margin-bottom:0.5rem; transition:0.3s; animation: slideIn 0.3s ease;">
+                          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-dim);">
+                              <span style="font-weight:700; color:${indicatorColor};">${titleLabel}</span>
+                              <span>${timeStr}</span>
+                          </div>
+                          <div style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-top:0.2rem;">${data.message || 'Notification received.'}</div>
+                      </div>
+                  `;
+              });
+
+              alertsContainer.innerHTML = html;
+              if (alertCountBadge) alertCountBadge.textContent = count;
+          }, err => console.error('[Firebase] Alerts stream error:', err));
+
           // Listen for simulation data (Keep for testing)
           window.addEventListener('lg:sim-data', (e) => {
               const data = e.detail;

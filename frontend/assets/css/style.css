@@ -726,6 +726,12 @@ button.secondary {
     overflow-y: auto;
 }
 
+.alert-list {
+    max-height: 250px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
 .alert-item {
     background: rgba(255, 75, 43, 0.1);
     border-left: 4px solid var(--danger);
@@ -1076,14 +1082,15 @@ input::placeholder {
 .bento-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    grid-auto-rows: minmax(200px, auto);
+    grid-auto-rows: auto;
     gap: 1.5rem;
     margin: 2rem 0;
 }
 
-.risk-main { grid-column: span 2; grid-row: span 2; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.risk-main { grid-column: span 2; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 .weather-card { grid-column: span 1; }
-.alerts-card { grid-row: span 2; }
+.module-quick-card { grid-column: span 1; }
+.alerts-card { grid-column: span 2; }
 
 /* Gauge Styles */
 .gauge-container { position: relative; width: 280px; height: 280px; margin: 2rem 0; }
