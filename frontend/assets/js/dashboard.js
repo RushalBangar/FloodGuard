@@ -6,6 +6,7 @@
   ready(()=>{
       // We will listen to Firebase directly for the 3 collections: flood_data, quake_data, fire_data.
       let riskScores = { flood: 0, quake: 0, fire: 0 };
+      let lastHeard = { flood: 0, quake: 0, fire: 0 };
 
       function updateDashboard() {
           // Update the 3 module cards
@@ -24,6 +25,9 @@
           // Calculate Integrated Risk
           updateIntegratedRisk();
 
+          // Refresh dynamic module heartbeats (Online vs Standby)
+          updateHeartbeats();
+
           // Cache for offline mode
           if (window.cacheSensorData) {
             window.cacheSensorData({
@@ -33,6 +37,31 @@
             });
           }
       }
+
+      function updateHeartbeats() {
+          const now = Date.now();
+          const threshold = 15000; // 15 seconds
+
+          const nodes = ['flood', 'quake', 'fire'];
+          nodes.forEach(node => {
+              const dot = document.getElementById(node + 'StatusDot');
+              const txt = document.getElementById(node + 'StatusText');
+              if (!dot || !txt) return;
+
+              const isOnline = (now - lastHeard[node]) < threshold;
+              
+              if (isOnline) {
+                  dot.className = 'status-dot online';
+                  txt.textContent = 'Online';
+              } else {
+                  dot.className = 'status-dot warning';
+                  txt.textContent = 'Standby';
+              }
+          });
+      }
+
+      // Check heartbeats every 3 seconds to immediately reflect node state changes
+      setInterval(updateHeartbeats, 3000);
 
       function updateIntegratedRisk() {
           const maxRisk = Math.max(riskScores.flood, riskScores.quake, riskScores.fire);
@@ -320,6 +349,14 @@
                   const data = snap.docs[0].data();
                   console.log('[Firebase] New Flood Data:', data);
                   riskScores.flood = data.ai_risk_score || 0;
+                  
+                  // Record latest heartbeat timestamp
+                  if (data.timestamp) {
+                      lastHeard.flood = data.timestamp.seconds ? data.timestamp.seconds * 1000 : new Date(data.timestamp).getTime();
+                  } else {
+                      lastHeard.flood = Date.now();
+                  }
+
                   updateDashboard();
                   updateDetailedLabels(data);
               }
@@ -331,6 +368,14 @@
                   const data = snap.docs[0].data();
                   console.log('[Firebase] New Quake Data:', data);
                   riskScores.quake = data.ai_risk_score || 0;
+
+                  // Record latest heartbeat timestamp
+                  if (data.timestamp) {
+                      lastHeard.quake = data.timestamp.seconds ? data.timestamp.seconds * 1000 : new Date(data.timestamp).getTime();
+                  } else {
+                      lastHeard.quake = Date.now();
+                  }
+
                   updateDashboard();
                   updateDetailedLabels(data);
               }
@@ -342,6 +387,14 @@
                   const data = snap.docs[0].data();
                   console.log('[Firebase] New Fire Data:', data);
                   riskScores.fire = data.ai_risk_score || 0;
+
+                  // Record latest heartbeat timestamp
+                  if (data.timestamp) {
+                      lastHeard.fire = data.timestamp.seconds ? data.timestamp.seconds * 1000 : new Date(data.timestamp).getTime();
+                  } else {
+                      lastHeard.fire = Date.now();
+                  }
+
                   updateDashboard();
                   updateDetailedLabels(data);
               }
