@@ -520,9 +520,14 @@
 
               let count = 0;
               let html = '';
+              const seenMessages = new Set();
               snap.docs.forEach(doc => {
                   const data = doc.data();
-                  const isUrgent = data.type === 'alert' || data.isUrgent || (data.message && data.message.toLowerCase().includes('critical')) || (data.message && data.message.toLowerCase().includes('danger'));
+                  const msg = (data.message || '').trim();
+                  if (!msg || seenMessages.has(msg)) return; // Skip duplicate message bodies or empty messages
+                  seenMessages.add(msg);
+
+                  const isUrgent = data.type === 'alert' || data.isUrgent || msg.toLowerCase().includes('critical') || msg.toLowerCase().includes('danger');
                   if (isUrgent) count++;
                   
                   const ts = data.timestamp;
@@ -541,7 +546,7 @@
                               <span style="font-weight:700; color:${indicatorColor};">${titleLabel}</span>
                               <span>${timeStr}</span>
                           </div>
-                          <div style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-top:0.2rem;">${data.message || 'Notification received.'}</div>
+                          <div style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-top:0.2rem;">${msg}</div>
                       </div>
                   `;
               });
