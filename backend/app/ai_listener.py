@@ -2,6 +2,19 @@ import threading
 from .firebase_config import db, firebase_initialized
 from .predictor import calculate_flood_risk, calculate_quake_risk, calculate_fire_risk
 
+def add_system_alert(msg):
+    import time
+    if firebase_initialized and db:
+        try:
+            db.collection('alerts').add({
+                'message': msg,
+                'timestamp': time.time(),
+                'type': 'alert'
+            })
+            print(f"[Alert System] Auto-broadcasted critical state: {msg}")
+        except Exception as e:
+            print(f"[Alert System] Failed to write critical broadcast: {e}")
+
 def on_flood_snapshot(col_snapshot, changes, read_time):
     for change in changes:
         if change.type.name in ['ADDED', 'MODIFIED']:
@@ -15,6 +28,10 @@ def on_flood_snapshot(col_snapshot, changes, read_time):
                 result = calculate_flood_risk(w, r, h, t)
                 try:
                     doc.reference.update({'ai_risk_score': result['risk_percentage'], 'ai_status': result['status']})
+                    
+                    # Automate Emergency Broadcast if risk level crosses threat threshold
+                    if result['risk_percentage'] >= 70 or result['status'] in ['CRITICAL', 'DANGER', 'HIGH RISK']:
+                        add_system_alert(f"Flood Guard detected CRITICAL risk level ({result['risk_percentage']}%). Water Level: {w}m, Rain: {r}mm.")
                 except Exception as e:
                     print(f"Error updating flood_data: {e}")
 
@@ -31,6 +48,10 @@ def on_quake_snapshot(col_snapshot, changes, read_time):
                 result = calculate_quake_risk(x, y, z, shock)
                 try:
                     doc.reference.update({'ai_risk_score': result['risk_percentage'], 'ai_status': result['status']})
+                    
+                    # Automate Emergency Broadcast if risk level crosses threat threshold
+                    if result['risk_percentage'] >= 70 or result['status'] in ['CRITICAL', 'DANGER', 'HIGH RISK']:
+                        add_system_alert(f"QuakeShield detected SEVERE Tremors ({result['risk_percentage']}%). Shock Trigger: ACTIVE.")
                 except Exception as e:
                     print(f"Error updating quake_data: {e}")
 
@@ -48,6 +69,10 @@ def on_fire_snapshot(col_snapshot, changes, read_time):
                 result = calculate_fire_risk(gas, t, h, flame)
                 try:
                     doc.reference.update({'ai_risk_score': result['risk_percentage'], 'ai_status': result['status']})
+                    
+                    # Automate Emergency Broadcast if risk level crosses threat threshold
+                    if result['risk_percentage'] >= 70 or result['status'] in ['CRITICAL', 'DANGER', 'HIGH RISK']:
+                        add_system_alert(f"Wildfire Guard detected FLAME/GAS anomaly ({result['risk_percentage']}%). Temp: {t}°C, Gas: {gas} ppm.")
                 except Exception as e:
                     print(f"Error updating fire_data: {e}")
 
