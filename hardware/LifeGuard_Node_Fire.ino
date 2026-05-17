@@ -99,13 +99,20 @@ void setup() {
 
 void loop() {
   if (WiFi.status() != WL_CONNECTED) connectWiFi();
-  if (client.available()) client.poll();
-  else { 
-    client.setInsecure();
-    client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
-    client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
-    client.connect(WS_URL); 
-    delay(10000); 
+  
+  if (client.available()) {
+    client.poll();
+  } else { 
+    // Non-blocking reconnection every 10 seconds
+    static unsigned long lastWsRetry = 0;
+    if (millis() - lastWsRetry >= 10000) {
+      Serial.println("[WS] Attempting Reconnect (Non-blocking)...");
+      client.setInsecure();
+      client.addHeader("Origin", "https://floodguard-8sfc.onrender.com");
+      client.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
+      client.connect(WS_URL); 
+      lastWsRetry = millis();
+    }
   }
 
   if (millis() - lastUpdate >= UPDATE_INTERVAL) {
@@ -162,7 +169,9 @@ void sendSensorData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(API_URL);
+    http.setTimeout(7000); // 7 second timeout (more reliable for Render)
     http.addHeader("Content-Type", "application/json");
+    http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
     
     int httpResponseCode = http.POST(json);
     
