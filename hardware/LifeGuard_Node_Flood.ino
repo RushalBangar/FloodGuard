@@ -24,7 +24,7 @@ const char* API_URL = "https://floodguard-8sfc.onrender.com/api/sensor-data";
 
 // --- Pin Definitions ---
 #define TRIG_PIN 5
-#define ECHO_PIN 18
+#define ECHO_PIN 23  // Swapped from 18 to 23 to bypass ESP32 VSPI overlap and clamping diode restrictions
 #define RAIN_PIN 34
 #define BUZZER_PIN 13
 #define LED_PIN 14
