@@ -141,10 +141,15 @@ float getWaterLevel() {
   long duration = pulseIn(ECHO_PIN, HIGH, 30000); 
   if (duration == 0) {
     // If no echo signal is received (sensor disconnected or out of range)
+    Serial.println("[DEBUG] ERROR: No Echo Pulse received! (Sensor disconnected, wired incorrectly, or out of range)");
     return 0.0; 
   }
   
   float distance = duration * speedInCmPerMicro / 2;
+  
+  // Debug print raw values to Serial Monitor for easy physical troubleshooting
+  Serial.print("[DEBUG] Raw Duration: "); Serial.print(duration);
+  Serial.print(" us | Raw Distance: "); Serial.print(distance); Serial.println(" cm");
   
   // Map the measured distance to a percentage relative to empty/full levels
   // When empty (distance = SENSOR_HEIGHT_EMPTY), level = 0.0
