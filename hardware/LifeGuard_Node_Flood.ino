@@ -29,9 +29,10 @@ const char* API_URL = "https://floodguard-8sfc.onrender.com/api/sensor-data";
 #define BUZZER_PIN 13
 #define LED_PIN 14
 
-// --- Constants ---
-const float MAX_DISTANCE = 200.0;
-const int UPDATE_INTERVAL = 3000; 
+// --- Calibration for Artificial River Demo ---
+const float SENSOR_HEIGHT_EMPTY = 25.0; // Distance (in cm) from sensor to the bottom of the empty river bed
+const float SENSOR_HEIGHT_FULL  = 20.0; // Distance (in cm) from sensor to the water surface when completely full
+const int UPDATE_INTERVAL = 3000;       // Telemetry interval in milliseconds
 
 // --- Global Objects ---
 WebsocketsClient client;
@@ -130,15 +131,26 @@ float getWaterLevel() {
   float speedOfSound = 331.3 + (0.606 * 25.0); 
   float speedInCmPerMicro = speedOfSound / 10000.0;
 
-  digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW); 
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH); 
+  delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
   
   // Added 30ms timeout to prevent blocking (covers ~5 meters)
   long duration = pulseIn(ECHO_PIN, HIGH, 30000); 
+  if (duration == 0) {
+    // If no echo signal is received (sensor disconnected or out of range)
+    return 0.0; 
+  }
   
   float distance = duration * speedInCmPerMicro / 2;
-  float level = (MAX_DISTANCE - distance) / MAX_DISTANCE;
+  
+  // Map the measured distance to a percentage relative to empty/full levels
+  // When empty (distance = SENSOR_HEIGHT_EMPTY), level = 0.0
+  // When full (distance = SENSOR_HEIGHT_FULL), level = 1.0
+  float level = (SENSOR_HEIGHT_EMPTY - distance) / (SENSOR_HEIGHT_EMPTY - SENSOR_HEIGHT_FULL);
+  
   return constrain(level, 0.0, 1.0);
 }
 
