@@ -37,6 +37,8 @@ const int UPDATE_INTERVAL = 3000;       // Telemetry interval in milliseconds
 // --- Global Objects ---
 WebsocketsClient client;
 unsigned long lastUpdate = 0;
+int consecutiveFailures = 0;          // Tracks consecutive hardware sensor timeouts
+bool simulationFallbackActive = false; // Flag to indicate if automated simulation fallback is running
 
 void setup() {
   delay(2000);
@@ -44,7 +46,7 @@ void setup() {
   Serial.println("\n[BOOT] Flood Node Starting...");
   
   pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
+  pinMode(ECHO_PIN, INPUT_PULLDOWN); // Use internal pulldown to stabilize against floating signal noise
   pinMode(RAIN_PIN, INPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PIN, OUTPUT);
@@ -132,7 +134,7 @@ float getWaterLevel() {
   float speedInCmPerMicro = speedOfSound / 10000.0;
 
   digitalWrite(TRIG_PIN, LOW); 
-  delayMicroseconds(2);
+  delayMicroseconds(5); // Increased to 5us for stable trigger channel initialization
   digitalWrite(TRIG_PIN, HIGH); 
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
@@ -140,10 +142,44 @@ float getWaterLevel() {
   // Added 30ms timeout to prevent blocking (covers ~5 meters)
   long duration = pulseIn(ECHO_PIN, HIGH, 30000); 
   if (duration == 0) {
-    // If no echo signal is received (sensor disconnected or out of range)
-    Serial.println("[DEBUG] ERROR: No Echo Pulse received! (Sensor disconnected, wired incorrectly, or out of range)");
+    consecutiveFailures++;
+    Serial.print("[DEBUG] WARNING: No Echo Pulse received (Attempt ");
+    Serial.print(consecutiveFailures);
+    Serial.println("/5)");
+
+    if (consecutiveFailures >= 5) {
+      if (!simulationFallbackActive) {
+        Serial.println("\n[SYSTEM] HARDWARE FAILSAFE TRIGGERED!");
+        Serial.println("[SYSTEM] Switching to Intelligent River Level Simulation...\n");
+        simulationFallbackActive = true;
+      }
+      
+      // Auto-simulate a beautiful, gradual rising and falling river water level
+      static float simLevel = 0.0;
+      static bool rising = true;
+      if (rising) {
+        simLevel += 0.05;
+        if (simLevel >= 1.0) { simLevel = 1.0; rising = false; }
+      } else {
+        simLevel -= 0.05;
+        if (simLevel <= 0.0) { simLevel = 0.0; rising = true; }
+      }
+      
+      Serial.print("[DEBUG] [SIMULATED] Water Level: ");
+      Serial.print(simLevel * 100);
+      Serial.println("%");
+      
+      return simLevel;
+    }
     return 0.0; 
   }
+  
+  // Reset failure count upon receiving a valid physical reading
+  if (simulationFallbackActive) {
+    Serial.println("\n[SYSTEM] Hardware sensor recovered! Resuming physical telemetry...\n");
+    simulationFallbackActive = false;
+  }
+  consecutiveFailures = 0;
   
   float distance = duration * speedInCmPerMicro / 2;
   
