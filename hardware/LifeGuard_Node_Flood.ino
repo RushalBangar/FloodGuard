@@ -133,8 +133,16 @@ float getWaterLevel() {
   float speedOfSound = 331.3 + (0.606 * 25.0); 
   float speedInCmPerMicro = speedOfSound / 10000.0;
 
+  // --- HARDWARE RESET ROUTINE FOR LOCKING HC-SR04 CLONES ---
+  // Drive Echo pin LOW as output to clear any stuck internal latch/flip-flop states
+  pinMode(ECHO_PIN, OUTPUT);
+  digitalWrite(ECHO_PIN, LOW);
+  delayMicroseconds(200);
+  pinMode(ECHO_PIN, INPUT_PULLDOWN); // Re-arm as floating-stabilized input
+  delayMicroseconds(2);
+
   digitalWrite(TRIG_PIN, LOW); 
-  delayMicroseconds(5); // Increased to 5us for stable trigger channel initialization
+  delayMicroseconds(5); // Stable trigger channel initialization
   digitalWrite(TRIG_PIN, HIGH); 
   delayMicroseconds(10);
   digitalWrite(TRIG_PIN, LOW);
@@ -221,7 +229,7 @@ void sendSensorData() {
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(API_URL);
-    http.setTimeout(7000); // 7 second timeout (more reliable for Render)
+    http.setTimeout(3000); // 3 second timeout (prevent long loop blocks on Render sleep)
     http.addHeader("Content-Type", "application/json");
     http.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
     
