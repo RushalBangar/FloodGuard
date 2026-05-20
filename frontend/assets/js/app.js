@@ -296,7 +296,7 @@
       if(!ev.detail || !ev.detail.available || !window.LG_DB) return;
       
       // Request Notification Permission
-      if (window.LG_MESSAGING) {
+      if (window.LG_MESSAGING && Notification.permission === 'granted') {
         navigator.serviceWorker.ready.then((registration) => {
           return LG_MESSAGING.getToken({ 
             vapidKey: LG_CONFIG.VAPID_KEY,
